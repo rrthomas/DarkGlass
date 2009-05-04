@@ -1,0 +1,10 @@
+DarkGlass Customization
+###
+
+DarkGlass can be customized in a number of ways:
+
+   * [DarkGlass Configuration] deals with basic configuration.
+   * [DarkGlass Organisation] gives an overview of the files and URLs used by DarkGlass.
+   * [DarkGlass Templates] discusses templates, which are used to generate HTML pages, and can be used as @\$include@ files.
+   * [DarkGlass Macros] can be added or modified.
+   * [DarkGlass Security] discusses how to password-protect content and DarkGlass functions.

@@ -1,0 +1,20 @@
+                              DarkGlass
+                              ---------
+
+                     Reuben Thomas (rrt@sc3d.org)
+
+
+DarkGlass is a simple content management system that exports a
+directory tree to the web. It displays different file types
+appropriately, uses file permissions to determine which files and
+directories should be exported, and has a customizable navigation
+panel and a simple wiki-esque markup language for rapid creation of
+simple web pages.
+
+A future version will support wiki-like editing.
+
+DarkGlass is meant to be simple to use, simple to install and
+maintain, and its code should be easy to understand. It is released
+under the GNU GPL. There is no warranty.
+
+See http://rrt.sc3d.org/Software/DarkGlass for more information.

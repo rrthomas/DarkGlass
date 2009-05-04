@@ -1,0 +1,12 @@
+Why DarkGlass?
+###
+
+_Why is DarkGlass a good thing?_
+
+Most web sites generally suffer either from being hard to publish, because you have to get the content into the right form and copy it on to the web server, or from being hard to recover, in the sense that with blogs and wikis the content is held on the web server, and often there is no useful source form, or easy way to get it.
+
+DarkGlass takes the approach that a personal web site should just be a subset of one's personal files ("My Documents" or "home directory" or whatever). It uses file permissions to control which files are displayed, and which not. It allows a variety of file types (plain text, images, HTML) to be displayed, and others to be downloaded. It comes with a simple wiki-like markup notation, Smut, for writing web pages quickly and naturally: Smut pages are quite legible when viewed as plain text, too.
+
+DarkGlass is flexible, but simple. It has a single HTML template to control the look of the site. The navigation bar by default displays a simplified directory listing, but can be overridden in each directory.
+
+Currently, users cannot edit content, but this will be added too, again using file permissions to decide what can be edited, and with the option of blog-like comments for non-editable content. Thus, DarkGlass will be suitable for a combination of static web site, wiki and blog use.

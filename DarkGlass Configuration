@@ -1,0 +1,11 @@
+DarkGlass Configuration
+###
+
+[DarkGlass] is configured in the @web.pl@ script. The configuration variables are as follows:
+
+   <@BaseUrl@>The base URL of the wiki relative to the web server. It will typically contain a leading slash. It is used to construct relative URLs to make links within the wiki. An absolute URL (excluding the initial @http:@) can be used if desired.
+   <@ScriptUrl@>The URL of the wiki script relative to the web server. The same remarks apply as to @BaseUrl@.
+   <@HomePage@>The name of the home page of the wiki, which is displayed by default (when no page is specified).
+   <@Administrator@>The email address of the web site's administrator.
+
+If you want to have more than one web site, make a copy of @web.pl@ under a different name for each site and configure each copy appropriately.

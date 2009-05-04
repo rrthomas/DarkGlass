@@ -1,0 +1,14 @@
+#! /bin/bash
+# Prepend a file's name to itself as a smut title
+# R.R.T.   26/12/05
+# Usage: entitle FILE...
+
+if [ $# -lt 1 ]; then
+    echo Usage: `basename $0` FILE...
+    exit 1
+fi
+
+for i; do
+    title=`basename "$i"`
+    echo -e "$title\n###\n" | prepend "$i"
+done
