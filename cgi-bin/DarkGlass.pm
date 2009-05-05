@@ -17,6 +17,7 @@ use strict;
 use warnings;
 
 use Perl6::Slurp;
+use List::Util 'min';
 use POSIX 'strftime';
 use File::Basename;
 use File::stat;
@@ -332,7 +333,7 @@ sub summariseDirectory {
   $to = getParam("to") || $from + 9;
   my ($dir, @sorted) = getSortedDir();
   my $text = h1($Macros{pagename}());
-  for (my $i = $from; $i <= $to; $i++) {
+  for (my $i = $from; $i <= min($#sorted, $to); $i++) {
     my $file = decode_utf8($sorted[$i]);
     my $path = untaint(abs_path($dir . $file));
     my $page = $path;
