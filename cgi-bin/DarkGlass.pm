@@ -390,7 +390,7 @@ sub doRequest {
   $page =~ s|^/||;
   # FIXME: Better fix for this (also see url macro)
   $page =~ s/\$/%24/;     # re-escape $ to avoid generating macros
-  my $desttype = unescape(getParam("convert")) || "text/html";
+  my $desttype = getParam("convert") || "text/html";
   $page = "" if !defined($page) || !cleanPath($page);
   my ($text, $altDownload);
   my $file = pageToFile($page);
@@ -425,7 +425,7 @@ sub doRequest {
       # FIXME: Fix for spaces in filename
       $headers->{"-content_disposition"} = "inline; filename=" . fileparse($file, qr/\.[^.]*/) . ".$ext"
         if $ext && $ext ne "";
-      $headers->{"-content_length"} = stat($file)->size;
+      $headers->{"-content_length"} = length($text);
     }
     $headers->{-type} = $desttype;
     $headers->{-charset} = "utf-8"; # FIXME: This looks wrong for binary types
