@@ -1,5 +1,5 @@
 # DarkGlass
-# Make a file hierarchy selectively visible on the web
+# Serve a directory tree as web pages
 # (c) Reuben Thomas <rrt@sc3d.org> 2002-2009
 # http://rrt.sc3d.org/Software/DarkGlass
 # Distributed under the GNU General Public License version 3, or (at
