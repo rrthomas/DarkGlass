@@ -24,7 +24,7 @@ use File::stat;
 use Encode;
 use Cwd qw(abs_path getcwd);
 use CGI::Pretty qw(:standard unescapeHTML);
-use CGI::Carp 'fatalsToBrowser';
+use CGI::Carp qw(fatalsToBrowser);
 use CGI::Util qw(unescape);
 use Image::ExifTool qw(ImageInfo);
 use Audio::File;
@@ -423,12 +423,12 @@ sub doRequest {
     } else {
       my $ext = extensions($desttype);
       # FIXME: Fix for spaces in filename
-      $headers->{"-content-disposition"} = "inline; filename=" . fileparse($file, qr/\.[^.]*/) . ".$ext"
+      $headers->{"-content_disposition"} = "inline; filename=" . fileparse($file, qr/\.[^.]*/) . ".$ext"
         if $ext && $ext ne "";
       $headers->{"-content_length"} = stat($file)->size;
     }
     $headers->{-type} = $desttype;
-    $headers->{-charset} = "utf-8";
+    $headers->{-charset} = "utf-8"; # FIXME: This looks wrong for binary types
     # FIXME: get length of HTML pages too
     $headers->{-expires} = "now";
     print header($headers) . $text;
