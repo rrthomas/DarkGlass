@@ -352,6 +352,8 @@ sub summariseDirectory {
 }
 
 sub makeFeed {
+  open(READER, "-|", "atom.pl", $DocumentRoot, $BaseUrl, $Macros{pagename}());
+  return scalar(slurp '<:raw', \*READER);
 }
 
 sub render {
