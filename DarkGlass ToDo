@@ -3,27 +3,25 @@ DarkGlass ToDo
 
 This list reflects the [http://rrt.sc3d.org/People/Reuben%20Thomas|author]'s priorities. If you'd like to help, or you have any other changes you'd like to see, please $email{contact me}.
 
-   * Need to follow links so that internal relative hyperlinks are resolved relative to the directory in which the linked file is.
+   * Tagging to generalize file hierarchy. Should work with a search engine.
+   * Add atomize.pl into DarkGlass repository.
+   * Make DarkGlass feeds “deep”, i.e. all the way to the bottom of the tree from the current object.
+   * Factor DarkGlass into a front-end to cv and a program that actually serves pages.
+   * Have a scheme for commenting on any web page via twitter or email.
    * Make nancy as make rule.
    * Use UnionFS or similar to allow DarkGlass to write files to the directories from which it's serving, so that we can cache conversions.
    * Add dependency-driven rendering, using some sort of make system that can be run manually, by CGI or by inotifyd.
    * Convert.pm should be a script again that is invoked by make (how do we know if a conversion is possible? Obvious way is to keep the module so we can interrogate the list of conversions, but also have a front end).
    * Add {ogg,id3}info to music tracks in DarkGlass.
-   * Add on-the-fly FLAC->ogg/MP3 encoding (and vice versa), and offer Ogg downloads.
    * Add date and other meta information to pictures.
    * Generalise meta-information? Return a hash for each file from which code can pick out information.
-   * Shortcut to wikification: have "Edit" link that automatically makes a parallel file. Still should only work for world-writable files, though.
-   * Use tex4ht for LaTeX->HTML. Needs make support, as it generates multiple files.
-   * Look into publishing mboxes (hypermail, MHonArc, or by hand).
-   * Add comments by email, spam filtered?
+   * Look into publishing mail folders (hypermail, MHonArc, or by hand).
+   * Add comments by email, spam filtered? Or by Atom publishing?
    * Add "recent changes" back using search.
    * Add site-based search back (search results dependent on authentication level?).
    * Allow any file to be overridden for presentation by a file called <file>.dg (consistent with directory scheme)?
    * Support the @link@ element (should replace the navigation bar).
    * Add table markup (idea: simply use | before each column).
-   * Support more document types.
-   * Add login, and allow logged in users to update pages for which they have write access. Other pages should be submitted as at present.
-   * Use authentication and extra document types to allow editing of the templates and CGI scripts.
    * Use ideas from [http://hypertext.sourceforge.net/silk/userGuide.shtml|Silk], [http://www.usemod.com/cgi-bin/mb.pl?LinkDatabase|LinkDatabase], [http://www.usemod.com/cgi-bin/mb.pl?TouchGraphWikiBrowser|TouchGraph] and [http://sylbi.arbingersys.com/|Sylbi].
    * Make more secure. In particular, ensure that URLs and file paths are always clean, preferably at the datatype level. Look for other potential security problems.
-   * Optionally pass editing back to the client.
+   * Allow editing and file management through the web interface? Or the other way around, plugging into other protocols?
