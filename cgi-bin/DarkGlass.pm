@@ -183,7 +183,7 @@ our $page;
         if ($thumb && $$thumb{ThumbnailImage}) {
           $data = ${$$thumb{ThumbnailImage}};
         } else {
-          system "identify", $file;
+          system "identify -quiet", $file;
           if ($? != -1 && ($? & 0x7f) == 0 && $? >> 8 == 1) {
             my $mimetype = getMimeType($file);
             if ($MIME::Convert::Converters{"$mimetype>image/png"}) {
