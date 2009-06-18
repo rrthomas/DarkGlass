@@ -38,7 +38,7 @@ use MIME::Convert;
 
 
 # Config vars
-use vars qw($ServerUrl $BaseUrl $DocumentRoot $Recent $Administrator %Macros);
+use vars qw($ServerUrl $BaseUrl $DocumentRoot $Recent $Author $Email %Macros);
 
 # Computed globals
 use vars qw($DGSuffix %Index);
@@ -110,9 +110,13 @@ our $page;
       return ": " . $Macros{pagename}();
     },
 
+    author => sub {
+      return $Author;
+    },
+
     email => sub {
       my ($text) = @_;
-      return $Macros{link}("mailto:$Administrator", $text);
+      return $Macros{link}("mailto:$Email", $text);
     },
 
     # FIXME: Use this
@@ -352,7 +356,7 @@ sub summariseDirectory {
 }
 
 sub makeFeed {
-  open(READER, "-|", "atom.pl", $DocumentRoot, $BaseUrl, $Macros{pagename}());
+  open(READER, "-|", "atom.pl", $DocumentRoot, $BaseUrl, $Macros{pagename}(), $Author, $Email);
   return scalar(slurp '<:raw', \*READER);
 }
 

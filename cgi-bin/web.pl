@@ -1,6 +1,6 @@
 #! /usr/bin/perl -T
 # DarkGlass
-# (c) 2002-2008 Reuben Thomas (rrt@sc3d.org, http://rrt.sc3d.org)
+# (c) 2002-2009 Reuben Thomas (rrt@sc3d.org, http://rrt.sc3d.org)
 # Distributed under the GNU General Public License
 
 # FIXME: Remove cgi-bin from PATH
@@ -25,8 +25,9 @@ $DarkGlass::ServerUrl = "http://canta.dyndns.org";
 $DarkGlass::BaseUrl = "/~rrt/";
 # Directory of site in file system
 $DarkGlass::DocumentRoot = "/home/rrt";
-# Address to mail edits to
-$DarkGlass::Administrator = "rrt\@sc3d.org";
+# Site owner's name and email address
+$DarkGlass::Author = "Reuben Thomas";
+$DarkGlass::Email = "rrt\@sc3d.org";
 
 
 # Perform the request
