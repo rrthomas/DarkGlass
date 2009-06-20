@@ -3,8 +3,8 @@ DarkGlass ToDo
 
 This list reflects the [http://rrt.sc3d.org/People/Reuben%20Thomas|author]'s priorities. If you'd like to help, or you have any other changes you'd like to see, please $email{contact me}.
 
+   * Change underlining hierarchy from \#, =, - to =, -, ~.
    * Tagging to generalize file hierarchy. Should work with a search engine.
-   * Add atomize.pl into DarkGlass repository.
    * Make DarkGlass feeds “deep”, i.e. all the way to the bottom of the tree from the current object.
    * Factor DarkGlass into a front-end to cv and a program that actually serves pages.
    * Have a scheme for commenting on any web page via twitter or email.
