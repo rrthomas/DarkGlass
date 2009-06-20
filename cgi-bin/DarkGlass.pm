@@ -16,7 +16,6 @@ use utf8;
 use strict;
 use warnings;
 
-use Perl6::Slurp;
 use List::Util 'min';
 use POSIX 'strftime';
 use File::Basename;
@@ -26,10 +25,12 @@ use Cwd qw(abs_path getcwd);
 use CGI::Pretty qw(:standard unescapeHTML);
 use CGI::Carp qw(fatalsToBrowser);
 use CGI::Util qw(unescape);
+use MIME::Base64;
+
+use Perl6::Slurp;
+use File::MimeInfo qw(extensions);
 use Image::ExifTool qw(ImageInfo);
 use Audio::File;
-use MIME::Base64;
-use File::MimeInfo qw(extensions);
 use Time::Duration;
 
 use RRT::Misc;
