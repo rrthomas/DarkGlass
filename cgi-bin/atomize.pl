@@ -1,4 +1,5 @@
 #! /usr/bin/perl
+# FIXME: -T
 # atomize
 # Turn a directory into an Atom feed
 # (c) Reuben Thomas <rrt@sc3d.org> 2008-2009
@@ -20,7 +21,10 @@ use XML::Atom::Link;
 use XML::Atom::Person;
 
 use RRT::Misc;
+use DarkGlass::Render;
 
+
+ $XML::Atom::DefaultVersion = "1.0";
 
 # Adapted from XML::Atom::App
 sub datetime_as_rfc3339 {
@@ -31,25 +35,25 @@ sub datetime_as_rfc3339 {
 }
 
 # Read arguments
-my ($DocumentRoot, $BaseUrl, $path, $AuthorName, $AuthorEmail) = @ARGV;
+my ($DocumentRoot, $ServerUrl, $BaseUrl, $Path, $AuthorName, $AuthorEmail) = @ARGV;
 
 # Read files
-my @entries = readDir("$DocumentRoot/$path");
+my @entries = readDir("$DocumentRoot/$Path");
 my @times = ();
 foreach my $entry (@entries) {
-  push @times, stat("$DocumentRoot/$path/" . decode_utf8($entry))->mtime;
+  push @times, stat("$DocumentRoot/$Path/" . decode_utf8($entry))->mtime;
 }
 my @sorted = sort {$times[$b] <=> $times[$a]} 0 .. $#times;
 
 # Create feed
 my $feed = XML::Atom::Feed->new;
-$feed->title("$AuthorName: $path");
+$feed->title("$AuthorName: $Path");
 my $author = XML::Atom::Person->new;
 $author->name($AuthorName);
 $author->email($AuthorEmail);
 $author->homepage($BaseUrl);
 $feed->author($author);
-$feed->id("$AuthorName: $path");
+$feed->id("$AuthorName: $Path");
 $feed->updated(datetime_as_rfc3339(DateTime->now));
 
 # Add entries
@@ -58,12 +62,13 @@ for (my $i = 0; $i <= $#sorted; $i++) {
   my $entry = XML::Atom::Entry->new;
   my $title = fileparse($file, qr/\.[^.]*/);
   $entry->title($title);
-  #$entry->id("$AuthorName: $path/$file $date"); FIXME: generate this
+  #$entry->id("$AuthorName: $Path/$file $date"); FIXME: generate this
   my $link = XML::Atom::Link->new;
-  $link->type(getMimeType($file)); # FIXME: give correct type
-  $link->href("$BaseUrl$path/$file");
+  my ($text, $desttype) = DarkGlass::Render::render("$DocumentRoot/$Path/$file", "$Path/$file", getMimeType("$DocumentRoot/$Path/$file"), "text/html", $ServerUrl, $BaseUrl, $DocumentRoot);
+  $entry->content($text);
+  $link->type($desttype);
+  $link->href("$BaseUrl$Path/$file");
   $entry->add_link($link);
-  $entry->content(scalar(slurp '<:crlf:utf8', "$DocumentRoot/$path/$file"));
   $entry->updated(datetime_as_rfc3339(DateTime->from_epoch(epoch => $times[$sorted[$i]])));
   $feed->add_entry($entry);
 }

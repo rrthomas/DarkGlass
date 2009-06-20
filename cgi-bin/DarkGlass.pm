@@ -35,6 +35,7 @@ use Time::Duration;
 use RRT::Misc;
 use RRT::Macro;
 use MIME::Convert;
+use DarkGlass::Render;
 
 
 # Config vars
@@ -49,7 +50,7 @@ $DGSuffix = ".dg";
 
 # Macros
 
-# FIXME: get rid of this nonsense
+# FIXME: get rid of this nonsense (see also DarkGlass::Render)
 sub decode_utf8_opt {
   my ($text) = @_;
   $text = decode_utf8($text) if !utf8::is_utf8($text);
@@ -119,11 +120,11 @@ our $page;
       return $Macros{link}("mailto:$Email", $text);
     },
 
-    # FIXME: Use this
-    lastmodified => sub {
-      my $time = stat(pageToFile($Macros{page}))->mtime or 0;
-      return strftime("%Y/%m/%d", localtime $time);
-    },
+    # FIXME: Use this; need a $file macro to use instead of pageToFile here
+    # lastmodified => sub {
+    #   my $time = stat(pageToFile($Macros{page}))->mtime or 0;
+    #   return strftime("%Y/%m/%d", localtime $time);
+    # },
 
     canonicalpath => sub {
       my ($file) = @_;
@@ -309,15 +310,6 @@ sub getParam {
   return undef;
 }
 
-sub renderSmut {
-  my ($file) = @_;
-  my $script = untaint(abs_path("smut-html.pl"));
-  open(READER, "-|:utf8", $script, $file, $Macros{page}(), $ServerUrl, $BaseUrl, $DocumentRoot);
-  my $text = slurp \*READER;
-  $text = expand($text, \%Macros);
-  return $text;
-}
-
 sub getSortedDir {
   my ($name, $path, $suffix) = fileparse($Macros{page}());
   $path = "" if $path eq "./";
@@ -343,7 +335,7 @@ sub summariseDirectory {
     my $page = $path;
     $page =~ s|^$DocumentRoot||;
     if (-f $path && !$Index{$file}) {
-      my ($entry) = render($path, $page, getMimeType($path), "text/html");
+      my ($entry) = DarkGlass::Render::render($path, $page, getMimeType($path), "text/html", $ServerUrl, $BaseUrl, $DocumentRoot);
       $text .= $entry . hr;
     } elsif (-d $path) {
       $text .= "&nbsp;&nbsp;&nbsp;" . $Macros{link}($Macros{url}($file), "&gt;" . $file) . hr;
@@ -356,34 +348,8 @@ sub summariseDirectory {
 }
 
 sub makeFeed {
-  open(READER, "-|", "atomize.pl", $DocumentRoot, $BaseUrl, $Macros{pagename}(), $Author, $Email);
+  open(READER, "-|", "atomize.pl", $DocumentRoot, $ServerUrl, $BaseUrl, $Macros{pagename}(), $Author, $Email);
   return scalar(slurp '<:raw', \*READER);
-}
-
-sub render {
-  my $file = shift;
-  local $page = shift;
-  my ($srctype, $desttype) = @_;
-  my ($text, $altDownload);
-  if (!($MIME::Convert::Converters{"$srctype>$desttype"})) {
-    # If we wanted HTML but can't have it, try PDF instead
-    $desttype = "application/pdf" if $desttype eq "text/html";
-    $desttype = $srctype unless $MIME::Convert::Converters{"$srctype>$desttype"};
-  }
-  # FIXME: Should give an error if asked by convert parameter for impossible conversion
-  ($text, $altDownload) = MIME::Convert::convert($file, $srctype, $desttype, $page, $BaseUrl);
-  if ($desttype eq "text/html") {
-    $text = decode_utf8_opt($text);
-    # Pull out the body element of the HTML
-    $text =~ m|<body[^>]*>(.*)</body>|gsmi;
-    $text = $1;
-  } #else {
-    # N.B.: we can't embed arbitrary objects. This is the best we can
-    # do. Another problem is that with this, we'd be forced to use
-    # ...?convert URLs for anything we actually wanted to download.
-    #$text = object(-data => "$BaseUrl$file", -width => "100%", -height => "100%");
-  #}
-  return ($text, $desttype, $altDownload);
 }
 
 sub doRequest {
@@ -406,20 +372,19 @@ sub doRequest {
     $page .= "/";
     $file = pageToFile($page);
   }
-  # FIXME: Do this more elegantly
-  $MIME::Convert::Converters{"text/plain>text/html"} = \&renderSmut;
-  $MIME::Convert::Converters{"application/x-directory>text/html"} = \&summariseDirectory;
-  $MIME::Convert::Converters{"application/x-directory>application/atom+xml"} = \&makeFeed;
   # FIXME: Return 404 instead of 403 for directories; need to stop
   # Apache bailing out when it can't read the .htaccess file in the
   # directory.
   if (!-e $file) {
     print header(-status => 404, -charset => "utf-8") . expand(scalar(slurp '<:utf8', untaint(abs_path("notfound.htm"))), \%Macros);
   } else {
-    ($text, $desttype, $altDownload) = render($file, $page, $srctype, $desttype);
+    # FIXME: Do this more elegantly
+    $MIME::Convert::Converters{"application/x-directory>text/html"} = \&summariseDirectory;
+    $MIME::Convert::Converters{"application/x-directory>application/atom+xml"} = \&makeFeed;
+    ($text, $desttype, $altDownload) = DarkGlass::Render::render($file, $page, $srctype, $desttype, $ServerUrl, $BaseUrl, $DocumentRoot);
     # FIXME: This next stanza should be turned into a custom Convert rule
     if ($desttype eq "text/html") {
-      my $body = $text;
+      my $body = expand($text, \%Macros);
       $Macros{file} = sub {addIndex($page)};
       # FIXME: Put text in next line in file; should be generated from convert (which MIME types can we get from this one?)
       $Macros{download} = sub {$altDownload || a({-href => $Macros{url}(basename($Macros{file}()), "convert=text/plain")}, "Download page source")};
