@@ -18,7 +18,9 @@ use CGI::Pretty qw(:standard);
 use CGI::Carp qw(fatalsToBrowser);
 
 use RRT::Misc;
+use RRT::Macro;
 use MIME::Convert;
+use DarkGlass;
 
 # Computed globals
 use vars qw($Page $ServerUrl $BaseUrl $DocumentRoot);
@@ -35,12 +37,15 @@ sub renderSmut {
   my ($file) = @_;
   my $script = untaint(abs_path("smut-html.pl"));
   open(READER, "-|:utf8", $script, $file, $Page, $ServerUrl, $BaseUrl, $DocumentRoot);
-  return scalar(slurp \*READER);
+  my $oldpage = $DarkGlass::page;
+  $DarkGlass::page = $Page;
+  my $text = expand(scalar(slurp \*READER), \%DarkGlass::Macros);
+  $DarkGlass::page = $oldpage;
+  return $text;
 }
 
 sub render {
   my ($file, $page, $srctype, $desttype, $serverurl, $baseurl, $documentroot) = @_;
-  print STDERR "foo: $file\n";
   $Page = $page;
   $ServerUrl = $serverurl;
   $BaseUrl = $baseurl;
@@ -64,3 +69,6 @@ sub render {
   #}
   return ($text, $desttype, $altDownload);
 }
+
+
+1;                              # return a true value

@@ -15,6 +15,7 @@ use Encode;
 use Perl6::Slurp;
 use File::Basename;
 use DateTime;
+use CGI::Util qw(escape);
 use XML::Atom::Feed;
 use XML::Atom::Entry;
 use XML::Atom::Link;
@@ -51,10 +52,11 @@ $feed->title("$AuthorName: $Path");
 my $author = XML::Atom::Person->new;
 $author->name($AuthorName);
 $author->email($AuthorEmail);
-$author->homepage($BaseUrl);
+$author->homepage("$ServerUrl$BaseUrl");
 $feed->author($author);
-$feed->id("$AuthorName: $Path");
+$feed->id("$ServerUrl$BaseUrl$Path"); # FIXME: Escape components of $Path
 $feed->updated(datetime_as_rfc3339(DateTime->now));
+$feed->icon("$ServerUrl${BaseUrl}favicon.ico");
 
 # Add entries
 for (my $i = 0; $i <= $#sorted; $i++) {
@@ -62,12 +64,12 @@ for (my $i = 0; $i <= $#sorted; $i++) {
   my $entry = XML::Atom::Entry->new;
   my $title = fileparse($file, qr/\.[^.]*/);
   $entry->title($title);
-  #$entry->id("$AuthorName: $Path/$file $date"); FIXME: generate this
+  $entry->id("$ServerUrl$BaseUrl$Path/" . escape($file)); # FIXME: Improve this. See http://diveintomark.org/archives/2004/05/28/howto-atom-id; at least escape components of $Path
   my $link = XML::Atom::Link->new;
   my ($text, $desttype) = DarkGlass::Render::render("$DocumentRoot/$Path/$file", "$Path/$file", getMimeType("$DocumentRoot/$Path/$file"), "text/html", $ServerUrl, $BaseUrl, $DocumentRoot);
   $entry->content($text);
   $link->type($desttype);
-  $link->href("$BaseUrl$Path/$file");
+  $link->href("$ServerUrl$BaseUrl$Path/$file");
   $entry->add_link($link);
   $entry->updated(datetime_as_rfc3339(DateTime->from_epoch(epoch => $times[$sorted[$i]])));
   $feed->add_entry($entry);

@@ -385,7 +385,7 @@ sub doRequest {
     ($text, $desttype, $altDownload) = DarkGlass::Render::render($file, $page, $srctype, $desttype, $ServerUrl, $BaseUrl, $DocumentRoot);
     # FIXME: This next stanza should be turned into a custom Convert rule
     if ($desttype eq "text/html") {
-      my $body = expand($text, \%Macros);
+      my $body = $text;
       $Macros{file} = sub {addIndex($page)};
       # FIXME: Put text in next line in file; should be generated from convert (which MIME types can we get from this one?)
       $Macros{download} = sub {$altDownload || a({-href => $Macros{url}(basename($Macros{file}()), "convert=text/plain")}, "Download page source")};
