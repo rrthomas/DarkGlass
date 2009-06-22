@@ -24,9 +24,10 @@ use Encode;
 use Cwd qw(abs_path getcwd);
 use CGI::Pretty qw(:standard unescapeHTML);
 use CGI::Carp qw(fatalsToBrowser);
-use CGI::Util qw(unescape);
+use CGI::Util qw(escape unescape);
 use MIME::Base64;
 
+# FIXME: Move routine-specific uses into them
 use Perl6::Slurp;
 use File::MimeInfo qw(extensions);
 use Image::ExifTool qw(ImageInfo);
@@ -36,7 +37,6 @@ use Time::Duration;
 use RRT::Misc;
 use RRT::Macro;
 use MIME::Convert;
-use DarkGlass::Render;
 
 
 # Config vars
@@ -51,7 +51,7 @@ $DGSuffix = ".dg";
 
 # Macros
 
-# FIXME: get rid of this nonsense (see also DarkGlass::Render)
+# FIXME: get rid of this nonsense
 sub decode_utf8_opt {
   my ($text) = @_;
   $text = decode_utf8($text) if !utf8::is_utf8($text);
@@ -95,6 +95,7 @@ our $page;
       $path = unescapeHTML(normalizePath($path, $Macros{page}()));
       $path =~ s/\?/%3F/g;   # escape ? to avoid generating parameters
       $path =~ s/\$/%24/g;   # escape $ to avoid generating macros
+      $path =~ s/ /%20/g;    # escape space
       $path = $BaseUrl . $path;
       $path .= "?$param" if $param;
       return $path;
@@ -211,7 +212,6 @@ our $page;
       return $text . $alt;
     },
 
-    # FIXME: add smut syntax?
     imagecomment => sub {
       my ($image) = @_;
       my $info = ImageInfo($Macros{canonicalpath}($image), "Comment");
@@ -225,7 +225,6 @@ our $page;
       return $Macros{link}($Macros{url}($file), $format) . " $size";
     },
 
-    # FIXME: add smut syntax?
     pdfpages => sub {
       my ($file) = @_;
       $file = $Macros{canonicalpath}($file);
@@ -261,6 +260,7 @@ our $page;
       return $Macros{link}($Macros{url}($file), $format) . " ($length, $size)";
     },
 
+    # FIXME: This should be a customization
     twitterstatus => sub {
       return "<!-- Twitter -->\n" .
         "<hr><span id=\"twitter_update_list\"></span>" .
@@ -268,7 +268,6 @@ our $page;
             "<hr>\n" .
               "<!-- End Twitter -->";
       },
-
       twittersupport => sub {
         return "<!-- Twitter scripts; here so if Twitter breaks the rest of the page still loads -->" .
           "<script type=\"text/javascript\" src=\"http://twitter.com/javascripts/blogger.js\"></script>" .
@@ -311,34 +310,57 @@ sub getParam {
   return undef;
 }
 
-sub getSortedDir {
+sub renderDir {
   my ($name, $path, $suffix) = fileparse($Macros{page}());
   $path = "" if $path eq "./";
   my $dir = "$DocumentRoot/$path";
   my @entries = readDir($dir);
   return "" if !@entries;
   my @times = ();
+  my @pages = ();
+  my @files = ();
+  my @paths = ();
+  my @pagenames = ();
   foreach my $entry (@entries) {
     push @times, stat($dir . decode_utf8($entry))->mtime;
+    my $file = decode_utf8($entry);
+    push @files, $file;
+    my $path = untaint(abs_path("$dir$file"));
+    push @paths, $path;
+    my $page = $path;
+    $page =~ s|^$DocumentRoot||;
+    push @pagenames, $page;
+    if (-f $path) {
+      my ($text) = render($path, $page, getMimeType($path), "text/html");
+      push @pages, $text;
+    } else{
+      push @pages, "($file)";
+    }
   }
-  return $dir, @entries[sort {$times[$b] <=> $times[$a]} 0 .. $#times];
+  my @order = sort {$times[$b] <=> $times[$a]} 0 .. $#times;
+  return $dir, \@order, \@files, \@pagenames, \@times, \@pages, \@paths;
 }
 
+sub renderSmut {
+  my ($file) = @_;
+  my $script = untaint(abs_path("smut-html.pl"));
+  open(READER, "-|:utf8", $script, $file, $page, $BaseUrl, $DocumentRoot);
+  return expand(scalar(slurp \*READER), \%DarkGlass::Macros);
+}
+
+# FIXME: Only render required pages, or cache them
 sub summariseDirectory {
   my ($from, $to);
   $from = getParam("from") || 0;
   $to = getParam("to") || $from + 9;
-  my ($dir, @sorted) = getSortedDir();
+  my ($dir, $order, $files, $pagenames, $times, $pages, $paths) = renderDir();
   my $text = h1($Macros{pagename}());
-  for (my $i = $from; $i <= min($#sorted, $to); $i++) {
-    my $file = decode_utf8($sorted[$i]);
-    my $path = untaint(abs_path($dir . $file));
-    my $page = $path;
-    $page =~ s|^$DocumentRoot||;
-    if (-f $path && !$Index{$file}) {
-      my ($entry) = DarkGlass::Render::render($path, $page, getMimeType($path), "text/html", $ServerUrl, $BaseUrl, $DocumentRoot);
-      $text .= $entry . hr;
+  for (my $i = $from; $i <= min($#{$order}, $to); $i++) {
+    my $path = @{$paths}[@{$order}[$i]];
+    if (-f $path) {
+      $text .= @{$pages}[@{$order}[$i]] . hr;
     } elsif (-d $path) {
+      my $file = @{$files}[@{$order}[$i]];
       $text .= "&nbsp;&nbsp;&nbsp;" . $Macros{link}($Macros{url}($file), "&gt;" . $file) . hr;
     }
   }
@@ -348,9 +370,82 @@ sub summariseDirectory {
   return html(body($text));
 }
 
+# Adapted from XML::Atom::App
+sub datetime_as_rfc3339 {
+  use DateTime;
+  my ($dt) = @_;
+  $dt = DateTime->new(@{$dt}) if ref $dt eq 'ARRAY';
+  my $offset = $dt->offset != 0 ? '%z' : 'Z';
+  return $dt->strftime('%FT%T$offset');
+}
+
 sub makeFeed {
-  open(READER, "-|", "atomize.pl", $DocumentRoot, $ServerUrl, $BaseUrl, $Macros{pagename}(), $Author, $Email);
-  return scalar(slurp '<:raw', \*READER);
+  my ($path, $order, $files, $pagenames, $times, $pages, $paths) = renderDir();
+
+  use XML::Atom::Feed;
+  use XML::Atom::Entry;
+  use XML::Atom::Link;
+  use XML::Atom::Person;
+  $XML::Atom::DefaultVersion = "1.0";
+
+  # Create feed
+  my $feed = XML::Atom::Feed->new;
+  $feed->title("$Author: $path");
+  my $author = XML::Atom::Person->new;
+  $author->name($Author);
+  $author->email($Email);
+  $author->homepage($ServerUrl . $Macros{url}(""));
+  $feed->author($author);
+  $feed->id($ServerUrl . $Macros{url}($path));
+  $feed->updated(datetime_as_rfc3339(DateTime->now));
+  $feed->icon("$ServerUrl${BaseUrl}favicon.ico");
+
+  # Add entries
+  for (my $i = 0; $i <= $#{$order}; $i++) {
+    my $file = @{$files}[@{$order}[$i]];
+    my $entry = XML::Atom::Entry->new;
+    my $title = fileparse($file, qr/\.[^.]*/);
+    my $path = @{$paths}[@{$order}[$i]];
+    $entry->title($title);
+    my $url = $ServerUrl . $Macros{url}($path);
+    $entry->id($url); # FIXME: Improve this. See http://diveintomark.org/archives/2004/05/28/howto-atom-id
+    my $link = XML::Atom::Link->new;
+    my ($text) = @{$pages}[@{$order}[$i]];
+    $entry->content($text);
+    $link->type("text/html");
+    $link->href($url);
+    $entry->add_link($link);
+    $entry->updated(datetime_as_rfc3339(DateTime->from_epoch(epoch => @{$times}[@{$order}[$i]])));
+    $feed->add_entry($entry);
+  }
+
+  return $feed->as_xml;
+}
+
+sub render {
+  local $page;
+  my ($file, $srctype, $desttype);
+  ($file, $page, $srctype, $desttype) = @_;
+  my ($text, $altDownload);
+  # FIXME: Do this more elegantly
+  $MIME::Convert::Converters{"text/plain>text/html"} = \&renderSmut;
+  $MIME::Convert::Converters{"application/x-directory>text/html"} = \&summariseDirectory;
+  $MIME::Convert::Converters{"application/x-directory>application/atom+xml"} = \&makeFeed;
+  $desttype = $srctype unless $MIME::Convert::Converters{"$srctype>$desttype"};
+  # FIXME: Should give an error if asked by convert parameter for impossible conversion
+  ($text, $altDownload) = MIME::Convert::convert($file, $srctype, $desttype, $page, $BaseUrl);
+  if ($desttype eq "text/html") {
+    $text = decode_utf8_opt($text);
+    # Pull out the body element of the HTML
+    $text =~ m|<body[^>]*>(.*)</body>|gsmi;
+    $text = $1;
+  } #else {
+    # N.B.: we can't embed arbitrary objects. This is the best we can
+    # do. Another problem is that with this, we'd be forced to use
+    # ...?convert URLs for anything we actually wanted to download.
+    #$text = object(-data => "$BaseUrl$file", -width => "100%", -height => "100%");
+  #}
+  return ($text, $desttype, $altDownload);
 }
 
 sub doRequest {
@@ -379,10 +474,7 @@ sub doRequest {
   if (!-e $file) {
     print header(-status => 404, -charset => "utf-8") . expand(scalar(slurp '<:utf8', untaint(abs_path("notfound.htm"))), \%Macros);
   } else {
-    # FIXME: Do this more elegantly
-    $MIME::Convert::Converters{"application/x-directory>text/html"} = \&summariseDirectory;
-    $MIME::Convert::Converters{"application/x-directory>application/atom+xml"} = \&makeFeed;
-    ($text, $desttype, $altDownload) = DarkGlass::Render::render($file, $page, $srctype, $desttype, $ServerUrl, $BaseUrl, $DocumentRoot);
+    ($text, $desttype, $altDownload) = render($file, $page, $srctype, $desttype);
     # FIXME: This next stanza should be turned into a custom Convert rule
     if ($desttype eq "text/html") {
       my $body = $text;
