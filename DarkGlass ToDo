@@ -4,10 +4,10 @@ DarkGlass ToDo
 This list reflects the [http://rrt.sc3d.org/People/Reuben%20Thomas|author]'s priorities. If you'd like to help, or you have any other changes you'd like to see, please $email{contact me}.
 
    * Change underlining hierarchy from \#, =, - to =, -, ~.
-   * Tagging to generalize file hierarchy. Should work with a search engine.
+   * Tagging to generalize file hierarchy. Should work with a search engine. Start by tagging log entries.
    * Make DarkGlass feeds “deep”, i.e. all the way to the bottom of the tree from the current object.
    * Factor DarkGlass into a front-end to cv and a program that actually serves pages.
-   * Have a scheme for commenting on any web page via twitter or email.
+   * Have a scheme for commenting on any page via twitter or email (spam filtered). And by Atom publishing?
    * Make nancy as make rule.
    * Use UnionFS or similar to allow DarkGlass to write files to the directories from which it's serving, so that we can cache conversions.
    * Add dependency-driven rendering, using some sort of make system that can be run manually, by CGI or by inotifyd.
@@ -16,7 +16,6 @@ This list reflects the [http://rrt.sc3d.org/People/Reuben%20Thomas|author]'s pri
    * Add date and other meta information to pictures.
    * Generalise meta-information? Return a hash for each file from which code can pick out information.
    * Look into publishing mail folders (hypermail, MHonArc, or by hand).
-   * Add comments by email, spam filtered? Or by Atom publishing?
    * Add "recent changes" back using search.
    * Add site-based search back (search results dependent on authentication level?).
    * Allow any file to be overridden for presentation by a file called <file>.dg (consistent with directory scheme)?
