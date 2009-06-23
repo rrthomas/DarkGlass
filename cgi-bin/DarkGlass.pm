@@ -390,13 +390,13 @@ sub makeFeed {
 
   # Create feed
   my $feed = XML::Atom::Feed->new;
-  $feed->title("$Author: $path");
+  $feed->title("$Author: " . $Macros{pagename}());
   my $author = XML::Atom::Person->new;
   $author->name($Author);
   $author->email($Email);
-  $author->homepage($ServerUrl . $Macros{url}(""));
+  $author->homepage($ServerUrl . $Macros{url}("/"));
   $feed->author($author);
-  $feed->id($ServerUrl . $Macros{url}($path));
+  $feed->id($ServerUrl . $Macros{url}("")); # URL of current page
   $feed->updated(datetime_as_rfc3339(DateTime->now));
   $feed->icon("$ServerUrl${BaseUrl}favicon.ico");
 
@@ -405,9 +405,9 @@ sub makeFeed {
     my $file = @{$files}[@{$order}[$i]];
     my $entry = XML::Atom::Entry->new;
     my $title = fileparse($file, qr/\.[^.]*/);
-    my $path = @{$paths}[@{$order}[$i]];
+    my $pagename = @{$pagenames}[@{$order}[$i]];
     $entry->title($title);
-    my $url = $ServerUrl . $Macros{url}($path);
+    my $url = $ServerUrl . $Macros{url}($pagename);
     $entry->id($url); # FIXME: Improve this. See http://diveintomark.org/archives/2004/05/28/howto-atom-id
     my $link = XML::Atom::Link->new;
     my ($text) = @{$pages}[@{$order}[$i]];
