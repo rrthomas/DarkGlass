@@ -3,9 +3,10 @@ DarkGlass ToDo
 
 This list reflects the [http://rrt.sc3d.org/People/Reuben%20Thomas|author]'s priorities. If you'd like to help, or you have any other changes you'd like to see, please $email{contact me}.
 
+   * Fix templating so Island isn’t a special case
    * Change underlining hierarchy from \#, =, - to =, -, ~.
    * Tagging to generalize file hierarchy. Should work with a search engine. Start by tagging log entries.
-   * Make DarkGlass feeds “deep”, i.e. all the way to the bottom of the tree from the current object.
+   * Make DarkGlass feeds “deep”, i.e. all the way to the bottom of the tree from the current object, and tag-based (see tags).
    * Factor DarkGlass into a front-end to cv and a program that actually serves pages.
    * Have a scheme for commenting on any page via twitter or email (spam filtered). And by Atom publishing?
    * Make nancy as make rule.
