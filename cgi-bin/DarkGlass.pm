@@ -7,6 +7,7 @@
 
 # Non-core dependencies (all in Debian/Ubuntu):
 # Perl6::Slurp, File::MimeInfo, Image::ExifTool, Audio::File, Time::Duration
+# XML::LibXSLT
 # imagemagick | graphicsmagick-imagemagick-compat
 
 require 5.8.7;
@@ -176,8 +177,9 @@ our $page;
     image => sub {
       my ($image, $alt, $width, $height) = @_;
       my (%attr, $text);
+      $alt ||= "";
       $attr{-src} = $Macros{url}($image);
-      $attr{-alt} ||= "";
+      $attr{-alt} = $alt;
       $attr{-width} = $width if $width;
       $attr{-height} = $height if $height;
       # FIXME: Always set height and width
@@ -262,17 +264,12 @@ our $page;
 
     # FIXME: This should be a customization
     twitterstatus => sub {
-      return "<!-- Twitter -->\n" .
-        "<hr><span id=\"twitter_update_list\"></span>" .
-          "<a href=\"http://twitter.com/sc3d\" id=\"twitter-link\" style=\"display:block;text-align:right;font-size:x-small;\">follow me on Twitter</a>" .
-            "<hr>\n" .
-              "<!-- End Twitter -->";
+      return hr . span({-id => "twitter_update_list"}, "") . a({-href => "http://twitter.com/sc3d", -id => "twitter-link", -style => "display:block;text-align:right;font-size:x-small;"}, "follow me on Twitter") . hr;
       },
       twittersupport => sub {
         return "<!-- Twitter scripts; here so if Twitter breaks the rest of the page still loads -->" .
-          "<script type=\"text/javascript\" src=\"http://twitter.com/javascripts/blogger.js\"></script>" .
-            "<script type=\"text/javascript\" src=\"http://twitter.com/statuses/user_timeline/sc3d.json?callback=twitterCallback2&amp;count=1\"></script>" .
-              "<!-- End Twitter scripts -->";
+          script({-type => "text/javascript", -src => "http://twitter.com/javascripts/blogger.js"}, "") .
+            script({-type => "text/javascript", -src => "http://twitter.com/statuses/user_timeline/sc3d.json?callback=twitterCallback2&count=1"}, "");
         },
    );
 
@@ -348,6 +345,59 @@ sub renderSmut {
   return expand(scalar(slurp \*READER), \%DarkGlass::Macros);
 }
 
+# Demote HTML headings by one level
+sub demote {
+  my ($text) = @_;
+  use XML::LibXSLT;
+  use XML::LibXML;
+  my $parser = XML::LibXML->new();
+  my $xslt = XML::LibXSLT->new();
+  print STDERR "foo:\n$text\n";
+  my $html = $parser->parse_string($text);
+  print STDERR "bar\n";
+  my $style_doc = $parser->parse_string(<<'EOT');
+<?xml version="1.0" encoding="utf-8"?>
+<xsl:stylesheet version="1.0"
+    xmlns:xhtml="http://www.w3.org/1999/xhtml"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    exclude-result-prefixes="xhtml">
+
+  <xsl:output method="xml" indent="yes" encoding="utf-8"/>
+
+  <xsl:template match="@*|node()">
+    <xsl:copy>
+      <xsl:apply-templates select="@*|node()"/>
+    </xsl:copy>
+  </xsl:template>
+
+  <xsl:template match="xhtml:h1">
+    <h2><xsl:apply-templates/></h2>
+  </xsl:template>
+
+  <xsl:template match="xhtml:h2">
+    <h3><xsl:apply-templates/></h3>
+  </xsl:template>
+
+  <xsl:template match="xhtml:h3">
+    <h4><xsl:apply-templates/></h4>
+  </xsl:template>
+
+  <xsl:template match="xhtml:h4">
+    <h5><xsl:apply-templates/></h5>
+  </xsl:template>
+
+  <xsl:template match="xhtml:h5">
+    <h6><xsl:apply-templates/></h6>
+  </xsl:template>
+
+</xsl:stylesheet>
+EOT
+  my $stylesheet = $xslt->parse_stylesheet($style_doc);
+  my $res = $stylesheet->transform($html);
+  return $stylesheet->output_string($res);
+}
+
 # FIXME: Only render required pages, or cache them
 sub summariseDirectory {
   my ($from, $to);
@@ -358,7 +408,7 @@ sub summariseDirectory {
   for (my $i = $from; $i <= min($#{$order}, $to); $i++) {
     my $path = @{$paths}[@{$order}[$i]];
     if (-f $path) {
-      $text .= @{$pages}[@{$order}[$i]] . hr;
+      $text .= getBody(demote(@{$pages}[@{$order}[$i]])) . hr;
     } elsif (-d $path) {
       my $file = @{$files}[@{$order}[$i]];
       $text .= "&nbsp;&nbsp;&nbsp;" . $Macros{link}($Macros{url}($file), "&gt;" . $file) . hr;
@@ -422,6 +472,14 @@ sub makeFeed {
   return $feed->as_xml;
 }
 
+sub getBody {
+  my ($text) = @_;
+  $text = decode_utf8_opt($text);
+  # Pull out the body element of the HTML
+  $text =~ m|<body[^>]*>(.*)</body>|gsmi;
+  return $1;
+ }
+
 sub render {
   local $page;
   my ($file, $srctype, $desttype);
@@ -434,17 +492,10 @@ sub render {
   $desttype = $srctype unless $MIME::Convert::Converters{"$srctype>$desttype"};
   # FIXME: Should give an error if asked by convert parameter for impossible conversion
   ($text, $altDownload) = MIME::Convert::convert($file, $srctype, $desttype, $page, $BaseUrl);
-  if ($desttype eq "text/html") {
-    $text = decode_utf8_opt($text);
-    # Pull out the body element of the HTML
-    $text =~ m|<body[^>]*>(.*)</body>|gsmi;
-    $text = $1;
-  } #else {
-    # N.B.: we can't embed arbitrary objects. This is the best we can
-    # do. Another problem is that with this, we'd be forced to use
-    # ...?convert URLs for anything we actually wanted to download.
-    #$text = object(-data => "$BaseUrl$file", -width => "100%", -height => "100%");
-  #}
+  # N.B.: we can't embed arbitrary objects. This is the best we can
+  # do. Another problem is that with this, we'd be forced to use
+  # ...?convert URLs for anything we actually wanted to download.
+  #$text = object(-data => "$BaseUrl$file", -width => "100%", -height => "100%");
   return ($text, $desttype, $altDownload);
 }
 
@@ -477,7 +528,7 @@ sub doRequest {
     ($text, $desttype, $altDownload) = render($file, $page, $srctype, $desttype);
     # FIXME: This next stanza should be turned into a custom Convert rule
     if ($desttype eq "text/html") {
-      my $body = $text;
+      my $body = getBody($text);
       $Macros{file} = sub {addIndex($page)};
       # FIXME: Put text in next line in file; should be generated from convert (which MIME types can we get from this one?)
       $Macros{download} = sub {$altDownload || a({-href => $Macros{url}(basename($Macros{file}()), "convert=text/plain")}, "Download page source")};
