@@ -6,8 +6,8 @@
 # your option) any later version.
 
 # Non-core dependencies (all in Debian/Ubuntu):
-# Perl6::Slurp, File::MimeInfo, Image::ExifTool, Audio::File, Time::Duration
-# XML::LibXSLT
+# Perl6::Slurp, File::Slurp, File::MimeInfo, Image::ExifTool,
+# Audio::File, Time::Duration, DateTime, XML::LibXSLT, XML::Atom
 # imagemagick | graphicsmagick-imagemagick-compat
 
 require 5.8.7;
@@ -21,6 +21,7 @@ use List::Util 'min';
 use POSIX 'strftime';
 use File::Basename;
 use File::stat;
+use File::Temp qw(tempdir);
 use Encode;
 use Cwd qw(abs_path getcwd);
 use CGI::Pretty qw(:standard unescapeHTML);
@@ -30,6 +31,7 @@ use MIME::Base64;
 
 # FIXME: Move routine-specific uses into them
 use Perl6::Slurp;
+use File::Slurp; # for write_file
 use File::MimeInfo qw(extensions);
 use Image::ExifTool qw(ImageInfo);
 use Audio::File;
@@ -192,17 +194,18 @@ our $page;
         if ($thumb && $$thumb{ThumbnailImage}) {
           $data = ${$$thumb{ThumbnailImage}};
         } else {
-          system "identify -quiet", $file;
+          system "identify", "-quiet", $file;
           if ($? != -1 && ($? & 0x7f) == 0 && $? >> 8 == 1) {
             my $mimetype = getMimeType($file);
-            if ($MIME::Convert::Converters{"$mimetype>image/png"}) {
-              my $img = MIME::Convert::convert($file, $mimetype, "image/png");
-              $data = pipe2("convert", $img, "", "", "png:-", "-size", "160x160", "-resize", "160x160", "jpeg:-");
+            if ($MIME::Convert::Converters{"$mimetype>image/jpeg"}) {
+              $data = MIME::Convert::convert($file, $mimetype, "image/jpeg");
             }
-          } else {
-            open(READER, "-|", "convert", $file, "-size", "160x160", "-resize", "160x160", "jpeg:-");
-            $data = scalar(slurp '<:raw', \*READER);
+            my $tempdir = tempdir(CLEANUP => 1);
+            $file = "$tempdir/tmp.jpg";
+            write_file($file, {binmode => 'raw'}, $data);
           }
+          open(READER, "-|", "convert", $file, "-size", "160x160", "-resize", "160x160", "jpeg:-");
+          $data = scalar(slurp '<:raw', \*READER);
         }
         if ($data) {
           # N.B. EXIF thumbnails are always JPEGs
@@ -318,12 +321,11 @@ sub renderDir {
   my @files = ();
   my @paths = ();
   my @pagenames = ();
-  foreach my $entry (@entries) {
-    push @times, stat($dir . decode_utf8($entry))->mtime;
-    my $file = decode_utf8($entry);
+  foreach my $file (@entries) {
     push @files, $file;
-    my $path = untaint(abs_path("$dir$file"));
+    my $path = untaint(abs_path($dir . decode_utf8($file)));
     push @paths, $path;
+    push @times, stat($path)->mtime;
     my $page = $path;
     $page =~ s|^$DocumentRoot||;
     push @pagenames, $page;
@@ -352,9 +354,7 @@ sub demote {
   use XML::LibXML;
   my $parser = XML::LibXML->new();
   my $xslt = XML::LibXSLT->new();
-  print STDERR "foo:\n$text\n";
   my $html = $parser->parse_string($text);
-  print STDERR "bar\n";
   my $style_doc = $parser->parse_string(<<'EOT');
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0"
@@ -408,7 +408,9 @@ sub summariseDirectory {
   for (my $i = $from; $i <= min($#{$order}, $to); $i++) {
     my $path = @{$paths}[@{$order}[$i]];
     if (-f $path) {
-      $text .= getBody(demote(@{$pages}[@{$order}[$i]])) . hr;
+      # FIXME: Get demote working again
+      #$text .= getBody(demote(@{$pages}[@{$order}[$i]])) . hr;
+      $text .= getBody(@{$pages}[@{$order}[$i]]) . hr;
     } elsif (-d $path) {
       my $file = @{$files}[@{$order}[$i]];
       $text .= "&nbsp;&nbsp;&nbsp;" . $Macros{link}($Macros{url}($file), "&gt;" . $file) . hr;
@@ -416,6 +418,7 @@ sub summariseDirectory {
   }
   # FIXME: Want some way of measuring length to divide up page: keep
   # going until a certain number of bytes has been exceeded?
+  # FIXME: Don't add this if there aren't any more!
   $text .= $Macros{link}($Macros{url}() . "?from=" . ($to + 1), "Older entries");
   return html(body($text));
 }
