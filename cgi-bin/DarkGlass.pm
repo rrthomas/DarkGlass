@@ -194,18 +194,21 @@ our $page;
         if ($thumb && $$thumb{ThumbnailImage}) {
           $data = ${$$thumb{ThumbnailImage}};
         } else {
-          system "identify", "-quiet", $file;
-          if ($? != -1 && ($? & 0x7f) == 0 && $? >> 8 == 1) {
-            my $mimetype = getMimeType($file);
-            if ($MIME::Convert::Converters{"$mimetype>image/jpeg"}) {
-              $data = MIME::Convert::convert($file, $mimetype, "image/jpeg");
+          open(READER, "-|", "identify", "-quiet", $file);
+          close READER;
+          if ($? != -1) {
+            if (($? & 0x7f) == 0 && $? >> 8 == 1) {
+              my $mimetype = getMimeType($file);
+              if ($MIME::Convert::Converters{"$mimetype>image/jpeg"}) {
+                $data = MIME::Convert::convert($file, $mimetype, "image/jpeg");
+                my $tempdir = tempdir(CLEANUP => 1);
+                $file = "$tempdir/tmp.jpg";
+                write_file($file, {binmode => 'raw'}, $data);
+              }
             }
-            my $tempdir = tempdir(CLEANUP => 1);
-            $file = "$tempdir/tmp.jpg";
-            write_file($file, {binmode => 'raw'}, $data);
+            open(READER, "-|", "convert", "-quiet", $file, "-size", "160x160", "-resize", "160x160", "jpeg:-");
+            $data = scalar(slurp '<:raw', \*READER);
           }
-          open(READER, "-|", "convert", $file, "-size", "160x160", "-resize", "160x160", "jpeg:-");
-          $data = scalar(slurp '<:raw', \*READER);
         }
         if ($data) {
           # N.B. EXIF thumbnails are always JPEGs
