@@ -40,6 +40,12 @@ body
 /* Twitter status */
 #twitter_update_list {list-style-type:none;}
     </style>
+    <!-- <script type="text/javascript" src="$url{/public_html/audio-player.js}"></script> -->
+    <!-- <script type="text/javascript"> -->
+    <!--   AudioPlayer.setup("$url{/public_html/player.swf}", { -->
+    <!--   width: 200 -->
+    <!--   }); -->
+    <!-- </script> -->
   </head>
 
   <body>
@@ -47,23 +53,26 @@ body
       $directory
       <p>$download</p>
       <!-- SiteSearch Google -->
-      <form method="get" action="http://www.google.com/search">
+      <!-- <form method="get" action="http://www.google.com/search">
       <p>
       <input type="hidden" name="ie" value="UTF-8" />
       <input type="hidden" name="oe" value="UTF-8" />
-      <input type="text" name="q" size="15" maxlength="255" value="" />
+      <input type="text" name="q" maxlength="255" value="" />
       <input type="submit" name="btnG" value="Search site" />
       <input type="hidden" name="domains" value="$serverurl" />
       <input type="hidden" name="sitesearch" value="$serverurl" />
       <a href="http://www.google.com/"><img src="$url{/notmine/google.gif}" alt="Google" /></a>
       </p>
-      </form>
+      </form> -->
       <!-- End SiteSearch Google -->
       <p>
       <!-- <a href="$url{/Recent Changes}">Recent changes</a><br /> -->
-      <a href="$url{/Licence}">&copy; $author</a><br />
-      $email{Email me}
+      <a href="$url{/Licence}">&copy;</a> $email{Reuben Thomas}
       </p>
+      <!-- <p id="audioplayer_1">Wot no music.</p>   -->
+      <!-- <script type="text/javascript">   -->
+      <!--   AudioPlayer.embed("audioplayer_1", {soundFile: "$url{/Music/Recordings/cumjubilo.mp3}"});   -->
+      <!-- </script> -->
     </div>
 
     <div id="content">
