@@ -1,6 +1,6 @@
 # DarkGlass
 # Serve a directory tree as web pages
-# (c) Reuben Thomas <rrt@sc3d.org> 2002-2009
+# (c) Reuben Thomas <rrt@sc3d.org> 2002-2010
 # http://rrt.sc3d.org/Software/DarkGlass
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
@@ -153,7 +153,7 @@ our $page;
       return numberToSI(-s $Macros{canonicalpath}($file) || 0) . "b";
     },
 
-    directory => sub {
+    menudirectory => sub {
       my ($name, $path, $suffix) = fileparse($Macros{page}());
       $path = "" if $path eq "./";
       my $dir = "$DocumentRoot/$path";
@@ -174,8 +174,7 @@ our $page;
       return $tree . makeDirectory($dir, sub {-d shift && -r _});
     },
 
-    # FIXME: Call this directory and call directory something like menudirectory
-    directorytwo => sub {
+    directory => sub {
       my ($name, $path, $suffix) = fileparse($Macros{page}());
       $path = "" if $path eq "./";
       my $dir = "$DocumentRoot/$path";
@@ -411,6 +410,10 @@ EOT
   return $stylesheet->output_string($res);
 }
 
+sub listDirectory {
+  return html($Macros{directory}());
+}
+
 # FIXME: Only render required pages, or cache them
 sub summariseDirectory {
   my ($from, $to);
@@ -503,7 +506,7 @@ sub render {
   my ($text, $altDownload);
   # FIXME: Do this more elegantly
   $MIME::Convert::Converters{"text/plain>text/html"} = \&renderSmut;
-  $MIME::Convert::Converters{"application/x-directory>text/html"} = \&summariseDirectory;
+  $MIME::Convert::Converters{"application/x-directory>text/html"} = \&listDirectory;
   $MIME::Convert::Converters{"application/x-directory>application/atom+xml"} = \&makeFeed;
   $desttype = $srctype unless $MIME::Convert::Converters{"$srctype>$desttype"};
   # FIXME: Should give an error if asked by convert parameter for impossible conversion
