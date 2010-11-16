@@ -550,7 +550,7 @@ sub doRequest {
       my $body = getBody($text);
       $Macros{file} = sub {addIndex($page)};
       # FIXME: Put text in next line in file; should be generated from convert (which MIME types can we get from this one?)
-      $Macros{download} = sub {$altDownload || a({-href => $Macros{url}(basename($Macros{file}()), "convert=text/plain")}, "Download page source")};
+      $Macros{download} = sub {$altDownload || a({-href => $Macros{url}(-f $file ? basename($Macros{file}()) : "", "convert=text/plain")}, "Download page source")};
       $text = expand(scalar(slurp '<:utf8', untaint(abs_path("view.htm"))), \%Macros);
       $text =~ s/\$text/$body/ge; # Avoid expanding macros in body
       $text = encode_utf8($text); # Re-encode for output
