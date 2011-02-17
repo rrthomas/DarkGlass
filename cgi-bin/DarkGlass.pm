@@ -24,7 +24,7 @@ use File::stat;
 use File::Temp qw(tempdir);
 use Encode;
 use Cwd qw(abs_path getcwd);
-use CGI::Pretty qw(:standard unescapeHTML);
+use CGI::Pretty 3.46 qw(:standard unescapeHTML);
 use CGI::Carp qw(fatalsToBrowser);
 use CGI::Util qw(escape unescape);
 use MIME::Base64;
