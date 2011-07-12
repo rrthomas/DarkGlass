@@ -49,7 +49,7 @@ use vars qw($ServerUrl $BaseUrl $DocumentRoot $Recent $Author $Email %Macros);
 use vars qw($DGSuffix %Index);
 
 $DGSuffix = ".dg";
-%Index = ("README$DGSuffix" => 1, "README" => 1);
+%Index = ("README$DGSuffix" => 1, "README" => 1, "index.html" => 1);
 
 
 # Macros
@@ -506,8 +506,12 @@ sub render {
   my ($text, $altDownload);
   # FIXME: Do this more elegantly
   $MIME::Convert::Converters{"text/plain>text/html"} = \&renderSmut;
+  $MIME::Convert::Converters{"text/x-readme>text/html"} = \&renderSmut;
+  # FIXME: Remove next two lines once file updated
   $MIME::Convert::Converters{"application/x-directory>text/html"} = \&listDirectory;
   $MIME::Convert::Converters{"application/x-directory>application/atom+xml"} = \&makeFeed;
+  $MIME::Convert::Converters{"inode/directory>text/html"} = \&listDirectory;
+  $MIME::Convert::Converters{"inode/directory>application/atom+xml"} = \&makeFeed;
   $desttype = $srctype unless $MIME::Convert::Converters{"$srctype>$desttype"};
   # FIXME: Should give an error if asked by convert parameter for impossible conversion
   ($text, $altDownload) = MIME::Convert::convert($file, $srctype, $desttype, $page, $BaseUrl);
@@ -545,8 +549,12 @@ sub doRequest {
     print header(-status => 404, -charset => "utf-8") . expand(scalar(slurp '<:utf8', untaint(abs_path("notfound.htm"))), \%Macros);
   } else {
     ($text, $desttype, $altDownload) = render($file, $page, $srctype, $desttype);
+    # FIXME: Following stanza made redundant by Nancy
+    if (basename($file) eq "index.html") {
+      $text = slurp $file;
+    }
     # FIXME: This next stanza should be turned into a custom Convert rule
-    if ($desttype eq "text/html") {
+    elsif ($desttype eq "text/html") {
       my $body = getBody($text);
       $Macros{file} = sub {addIndex($page)};
       # FIXME: Put text in next line in file; should be generated from convert (which MIME types can we get from this one?)
