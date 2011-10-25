@@ -83,6 +83,38 @@ sub makeDirectory {
   return $dirs . $files;
 }
 
+sub getThumbnail {
+  my ($file, $width, $height) = @_;
+  my $thumb = ImageInfo($file, "ThumbnailImage");
+  my $data;
+  if ($thumb && $$thumb{ThumbnailImage}) {
+    $data = ${$$thumb{ThumbnailImage}};
+    my $thumbInfo = ImageInfo($$thumb{ThumbnailImage});
+    $width ||= $thumbInfo->{ImageWidth};
+    $height ||= $thumbInfo->{ImageHeight};
+  } else {
+    # FIXME: Use libgraphics-magick-perl
+    open(READER, "-|", "identify", "-quiet", $file);
+    close READER;
+    if ($? != -1) {
+      if (($? & 0x7f) == 0 && $? >> 8 == 1) {
+        my $mimetype = getMimeType($file);
+        if ($MIME::Convert::Converters{"$mimetype>image/jpeg"}) {
+          $data = MIME::Convert::convert($file, $mimetype, "image/jpeg");
+          my $tempdir = tempdir(CLEANUP => 1);
+          $file = "$tempdir/tmp.jpg";
+          write_file($file, {binmode => 'raw'}, $data);
+        }
+      }
+      $width ||= 160;
+      $height ||= 160;
+      open(READER, "-|", "convert", "-quiet", $file, "-size", $width ."x" .$height, "-resize", $width . "x" .$height, "jpeg:-");
+      $data = scalar(slurp '<:raw', \*READER);
+    }
+  }
+  return ($data, $width, $height);
+}
+
 our $page;
 
 %Macros =
@@ -184,39 +216,18 @@ our $page;
     # the first frame of a video (or optionally one given by an argument)
     image => sub {
       my ($image, $alt, $width, $height) = @_;
-      my (%attr, $text);
+      my (%attr, $text, $data);
       $alt ||= "";
+      my $file = $Macros{canonicalpath}($image);
       $attr{-src} = $Macros{url}($image);
       $attr{-alt} = $alt;
       $attr{-width} = $width if $width;
-      $attr{-height} = $height if $height;
-      # FIXME: Always set height and width
+      $attr{-height} = $height if $width;
       if ($image !~ /^http:/) {
-        my $file = $Macros{canonicalpath}($image);
-        # FIXME: factor this into a "getThumbnail" function
-        # FIXME: Use libgraphics-magick-perl
-        my $thumb = ImageInfo($file, "ThumbnailImage");
-        my $data;
-        if ($thumb && $$thumb{ThumbnailImage}) {
-          $data = ${$$thumb{ThumbnailImage}};
-        } else {
-          open(READER, "-|", "identify", "-quiet", $file);
-          close READER;
-          if ($? != -1) {
-            if (($? & 0x7f) == 0 && $? >> 8 == 1) {
-              my $mimetype = getMimeType($file);
-              if ($MIME::Convert::Converters{"$mimetype>image/jpeg"}) {
-                $data = MIME::Convert::convert($file, $mimetype, "image/jpeg");
-                my $tempdir = tempdir(CLEANUP => 1);
-                $file = "$tempdir/tmp.jpg";
-                write_file($file, {binmode => 'raw'}, $data);
-              }
-            }
-            open(READER, "-|", "convert", "-quiet", $file, "-size", "160x160", "-resize", "160x160", "jpeg:-");
-            $data = scalar(slurp '<:raw', \*READER);
-          }
-        }
+        ($data, $width, $height) = getThumbnail($file, $width, $height);
         if ($data) {
+          $attr{-width} ||= $width;
+          $attr{-height} ||= $height;
           # N.B. EXIF thumbnails are always JPEGs
           $attr{-src} = "data:image/jpeg;base64," . encode_base64($data);
           $text = $Macros{link}($Macros{url}($image), (img \%attr));
@@ -506,7 +517,7 @@ sub render {
   # FIXME: Do this more elegantly
   $MIME::Convert::Converters{"text/plain>text/html"} = \&renderSmut;
   $MIME::Convert::Converters{"text/x-readme>text/html"} = \&renderSmut;
-  # FIXME: Remove next two lines once file updated
+  # FIXME: Remove next two lines once file >= 5.09 used everywhere
   $MIME::Convert::Converters{"application/x-directory>text/html"} = \&listDirectory;
   $MIME::Convert::Converters{"application/x-directory>application/atom+xml"} = \&makeFeed;
   $MIME::Convert::Converters{"inode/directory>text/html"} = \&listDirectory;
