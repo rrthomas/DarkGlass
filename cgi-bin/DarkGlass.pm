@@ -29,13 +29,9 @@ use CGI::Carp qw(fatalsToBrowser);
 use CGI::Util qw(escape unescape);
 use MIME::Base64;
 
-# FIXME: Move routine-specific uses into them
 use Perl6::Slurp;
-use File::Slurp; # for write_file
 use File::MimeInfo qw(extensions);
 use Image::ExifTool qw(ImageInfo);
-use Audio::File;
-use Time::Duration;
 
 use RRT::Misc;
 use RRT::Macro;
@@ -103,6 +99,7 @@ sub getThumbnail {
           $data = MIME::Convert::convert($file, $mimetype, "image/jpeg");
           my $tempdir = tempdir(CLEANUP => 1);
           $file = "$tempdir/tmp.jpg";
+          use File::Slurp; # for write_file
           write_file($file, {binmode => 'raw'}, $data);
         }
       }
@@ -278,6 +275,8 @@ our $page;
     },
 
     audiofile => sub {
+      use Audio::File;
+      use Time::Duration;
       my ($file, $format) = @_;
       my $size = $Macros{filesize}($file);
       my $info = Audio::File->new($Macros{canonicalpath}($file));
