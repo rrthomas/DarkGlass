@@ -516,9 +516,6 @@ sub render {
   # FIXME: Do this more elegantly
   $MIME::Convert::Converters{"text/plain>text/html"} = \&renderSmut;
   $MIME::Convert::Converters{"text/x-readme>text/html"} = \&renderSmut;
-  # FIXME: Remove next two lines once file >= 5.09 used everywhere
-  $MIME::Convert::Converters{"application/x-directory>text/html"} = \&listDirectory;
-  $MIME::Convert::Converters{"application/x-directory>application/atom+xml"} = \&makeFeed;
   $MIME::Convert::Converters{"inode/directory>text/html"} = \&listDirectory;
   $MIME::Convert::Converters{"inode/directory>application/atom+xml"} = \&makeFeed;
   $desttype = $srctype unless $MIME::Convert::Converters{"$srctype>$desttype"};
