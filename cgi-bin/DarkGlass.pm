@@ -125,11 +125,10 @@ our $page;
       return $Macros{link}("mailto:$Email", $text);
     },
 
-    # FIXME: Use this; need a $file macro to use instead of pageToFile here
-    # lastmodified => sub {
-    #   my $time = stat(pageToFile($Macros{page}))->mtime or 0;
-    #   return strftime("%Y/%m/%d", localtime $time);
-    # },
+    lastmodified => sub {
+      my $time = stat(pageToFile($Macros{page}()))->mtime or 0;
+      return strftime("%Y/%m/%d", localtime $time);
+    },
 
     canonicalpath => sub {
       my ($file) = @_;
