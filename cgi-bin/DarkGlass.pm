@@ -508,11 +508,24 @@ sub getBody {
   return $1;
  }
 
+sub typesToLinks {
+  my ($srctype, @types) = @_;
+  my $download;
+  for my $type (@types) {
+    # FIXME: Move text below into files that can be internationalised
+    # FIXME: Add page count for PDF using pdfpages macro
+    # FIXME: Translate $desttype back into human-readable description
+    my $desttype = $type;
+    $desttype =~ s/^$srctype>//;
+    $download .= a({-href => "$BaseUrl$page?convert=$desttype"}, "Download $desttype") . br();
+  }
+  return $download;
+}
+
 sub render {
   local $page;
   my ($file, $srctype, $desttype);
   ($file, $page, $srctype, $desttype) = @_;
-  my ($text, $altDownload);
   # FIXME: Do this more elegantly
   $MIME::Convert::Converters{"text/plain>text/html"} = \&renderSmut;
   $MIME::Convert::Converters{"text/x-readme>text/html"} = \&renderSmut;
@@ -520,7 +533,8 @@ sub render {
   $MIME::Convert::Converters{"inode/directory>application/atom+xml"} = \&makeFeed;
   $desttype = $srctype unless $MIME::Convert::Converters{"$srctype>$desttype"};
   # FIXME: Should give an error if asked by convert parameter for impossible conversion
-  ($text, $altDownload) = MIME::Convert::convert($file, $srctype, $desttype, $page, $BaseUrl);
+  my $text = MIME::Convert::convert($file, $srctype, $desttype, $page, $BaseUrl);
+  my $altDownload = typesToLinks($srctype, MIME::Convert::converters(qr/^$srctype/));
   # N.B.: we can't embed arbitrary objects. This is the best we can
   # do. Another problem is that with this, we'd be forced to use
   # ...?convert URLs for anything we actually wanted to download.
