@@ -7,7 +7,7 @@
 
 # Non-core dependencies (all in Debian/Ubuntu):
 # Perl6::Slurp, File::Slurp, File::MimeInfo, Image::ExifTool,
-# Audio::File, Time::Duration, DateTime, XML::LibXSLT, XML::Atom
+# Audio::Scan, Time::Duration, DateTime, XML::LibXSLT, XML::Atom
 # imagemagick | graphicsmagick-imagemagick-compat
 
 require 5.8.7;
@@ -275,12 +275,12 @@ our $page;
     },
 
     audiofile => sub {
-      use Audio::File;
+      use Audio::Scan;
       use Time::Duration;
       my ($file, $format) = @_;
       my $size = $Macros{filesize}($file);
-      my $info = Audio::File->new($Macros{canonicalpath}($file));
-      my $length = concise(duration($info->audio_properties->length()));
+      my $info = Audio::Scan->scan_info($Macros{canonicalpath}($file))->{info};
+      my $length = concise(duration($info->{song_length_ms} / 1000));
       return $Macros{link}($Macros{url}($file), $format) . " ($length, $size)";
     },
 
