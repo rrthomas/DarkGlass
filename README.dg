@@ -3,9 +3,10 @@ DarkGlass
 
 DarkGlass is a simple content management system, a program that runs on a web server to provide a web site from a collection of files providing the content. The overall look of the site is controlled by HTML templates. DarkGlass pages use a simple and concise [Smut Text Formatting|markup format].
 
+Get the code, file issues &c. on [https://github.com/rrthomas/DarkGlass|github].
+
    * [About DarkGlass|About]
    * [Why DarkGlass?]
-   * [Getting DarkGlass|Download]
    * [DarkGlass FAQ|FAQ]
    * [DarkGlass Use|User instructions]
    * [DarkGlass Installation|Installation instructions]
