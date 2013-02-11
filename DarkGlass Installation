@@ -5,7 +5,7 @@ In order to run [DarkGlass], you need access to a web server capable of running 
 
 To install DarkGlass:
 
-   1 Unpack the [Getting DarkGlass|distribution archive].
+   1 Check out the code from [https://github.com/rrthomas/DarkGlass|github].
    2 Copy the contents of the @cgi-bin@ directory into the CGI program directory of your web server.
    3 Configure the @web.pl@ script as described in [DarkGlass Configuration].
    4 The wiki should now be ready to use. See [DarkGlass Customization] for details of the various ways in which [DarkGlass] can be customized.
