@@ -517,7 +517,7 @@ sub typesToLinks {
     # FIXME: Translate $desttype back into human-readable description
     my $desttype = $type;
     $desttype =~ s/^$srctype>//;
-    $download .= a({-href => "$BaseUrl$page?convert=$desttype"}, "Download $desttype") . br();
+    $download .= a({-href => $Macros{url}($Macros{pagename}()) . "?convert=$desttype"}, "Download $desttype") . br();
   }
   return $download;
 }
@@ -543,12 +543,11 @@ sub render {
 }
 
 sub doRequest {
-  local $page = url();
-  $page =~ s|\+|%2B|g; # Re-escape unescaped plus signs (FIXME: is this a bug in CGI.pm?)
+  # Should call url() instead of next two lines, but see https://rt.cpan.org/Public/Bug/Display.html?id=83265
+  local $page = request_uri();
+  $page =~ s/\?.*$//s; # remove query string
   $page = decode_utf8(unescape($page));
-  my $base = url(-base => 1);
-  $base = untaint($base);
-  $page =~ s|^$base$BaseUrl||;
+  $page =~ s|^$BaseUrl||;
   $page =~ s|^/||;
   # FIXME: Better fix for this (also see url macro)
   $page =~ s/\$/%24/;     # re-escape $ to avoid generating macros
