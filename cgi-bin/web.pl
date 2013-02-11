@@ -1,7 +1,9 @@
 #! /usr/bin/perl -T
 # DarkGlass
-# (c) 2002-2013 Reuben Thomas (rrt@sc3d.org, http://rrt.sc3d.org)
-# Distributed under the GNU General Public License
+# (c) Reuben Thomas <rrt@sc3d.org> 2002-2013
+# http://rrt.sc3d.org/Software/DarkGlass
+# Distributed under the GNU General Public License version 3, or (at
+# your option) any later version.
 
 # FIXME: Remove cgi-bin from PATH
 BEGIN { # Run before "use" statements so variables are defined for other modules' initialization
