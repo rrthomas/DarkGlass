@@ -293,7 +293,7 @@ our $page;
           script({-type => "text/javascript", -src => "http://twitter.com/javascripts/blogger.js"}, "") .
             # Next line from http://t-swamp.blogspot.com/2009/06/filtering-replies-out-of-twitter-badge.html
             script({-type => "text/javascript"}, "function filterCallback(json) {var r = []; for (var i in json) {if (json[i].in_reply_to_user_id == null) r[r.length] = json[i]; if (r.length == 1) break;} twitterCallback2(r);}") .
-              script({-type => "text/javascript", -src => "http://twitter.com/statuses/user_timeline/sc3d.json?callback=filterCallback&count=8"}, "");
+              script({-type => "text/javascript", -src => "http://api.twitter.com/1/statuses/user_timeline/sc3d.json?callback=filterCallback&count=8"}, "");
       },
    );
 
