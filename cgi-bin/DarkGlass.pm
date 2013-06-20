@@ -286,15 +286,11 @@ our $page;
 
     # FIXME: This should be a customization
     twitterstatus => sub {
-      return hr . span({-id => "twitter_update_list"}, "") . a({-href => "http://twitter.com/sc3d", -id => "twitter-link", -style => "display:block;text-align:right;font-size:x-small;"}, "follow me on Twitter") . hr;
+      return hr . span({-id => "tweets"}, "") . a({-href => "http://twitter.com/sc3d", -id => "twitter-link", -style => "display:block;text-align:right;font-size:x-small;"}, "follow me on Twitter") . hr;
       },
-      twittersupport => sub {
-        return "<!-- Twitter scripts; here so if Twitter breaks the rest of the page still loads -->" .
-          script({-type => "text/javascript", -src => "http://twitter.com/javascripts/blogger.js"}, "") .
-            # Next line from http://t-swamp.blogspot.com/2009/06/filtering-replies-out-of-twitter-badge.html
-            script({-type => "text/javascript"}, "function filterCallback(json) {var r = []; for (var i in json) {if (json[i].in_reply_to_user_id == null) r[r.length] = json[i]; if (r.length == 1) break;} twitterCallback2(r);}") .
-              script({-type => "text/javascript", -src => "http://api.twitter.com/1/statuses/user_timeline/sc3d.json?callback=filterCallback&count=8"}, "");
-      },
+    twittersupport => sub {
+      return script({-type => "text/javascript", -src => $Macros{url}("/public_html/tweets.js")}, "");
+    },
    );
 
 

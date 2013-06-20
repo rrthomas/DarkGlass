@@ -38,7 +38,23 @@ body
 }
 
 /* Twitter status */
-#twitter_update_list {list-style-type:none;}
+#tweets p, #tweets a {
+  margin:0;
+  color:#3d3d3d;
+  font-size:9pt;
+}
+
+#tweets ul {
+  list-style:none;
+  overflow:hidden;
+  padding: 0;
+  margin: 0;
+}
+
+#tweets .timePosted {
+  color:#666666;
+  font-size:9px;
+}
     </style>
     <!-- <script type="text/javascript" src="$url{/public_html/audio-player.js}"></script> -->
     <!-- <script type="text/javascript"> -->
@@ -46,6 +62,7 @@ body
     <!--   width: 200 -->
     <!--   }); -->
     <!-- </script> -->
+    $twittersupport
   </head>
 
   <body>
