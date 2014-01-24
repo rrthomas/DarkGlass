@@ -579,9 +579,13 @@ sub doRequest {
       $text = encode_utf8($text); # Re-encode for output
     } else {
       my $ext = extensions($desttype);
-      # FIXME: Fix for spaces in filename
-      $headers->{"-content_disposition"} = "inline; filename=" . fileparse($file, qr/\.[^.]*/) . ".$ext"
-        if $ext && $ext ne "";
+      if ($ext && $ext ne "") {
+        my $filename = fileparse($file, qr/\.[^.]*/) . ".$ext";
+        my $latin1_filename = encode("iso-8859-1", $filename);
+        $latin1_filename =~ s/[%"]//g;
+        my $utf8_filename = escape($filename);
+        $headers->{"-content_disposition"} = "inline; filename=\"$latin1_filename\"; filename*=utf-8''$utf8_filename";
+      }
       $headers->{"-content_length"} = length($text);
     }
     $headers->{-type} = $desttype;
