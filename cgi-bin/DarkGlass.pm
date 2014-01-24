@@ -1,6 +1,6 @@
 # DarkGlass
 # Serve a directory tree as web pages
-# (c) Reuben Thomas <rrt@sc3d.org> 2002-2013
+# (c) Reuben Thomas <rrt@sc3d.org> 2002-2014
 # http://rrt.sc3d.org/Software/DarkGlass
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
@@ -585,7 +585,7 @@ sub doRequest {
       $headers->{"-content_length"} = length($text);
     }
     $headers->{-type} = $desttype;
-    $headers->{-charset} = "utf-8"; # FIXME: This looks wrong for binary types
+    $headers->{-charset} = "utf-8" if $desttype =~ m|^text/|;
     # FIXME: get length of HTML pages too
     $headers->{-expires} = "now";
     print header($headers) . $text;
