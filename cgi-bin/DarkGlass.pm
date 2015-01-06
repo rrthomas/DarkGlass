@@ -42,10 +42,11 @@ use MIME::Convert;
 use vars qw($ServerUrl $BaseUrl $DocumentRoot $Recent $Author $Email %Macros);
 
 # Computed globals
-use vars qw($DGSuffix %Index);
+use vars qw($DGSuffix @Index %Index);
 
 $DGSuffix = ".dg";
-%Index = ("README$DGSuffix" => 1, "README" => 1, "index.html" => 1);
+@Index = ("README$DGSuffix", "README", "index.html");
+%Index = map { $_ => 1 } @Index;
 
 
 # Macros
@@ -301,7 +302,7 @@ sub addIndex {
   my $file = $page;
   $file =~ s|/$||;
   if (-d "$DocumentRoot/$file") {
-    foreach my $index (keys %Index) {
+    foreach my $index (@Index) {
       if (-f "$DocumentRoot/$file/$index") {
         $file .= "/" if $file ne "";
         $file .= $index;
