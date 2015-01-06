@@ -539,7 +539,7 @@ sub render {
 }
 
 sub doRequest {
-  # Should call url() instead of next two lines, but see https://rt.cpan.org/Public/Bug/Display.html?id=83265
+  # FIXME: Should call url() instead of next two lines, but see https://rt.cpan.org/Public/Bug/Display.html?id=83265 ; fixed in CGI.pm 4.05
   local $page = request_uri();
   $page =~ s/\?.*$//s; # remove query string
   $page = decode_utf8(unescape($page));
@@ -579,6 +579,7 @@ sub doRequest {
       $text = encode_utf8($text); # Re-encode for output
     } else {
       my $ext = extensions($desttype);
+      # FIXME: put "effective" file extension in the URL, "real" extension in script parameters (and MIME type?), and remove content-disposition
       if ($ext && $ext ne "") {
         my $filename = fileparse($file, qr/\.[^.]*/) . ".$ext";
         my $latin1_filename = encode("iso-8859-1", $filename);
