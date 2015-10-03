@@ -125,7 +125,7 @@ our $page;
 
     url => sub {
       my ($path, $param) = @_;
-      $path = unescapeHTML(normalizePath($path, $Macros{page}()));
+      $path = unescapeHTML(normalizePath($path, $Macros{page}(), $DocumentRoot));
       $path =~ s/\?/%3F/g;   # escape ? to avoid generating parameters
       $path =~ s/\$/%24/g;   # escape $ to avoid generating macros
       $path =~ s/ /%20/g;    # escape space
@@ -162,7 +162,7 @@ our $page;
 
     canonicalpath => sub {
       my ($file) = @_;
-      return "$DocumentRoot/" . normalizePath($file, $Macros{page}());
+      return "$DocumentRoot/" . normalizePath($file, $Macros{page}(), $DocumentRoot);
     },
 
     link => sub {
