@@ -152,6 +152,7 @@ our $page;
 
     email => sub {
       my ($text) = @_;
+      $text = $Email if !defined($text);
       return $Macros{link}("mailto:$Email", $text);
     },
 
