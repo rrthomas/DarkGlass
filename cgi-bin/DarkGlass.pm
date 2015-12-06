@@ -550,7 +550,7 @@ sub doRequest {
   # FIXME: Better fix for this (also see url macro)
   $page =~ s/\$/%24/;     # re-escape $ to avoid generating macros
   my $desttype = getParam("convert") || "text/html";
-  $page = "" if !defined($page) || !cleanPath($page);
+  $page = "" if !defined($page);
   my ($text, $altDownload);
   my $file = pageToFile($page);
   my $srctype = getMimeType($file) || "application/octet-stream";
