@@ -129,7 +129,9 @@ our $page;
       $path =~ s/\?/%3F/g;   # escape ? to avoid generating parameters
       $path =~ s/\$/%24/g;   # escape $ to avoid generating macros
       $path =~ s/ /%20/g;    # escape space
+      $path = $Macros{page}() . "/$path" if $path !~ m|^/|;
       $path = $BaseUrl . $path;
+      $path =~ s|//+|/|;     # compress /'s; mostly cosmetic, & avoid leading // in output
       $path .= "?$param" if $param;
       return $path;
     },
@@ -163,6 +165,7 @@ our $page;
 
     canonicalpath => sub {
       my ($file) = @_;
+      $file = $Macros{page}() . "/$file" if $file !~ m|^/|;
       return "$DocumentRoot/$file";
     },
 
