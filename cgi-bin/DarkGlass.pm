@@ -1,6 +1,6 @@
 # DarkGlass
 # Serve a directory tree as web pages
-# (c) Reuben Thomas <rrt@sc3d.org> 2002-2015
+# (c) Reuben Thomas <rrt@sc3d.org> 2002-2016
 # http://rrt.sc3d.org/Software/DarkGlass
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
@@ -362,11 +362,18 @@ sub renderDir {
   return $dir, \@order, \@files, \@pagenames, \@times, \@pages, \@paths;
 }
 
+# Turn entities into characters
+sub expandNumericEntities {
+  my ($text) = @_;
+  $text =~ s/&#(\pN+);/chr($1)/ge;
+  return $text;
+}
+
 sub renderSmut {
   my ($file) = @_;
   my $script = untaint(abs_path("smut-html.pl"));
   open(READER, "-|:utf8", $script, $file, $page, $BaseUrl, $DocumentRoot);
-  return expand(scalar(slurp \*READER), \%DarkGlass::Macros);
+  return expand(expandNumericEntities(scalar(slurp \*READER)), \%DarkGlass::Macros);
 }
 
 # Demote HTML headings by one level
@@ -566,7 +573,7 @@ sub doRequest {
   # Apache bailing out when it can't read the .htaccess file in the
   # directory.
   if (!-e $file) {
-    print header(-status => 404, -charset => "utf-8") . expand(scalar(slurp '<:utf8', untaint(abs_path("notfound.htm"))), \%Macros);
+    print header(-status => 404, -charset => "utf-8") . expand(expandNumericEntities(scalar(slurp '<:utf8', untaint(abs_path("notfound.htm")))), \%Macros);
   } else {
     ($text, $desttype, $altDownload) = render($file, $page, $srctype, $desttype);
     # FIXME: Following stanza made redundant by Nancy
@@ -579,7 +586,7 @@ sub doRequest {
       $Macros{file} = sub {addIndex($page)};
       # FIXME: Put text in next line in file; should be generated from convert (which MIME types can we get from this one?)
       $Macros{download} = sub {$altDownload || a({-href => $Macros{url}(-f $file ? basename($Macros{file}()) : "", "convert=text/plain")}, "Download page source")};
-      $text = expand(scalar(slurp '<:utf8', untaint(abs_path("view.htm"))), \%Macros);
+      $text = expand(expandNumericEntities(scalar(slurp '<:utf8', untaint(abs_path("view.htm")))), \%Macros);
       $text =~ s/\$text/$body/ge; # Avoid expanding macros in body
       $text = encode_utf8($text); # Re-encode for output
     } else {
