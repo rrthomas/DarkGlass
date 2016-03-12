@@ -34,7 +34,7 @@ use File::MimeInfo qw(extensions);
 use Image::ExifTool qw(ImageInfo);
 
 use RRT::Misc;
-use RRT::Macro 2.00;
+use RRT::Macro 3.00;
 use MIME::Convert;
 
 
@@ -120,7 +120,7 @@ our $page;
     # Macros
 
     page => sub {
-      return ($page, 1);
+      return $page;
     },
 
     url => sub {
@@ -133,23 +133,23 @@ our $page;
       $path = $BaseUrl . $path;
       $path =~ s|//+|/|;     # compress /'s; mostly cosmetic, & avoid leading // in output
       $path .= "?$param" if $param;
-      return ($path, 1);
+      return $path;
     },
 
     pagename => sub {
       my $name = $Macros{page}() || "";
       $name =~ s|/$||;
-      return (basename($name), 1);
+      return basename($name);
     },
 
     # FIXME: Ugly hack: should be a customization
     pageinsite => sub {
       return "" if $Macros{pagename}() eq "" || $Macros{pagename}() eq "./";
-      return (": " . $Macros{pagename}(), 1);
+      return ": " . $Macros{pagename}();
     },
 
     author => sub {
-      return ($Author, 1);
+      return $Author;
     },
 
     email => sub {
@@ -178,7 +178,7 @@ our $page;
     include => sub {
       my ($file) = @_;
       $file = $Macros{canonicalpath}($file);
-      return scalar(slurp '<:utf8', $file);
+      return (scalar(slurp '<:utf8', $file), 1);
     },
 
     filesize => sub {
