@@ -34,7 +34,7 @@ use File::MimeInfo qw(extensions);
 use Image::ExifTool qw(ImageInfo);
 
 use RRT::Misc;
-use RRT::Macro 3.00;
+use RRT::Macro 3.10;
 use MIME::Convert;
 
 
@@ -178,7 +178,7 @@ our $page;
     include => sub {
       my ($file) = @_;
       $file = $Macros{canonicalpath}($file);
-      return (scalar(slurp '<:utf8', $file), 1);
+      return expand(scalar(slurp '<:utf8', $file));
     },
 
     filesize => sub {
