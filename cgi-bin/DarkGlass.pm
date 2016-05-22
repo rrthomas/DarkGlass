@@ -602,7 +602,11 @@ sub doRequest {
       $headers->{"-content_length"} = length($text);
     }
     $headers->{-type} = $desttype;
-    $headers->{-charset} = "utf-8" if $desttype =~ m|^text/|;
+    if ($desttype =~ m|^text/|) {
+      $headers->{-charset} = "utf-8";
+    } else {
+      $headers->{-charset} = ""; # Explicitly unset charset, otherwise CGI.pm defaults it to ISO-8859-1
+    }
     # FIXME: get length of HTML pages too
     $headers->{-expires} = "now";
     print header($headers) . $text;
