@@ -1,53 +1,28 @@
 /*********************************************************************
-*  #### Twitter Post Fetcher v7.0 ####
-*  Coded by Jason Mayes 2013. A present to all the developers out there.
+*  #### Twitter Post Fetcher v16.0.2 ####
+*  Coded by Jason Mayes 2015. A present to all the developers out there.
 *  www.jasonmayes.com
 *  Please keep this disclaimer with my code if you use it. Thanks. :-)
-*  Got feedback or questions, ask here: 
+*  Got feedback or questions, ask here:
 *  http://www.jasonmayes.com/projects/twitterApi/
+*  Github: https://github.com/jasonmayes/Twitter-Post-Fetcher
 *  Updates will be posted to this site.
 *********************************************************************/
-var twitterFetcher=function(){function t(d){return d.replace(/<b[^>]*>(.*?)<\/b>/gi,function(c,d){return d}).replace(/class=".*?"|data-query-source=".*?"|dir=".*?"|rel=".*?"/gi,"")}function m(d,c){for(var f=[],e=RegExp("(^| )"+c+"( |$)"),g=d.getElementsByTagName("*"),b=0,a=g.length;b<a;b++)e.test(g[b].className)&&f.push(g[b]);return f}var u="",j=20,n=!0,h=[],p=!1,k=!0,l=!0,q=null,r=!0;return{fetch:function(d,c,f,e,g,b,a){void 0===f&&(f=20);void 0===e&&(n=!0);void 0===g&&(g=!0);void 0===b&&(b=!0);
-void 0===a&&(a="default");p?h.push({id:d,domId:c,maxTweets:f,enableLinks:e,showUser:g,showTime:b,dateFunction:a}):(p=!0,u=c,j=f,n=e,l=g,k=b,q=a,c=document.createElement("script"),c.type="text/javascript",c.src="//cdn.syndication.twimg.com/widgets/timelines/"+d+"?&lang=en&callback=twitterFetcher.callback&suppress_response_codes=true&rnd="+Math.random(),document.getElementsByTagName("head")[0].appendChild(c))},callback:function(d){var c=document.createElement("div");c.innerHTML=d.body;"undefined"===
-typeof c.getElementsByClassName&&(r=!1);var f=d=null,e=null;r?(d=c.getElementsByClassName("e-entry-title"),f=c.getElementsByClassName("p-author"),e=c.getElementsByClassName("dt-updated")):(d=m(c,"e-entry-title"),f=m(c,"p-author"),e=m(c,"dt-updated"));for(var c=[],g=d.length,b=0;b<g;){if("string"!==typeof q){var a=new Date(e[b].getAttribute("datetime").replace(/-/g,"/").replace("T"," ").split("+")[0]),a=q(a);e[b].setAttribute("aria-label",a);if(d[b].innerText)if(r)e[b].innerText=a;else{var s=document.createElement("p"),
-v=document.createTextNode(a);s.appendChild(v);s.setAttribute("aria-label",a);e[b]=s}else e[b].textContent=a}n?(a="",l&&(a+='<div class="user">'+t(f[b].innerHTML)+"</div>"),a+='<p class="tweet">'+t(d[b].innerHTML)+"</p>",k&&(a+='<p class="timePosted">'+e[b].getAttribute("aria-label")+"</p>")):d[b].innerText?(a="",l&&(a+='<p class="user">'+f[b].innerText+"</p>"),a+='<p class="tweet">'+d[b].innerText+"</p>",k&&(a+='<p class="timePosted">'+e[b].innerText+"</p>")):(a="",l&&(a+='<p class="user">'+f[b].textContent+
-"</p>"),a+='<p class="tweet">'+d[b].textContent+"</p>",k&&(a+='<p class="timePosted">'+e[b].textContent+"</p>"));c.push(a);b++}c.length>j&&c.splice(j,c.length-j);d=c.length;f=0;e=document.getElementById(u);for(g="<ul>";f<d;)g+="<li>"+c[f]+"</li>",f++;e.innerHTML=g+"</ul>";p=!1;0<h.length&&(twitterFetcher.fetch(h[0].id,h[0].domId,h[0].maxTweets,h[0].enableLinks,h[0].showUser,h[0].showTime,h[0].dateFunction),h.splice(0,1))}}}();
+(function(E,q){"function"===typeof define&&define.amd?define([],q):"object"===typeof exports?module.exports=q():q()})(this,function(){function E(a){if(null===t){for(var f=a.length,b=0,k=document.getElementById(F),g="<ul>";b<f;)g+="<li>"+a[b]+"</li>",b++;k.innerHTML=g+"</ul>"}else t(a)}function q(a){return a.replace(/<b[^>]*>(.*?)<\/b>/gi,function(a,b){return b}).replace(/class="(?!(tco-hidden|tco-display|tco-ellipsis))+.*?"|data-query-source=".*?"|dir=".*?"|rel=".*?"/gi,"")}function G(a){a=a.getElementsByTagName("a");
+for(var f=a.length-1;0<=f;f--)a[f].setAttribute("target","_blank")}function l(a,f){for(var b=[],k=new RegExp("(^| )"+f+"( |$)"),g=a.getElementsByTagName("*"),h=0,d=g.length;h<d;h++)k.test(g[h].className)&&b.push(g[h]);return b}function y(a){if(void 0!==a&&0<=a.innerHTML.indexOf("data-srcset"))return a=a.innerHTML.match(/data-srcset="([A-z0-9%_\.-]+)/i)[0],decodeURIComponent(a).split('"')[1]}var F="",f=20,H=!0,x=[],z=!1,A=!0,n=!0,B=null,C=!0,D=!0,t=null,I=!0,u=!1,v=!0,J=!0,K=!1,m=null,L={fetch:function(a){void 0===
+a.maxTweets&&(a.maxTweets=20);void 0===a.enableLinks&&(a.enableLinks=!0);void 0===a.showUser&&(a.showUser=!0);void 0===a.showTime&&(a.showTime=!0);void 0===a.dateFunction&&(a.dateFunction="default");void 0===a.showRetweet&&(a.showRetweet=!0);void 0===a.customCallback&&(a.customCallback=null);void 0===a.showInteraction&&(a.showInteraction=!0);void 0===a.showImages&&(a.showImages=!1);void 0===a.linksInNewWindow&&(a.linksInNewWindow=!0);void 0===a.showPermalinks&&(a.showPermalinks=!0);void 0===a.dataOnly&&
+(a.dataOnly=!1);if(z)x.push(a);else{z=!0;F=a.domId;f=a.maxTweets;H=a.enableLinks;n=a.showUser;A=a.showTime;D=a.showRetweet;B=a.dateFunction;t=a.customCallback;I=a.showInteraction;u=a.showImages;v=a.linksInNewWindow;J=a.showPermalinks;K=a.dataOnly;var l=document.getElementsByTagName("head")[0];null!==m&&l.removeChild(m);m=document.createElement("script");m.type="text/javascript";m.src=void 0!==a.list?"https://syndication.twitter.com/timeline/list?callback=twitterFetcher.callback&dnt=false&list_slug="+
+a.list.listSlug+"&screen_name="+a.list.screenName+"&suppress_response_codes=true&lang="+(a.lang||"en")+"&rnd="+Math.random():void 0!==a.profile?"https://syndication.twitter.com/timeline/profile?callback=twitterFetcher.callback&dnt=false&screen_name="+a.profile.screenName+"&suppress_response_codes=true&lang="+(a.lang||"en")+"&rnd="+Math.random():void 0!==a.likes?"https://syndication.twitter.com/timeline/likes?callback=twitterFetcher.callback&dnt=false&screen_name="+a.likes.screenName+"&suppress_response_codes=true&lang="+
+(a.lang||"en")+"&rnd="+Math.random():"https://cdn.syndication.twimg.com/widgets/timelines/"+a.id+"?&lang="+(a.lang||"en")+"&callback=twitterFetcher.callback&suppress_response_codes=true&rnd="+Math.random();l.appendChild(m)}},callback:function(a){function m(a){var b=a.getElementsByTagName("img")[0];b.src=b.getAttribute("data-src-2x");return a}a.body=a.body.replace(/(<img[^c]*class="Emoji[^>]*>)|(<img[^c]*class="u-block[^>]*>)/g,"");u||(a.body=a.body.replace(/(<img[^c]*class="NaturalImage-image[^>]*>|(<img[^c]*class="CroppedImage-image[^>]*>))/g,
+""));n||(a.body=a.body.replace(/(<img[^c]*class="Avatar"[^>]*>)/g,""));var b=document.createElement("div");b.innerHTML=a.body;"undefined"===typeof b.getElementsByClassName&&(C=!1);a=[];var k=[],g=[],h=[],d=[],r=[],p=[],e=0;if(C)for(b=b.getElementsByClassName("timeline-Tweet");e<b.length;){0<b[e].getElementsByClassName("timeline-Tweet-retweetCredit").length?d.push(!0):d.push(!1);if(!d[e]||d[e]&&D)a.push(b[e].getElementsByClassName("timeline-Tweet-text")[0]),r.push(b[e].getAttribute("data-tweet-id")),
+n&&k.push(m(b[e].getElementsByClassName("timeline-Tweet-author")[0])),g.push(b[e].getElementsByClassName("dt-updated")[0]),p.push(b[e].getElementsByClassName("timeline-Tweet-timestamp")[0]),void 0!==b[e].getElementsByClassName("timeline-Tweet-media")[0]?h.push(b[e].getElementsByClassName("timeline-Tweet-media")[0]):h.push(void 0);e++}else for(b=l(b,"timeline-Tweet");e<b.length;){0<l(b[e],"timeline-Tweet-retweetCredit").length?d.push(!0):d.push(!1);if(!d[e]||d[e]&&D)a.push(l(b[e],"timeline-Tweet-text")[0]),
+r.push(b[e].getAttribute("data-tweet-id")),n&&k.push(m(l(b[e],"timeline-Tweet-author")[0])),g.push(l(b[e],"dt-updated")[0]),p.push(l(b[e],"timeline-Tweet-timestamp")[0]),void 0!==l(b[e],"timeline-Tweet-media")[0]?h.push(l(b[e],"timeline-Tweet-media")[0]):h.push(void 0);e++}a.length>f&&(a.splice(f,a.length-f),k.splice(f,k.length-f),g.splice(f,g.length-f),d.splice(f,d.length-f),h.splice(f,h.length-f),p.splice(f,p.length-f));var b=[],e=a.length,c=0;if(K)for(;c<e;)b.push({tweet:a[c].innerHTML,author:k[c].innerHTML,
+time:g[c].textContent,image:y(h[c]),rt:d[c],tid:r[c],permalinkURL:void 0===p[c]?"":p[c].href}),c++;else for(;c<e;){if("string"!==typeof B){var d=g[c].getAttribute("datetime"),w=new Date(g[c].getAttribute("datetime").replace(/-/g,"/").replace("T"," ").split("+")[0]),d=B(w,d);g[c].setAttribute("aria-label",d);if(a[c].textContent)if(C)g[c].textContent=d;else{var w=document.createElement("p"),t=document.createTextNode(d);w.appendChild(t);w.setAttribute("aria-label",d);g[c]=w}else g[c].textContent=d}d=
+"";H?(v&&(G(a[c]),n&&G(k[c])),n&&(d+='<div class="user">'+q(k[c].innerHTML)+"</div>"),d+='<p class="tweet">'+q(a[c].innerHTML)+"</p>",A&&(d=J?d+('<p class="timePosted"><a href="'+p[c]+'">'+g[c].getAttribute("aria-label")+"</a></p>"):d+('<p class="timePosted">'+g[c].getAttribute("aria-label")+"</p>"))):(n&&(d+='<p class="user">'+k[c].textContent+"</p>"),d+='<p class="tweet">'+a[c].textContent+"</p>",A&&(d+='<p class="timePosted">'+g[c].textContent+"</p>"));I&&(d+='<p class="interact"><a href="https://twitter.com/intent/tweet?in_reply_to='+
+r[c]+'" class="twitter_reply_icon"'+(v?' target="_blank">':">")+'Reply</a><a href="https://twitter.com/intent/retweet?tweet_id='+r[c]+'" class="twitter_retweet_icon"'+(v?' target="_blank">':">")+'Retweet</a><a href="https://twitter.com/intent/favorite?tweet_id='+r[c]+'" class="twitter_fav_icon"'+(v?' target="_blank">':">")+"Favorite</a></p>");u&&void 0!==h[c]&&void 0!==y(h[c])&&(d+='<div class="media"><img src="'+y(h[c])+'" alt="Image from tweet" /></div>');u?b.push(d):!u&&a[c].textContent.length&&
+b.push(d);c++}E(b);z=!1;0<x.length&&(L.fetch(x[0]),x.splice(0,1))}};return window.twitterFetcher=L});
 
-
-/*
-* ### HOW TO CREATE A VALID ID TO USE: ###
-* Go to www.twitter.com and sign in as normal, go to your settings page.
-* Go to "Widgets" on the left hand side.
-* Create a new widget for what you need eg "user timeline" or "search" etc. 
-* Feel free to check "exclude replies" if you dont want replies in results.
-* Now go back to settings page, and then go back to widgets page, you should
-* see the widget you just created. Click edit.
-* Now look at the URL in your web browser, you will see a long number like this:
-* 345735908357048478
-* Use this as your ID below instead!
-*/
-
-/**
- * How to use fetch function:
- * @param {string} Your Twitter widget ID.
- * @param {string} The ID of the DOM element you want to write results to. 
- * @param {int} Optional - the maximum number of tweets you want returned. Must
- *     be a number between 1 and 20.
- * @param {boolean} Optional - set true if you want urls and hash
-       tags to be hyperlinked!
- * @param {boolean} Optional - Set false if you dont want user photo /
- *     name for tweet to show.
- * @param {boolean} Optional - Set false if you dont want time of tweet
- *     to show.
- * @param {function/string} Optional - A function you can specify to format
- *     tweet date/time however you like. This function takes a JavaScript date
- *     as a parameter and returns a String representation of that date.
- *     Alternatively you may specify the string 'default' to leave it with
- *     Twitter's default renderings.
- */
-
-// ##### Simple example 1 #####
-// A simple example to get my latest tweet and write to a HTML element with
+// RRT: Get my latest tweet and write to a HTML element with
 // id "tweets". Also automatically hyperlinks URLS and user mentions and
 // hashtags.
-twitterFetcher.fetch('347507257103228928', 'tweets', 1, true, false);
+twitterFetcher.fetch({id: '347507257103228928', domId: 'tweets', maxTweets: 1, enableLinks: true, showUser: false});

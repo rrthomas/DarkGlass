@@ -291,7 +291,7 @@ our $page;
 
     # FIXME: This should be a customization
     twitterstatus => sub {
-      return hr . span({-id => "tweets"}, "") . a({-href => "http://twitter.com/sc3d", -id => "twitter-link", -style => "display:block;text-align:right;font-size:x-small;"}, "follow me on Twitter") . hr;
+      return hr . span({-id => "tweets"}, "") . a({-href => "http://twitter.com/sc3d", -id => "twitter-link", -style => "display:block;text-align:right;font-size:small;"}, "follow me on Twitter") . hr;
       },
     twittersupport => sub {
       return script({-type => "text/javascript", -src => $Macros{url}("/public_html/tweets.js")}, "");
