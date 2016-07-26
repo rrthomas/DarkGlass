@@ -3,6 +3,8 @@ DarkGlass ToDo
 
 This list reflects the [http://rrt.sc3d.org/People/Reuben%20Thomas|author]'s priorities. If you'd like to help, or you have any other changes you'd like to see, please $email{contact me}.
 
+   * Have human-readable names for MIME types in download links
+   * Remove file suffixes, and have a sensible priority order for which file gets the URL when multiple files share a name.
    * Fix templating so Island isn’t a special case
    * Change underlining hierarchy from \#, =, - to =, -, ~.
    * Tagging to generalize file hierarchy. Should work with a search engine. Start by tagging log entries.
