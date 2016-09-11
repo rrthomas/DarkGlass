@@ -4,9 +4,9 @@ DarkGlass ToDo
 This list reflects the [http://rrt.sc3d.org/People/Reuben%20Thomas|author]'s priorities. If you'd like to help, or you have any other changes you'd like to see, please $email{contact me}.
 
    * Have human-readable names for MIME types in download links
+   * Add support for markdown files, and deprecate smut
    * Remove file suffixes, and have a sensible priority order for which file gets the URL when multiple files share a name.
    * Fix templating so Island isn’t a special case
-   * Change underlining hierarchy from \#, =, - to =, -, ~.
    * Tagging to generalize file hierarchy. Should work with a search engine. Start by tagging log entries.
    * Make DarkGlass feeds “deep”, i.e. all the way to the bottom of the tree from the current object, and tag-based (see tags).
    * Factor DarkGlass into a front-end to cv and a program that actually serves pages.
@@ -23,7 +23,6 @@ This list reflects the [http://rrt.sc3d.org/People/Reuben%20Thomas|author]'s pri
    * Add site-based search back (search results dependent on authentication level?).
    * Allow any file to be overridden for presentation by a file called <file>.dg (consistent with directory scheme)?
    * Support the @link@ element (should replace the navigation bar).
-   * Add table markup (idea: simply use | before each column).
    * Use ideas from [http://hypertext.sourceforge.net/silk/userGuide.shtml|Silk], [http://www.usemod.com/cgi-bin/mb.pl?LinkDatabase|LinkDatabase], [http://www.usemod.com/cgi-bin/mb.pl?TouchGraphWikiBrowser|TouchGraph] and [http://sylbi.arbingersys.com/|Sylbi].
    * Make more secure. In particular, ensure that URLs and file paths are always clean, preferably at the datatype level. Look for other potential security problems.
    * Allow editing and file management through the web interface? Or the other way around, plugging into other protocols?
