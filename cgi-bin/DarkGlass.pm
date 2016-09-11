@@ -29,7 +29,7 @@ use CGI::Carp qw(fatalsToBrowser);
 use CGI::Util qw(escape unescape);
 use MIME::Base64;
 
-use Perl6::Slurp;
+use Perl6::Slurp; # FIXME: use File::Slurp instead
 use File::MimeInfo qw(extensions);
 use Image::ExifTool qw(ImageInfo);
 
