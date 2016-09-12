@@ -373,7 +373,7 @@ sub renderSmut {
   my ($file) = @_;
   my $script = untaint(abs_path("smut-html.pl"));
   open(READER, "-|:utf8", $script, $file, $page, $BaseUrl, $DocumentRoot);
-  return expand(expandNumericEntities(scalar(slurp \*READER)), \%DarkGlass::Macros);
+  return expandNumericEntities(scalar(slurp \*READER));
 }
 
 # Demote HTML headings by one level
@@ -508,12 +508,13 @@ sub makeFeed {
   return $feed->as_xml;
 }
 
+# Return <body> element of HTML, or the entire input if no such element
 sub getBody {
   my ($text) = @_;
   $text = decode_utf8_opt($text);
   # Pull out the body element of the HTML
   $text =~ m|<body[^>]*>(.*)</body>|gsmi;
-  return $1;
+  return $1 || $text;
  }
 
 sub typesToLinks {
@@ -583,6 +584,7 @@ sub doRequest {
     # FIXME: This next stanza should be turned into a custom Convert rule
     elsif ($desttype eq "text/html") {
       my $body = getBody($text);
+      $body = expand($body, \%DarkGlass::Macros) if $srctype eq "text/plain" || $srctype eq "text/markdown"; # FIXME: this is a hack
       $Macros{file} = sub {addIndex($page)};
       # FIXME: Put text in next line in file; should be generated from convert (which MIME types can we get from this one?)
       $Macros{download} = sub {$altDownload || a({-href => $Macros{url}(-f $file ? basename($Macros{file}()) : "", "convert=text/plain")}, "Download page source")};
