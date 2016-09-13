@@ -6,7 +6,7 @@
 # your option) any later version.
 
 # Non-core dependencies (all in Debian/Ubuntu):
-# Perl6::Slurp, File::Slurp, File::MimeInfo, Image::ExifTool,
+# File::Slurp, File::MimeInfo, Image::ExifTool,
 # Audio::Scan, Time::Duration, DateTime, XML::LibXSLT, XML::Atom
 # imagemagick | graphicsmagick-imagemagick-compat
 
@@ -29,7 +29,7 @@ use CGI::Carp qw(fatalsToBrowser);
 use CGI::Util qw(escape unescape);
 use MIME::Base64;
 
-use Perl6::Slurp; # FIXME: use File::Slurp instead
+use File::Slurp qw(slurp);
 use File::MimeInfo qw(extensions);
 use Image::ExifTool qw(ImageInfo);
 
@@ -100,14 +100,13 @@ sub getThumbnail {
           $data = MIME::Convert::convert($file, $mimetype, "image/jpeg");
           my $tempdir = tempdir(CLEANUP => 1);
           $file = "$tempdir/tmp.jpg";
-          use File::Slurp; # for write_file
-          write_file($file, {binmode => 'raw'}, $data);
+          write_file($file, {binmode => ':raw'}, $data);
         }
       }
       $width ||= 160;
       $height ||= 160;
       open(READER, "-|", "convert", "-quiet", $file, "-size", $width ."x" .$height, "-resize", $width . "x" .$height, "jpeg:-");
-      $data = scalar(slurp '<:raw', \*READER);
+      $data = scalar(slurp(\*READER, {binmode => ':raw'}));
     }
   }
   return ($data, $width, $height);
@@ -178,7 +177,7 @@ our $page;
     include => sub {
       my ($file) = @_;
       $file = $Macros{canonicalpath}($file);
-      return expand(scalar(slurp '<:utf8', $file));
+      return expand(scalar(slurp($file, {binmode => ':utf8'})));
     },
 
     filesize => sub {
@@ -191,7 +190,7 @@ our $page;
       $path = "" if $path eq "./";
       my $dir = "$DocumentRoot/$path";
       my $override = "$dir$DGSuffix";
-      return scalar(slurp '<:utf8', $override) if -f $override;
+      return scalar(slurp($override, {binmode => ':utf8'})) if -f $override;
       my $parents = $path;
       $parents =~ s|/$||;
       my $tree = "";
@@ -373,7 +372,7 @@ sub renderSmut {
   my ($file) = @_;
   my $script = untaint(abs_path("smut-html.pl"));
   open(READER, "-|:utf8", $script, $file, $page, $BaseUrl, $DocumentRoot);
-  return expandNumericEntities(scalar(slurp \*READER));
+  return expandNumericEntities(scalar(slurp(\*READER)));
 }
 
 # Demote HTML headings by one level
@@ -572,7 +571,7 @@ sub doRequest {
   # Apache bailing out when it can't read the .htaccess file in the
   # directory.
   if (!-e $file) {
-    print header(-status => 404, -charset => "utf-8") . expand(expandNumericEntities(scalar(slurp '<:utf8', untaint(abs_path("notfound.htm")))), \%Macros);
+    print header(-status => 404, -charset => "utf-8") . expand(expandNumericEntities(scalar(slurp(untaint(abs_path("notfound.htm")), {binmode => '<:utf8'}))), \%Macros);
   } else {
     ($text, $desttype, $altDownload) = render($file, $page, $srctype, $desttype);
     # FIXME: Following stanza made redundant by Nancy
@@ -586,7 +585,7 @@ sub doRequest {
       $Macros{file} = sub {addIndex($page)};
       # FIXME: Put text in next line in file; should be generated from convert (which MIME types can we get from this one?)
       $Macros{download} = sub {$altDownload || a({-href => $Macros{url}(-f $file ? basename($Macros{file}()) : "", "convert=text/plain")}, "Download page source")};
-      $text = expand(expandNumericEntities(scalar(slurp '<:utf8', untaint(abs_path("view.htm")))), \%Macros);
+      $text = expand(expandNumericEntities(scalar(slurp(untaint(abs_path("view.htm")), {binmode => ':utf8'}))), \%Macros);
       $text =~ s/\$text/$body/ge; # Avoid expanding macros in body
       $text = encode_utf8($text); # Re-encode for output
     } else {
