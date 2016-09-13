@@ -582,7 +582,7 @@ sub doRequest {
     # FIXME: This next stanza should be turned into a custom Convert rule
     elsif ($desttype eq "text/html") {
       my $body = getBody($text);
-      $body = expand($body, \%DarkGlass::Macros) if $srctype eq "text/plain" || $srctype eq "text/markdown"; # FIXME: this is a hack
+      $body = expand($body, \%DarkGlass::Macros) if $srctype eq "text/plain" || $srctype eq "text/x-readme" || $srctype eq "text/markdown"; # FIXME: this is a hack
       $Macros{file} = sub {addIndex($page)};
       # FIXME: Put text in next line in file; should be generated from convert (which MIME types can we get from this one?)
       $Macros{download} = sub {$altDownload || a({-href => $Macros{url}(-f $file ? basename($Macros{file}()) : "", "convert=text/plain")}, "Download page source")};
