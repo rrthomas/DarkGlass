@@ -24,7 +24,7 @@ use File::stat;
 use File::Temp qw(tempdir);
 use Encode;
 use Cwd qw(abs_path getcwd);
-use CGI 3.46 qw(:standard unescapeHTML);
+use CGI 4.05 qw(:standard unescapeHTML);
 use CGI::Carp qw(fatalsToBrowser);
 use CGI::Util qw(escape unescape);
 use MIME::Base64;
@@ -552,9 +552,7 @@ sub render {
 }
 
 sub doRequest {
-  # FIXME: Should call url() instead of next two lines, but see https://rt.cpan.org/Public/Bug/Display.html?id=83265 ; fixed in CGI.pm 4.05
-  local $page = request_uri();
-  $page =~ s/\?.*$//s; # remove query string
+  local $page = url(-absolute => 1);
   $page = decode_utf8(unescape($page));
   $page =~ s|^$BaseUrl||;
   $page =~ s|^/||;
