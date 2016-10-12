@@ -1,0 +1,64 @@
+/* Links */
+a:link { color: #0000FF; }
+a:visited { color: #000099; }
+
+/* Body of the page */
+body {
+  color: black;
+  background: #FFFFFF;
+}
+
+#wrapper {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+#nav, #content {
+    flex: 1 100%;
+}
+
+@media all and (min-width: 800px) {
+    #nav { flex: 1 auto; }
+    #content { flex: 2 75%; }
+}
+
+/* Navigation pane */
+#nav {
+  background: #EEEEFF;
+  border: 1pt solid #AEBDCC;
+  padding: 0.4%;
+}
+
+/* Content pane */
+#content {
+  padding: 0.4%;
+}
+
+/* Twitter status */
+#tweets p, #tweets a {
+  margin: 0;
+  color:#3d3d3d;
+}
+
+#tweets ul {
+  list-style: none;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}
+
+#tweets .timePosted a {
+  color:#666666;
+  font-size: small;
+}
+
+#tweets .interact {
+  float:right;
+  margin-top:-7px;
+}
+
+#tweets .interact a {
+  margin-left:5px;
+  float:right;
+  font-size: small;
+}
