@@ -17,23 +17,30 @@ body {
   background: #FFFFFF;
 }
 
+#wrapper {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+#nav, #content {
+    flex: 1 100%;
+}
+
+@media all and (min-width: 800px) {
+    #nav { flex: 1 auto; }
+    #content { flex: 2 75%; }
+}
+
 /* Navigation pane */
-/* N.B. Widths must add up to left margin of content */
-#nav
-{
-  position: absolute;
-  left: 0.5%;
-  top: 0.5%;
-  width: 23%;
+#nav {
   background: #EEEEFF;
   border: 1pt solid #AEBDCC;
   padding: 0.4%;
 }
 
 /* Content pane */
-#content
-{
-  margin-left: 25%;
+#content {
+  padding: 0.4%;
 }
 
 /* Twitter status */
@@ -69,32 +76,34 @@ body {
   </head>
 
   <body>
-    <div id="nav">
-      $menudirectory
-      <p>$download</p>
-      <!-- SiteSearch Google -->
-      <!-- <form method="get" action="http://www.google.com/search">
-      <p>
-      <input type="hidden" name="ie" value="UTF-8" />
-      <input type="hidden" name="oe" value="UTF-8" />
-      <input type="text" name="q" maxlength="255" value="" />
-      <input type="submit" name="btnG" value="Search site" />
-      <input type="hidden" name="domains" value="$serverurl" />
-      <input type="hidden" name="sitesearch" value="$serverurl" />
-      <a href="http://www.google.com/"><img src="$url{/notmine/google.gif}" alt="Google" /></a>
-      </p>
-      </form> -->
-      <!-- End SiteSearch Google -->
-      <p>
-      <!-- <a href="$url{/Recent Changes}">Recent changes</a><br /> -->
-      <a href="$url{/Licence}">&copy;</a> $email{Reuben Thomas} $email{}
-      </p>
-    </div>
+    <div id="wrapper">
+      <div id="nav">
+        $menudirectory
+        <p>$download</p>
+        <!-- SiteSearch Google -->
+        <!-- <form method="get" action="http://www.google.com/search">
+             <p>
+               <input type="hidden" name="ie" value="UTF-8" />
+               <input type="hidden" name="oe" value="UTF-8" />
+               <input type="text" name="q" maxlength="255" value="" />
+               <input type="submit" name="btnG" value="Search site" />
+               <input type="hidden" name="domains" value="$serverurl" />
+               <input type="hidden" name="sitesearch" value="$serverurl" />
+               <a href="http://www.google.com/"><img src="$url{/notmine/google.gif}" alt="Google" /></a>
+             </p>
+        </form> -->
+        <!-- End SiteSearch Google -->
+        <p>
+          <!-- <a href="$url{/Recent Changes}">Recent changes</a><br /> -->
+          <a href="$url{/Licence}">©</a> $email{Reuben Thomas} $email{}
+        </p>
+      </div>
 
-    <div id="content">
-      $text
-      <hr />
-      <small><em>Last updated $lastmodified</em></small>
+      <div id="content">
+        $text
+        <hr />
+        <small><em>Last updated $lastmodified</em></small>
+      </div>
     </div>
   </body>
 </html>
