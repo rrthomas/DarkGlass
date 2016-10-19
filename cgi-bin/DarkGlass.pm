@@ -69,15 +69,12 @@ sub makeDirectory {
   foreach my $entry (sort @entries) {
     $entry = decode_utf8($entry);
     if (-f $dir . $entry && !$Index{$entry}) {
-      $files .= br if $files ne "";
-      $files .= "&nbsp;&nbsp;&nbsp;" . $Macros{link}($Macros{url}($entry), $entry);
+      $files .= li($Macros{link}($Macros{url}($entry), $entry));
     } elsif (-d $dir . $entry) {
-      $dirs .= br if $dirs ne "";
-      $dirs .= "&nbsp;&nbsp;&nbsp;" . $Macros{link}($Macros{url}($entry), "&gt;" . $entry);
+      $dirs .= li($Macros{link}($Macros{url}($entry), "&gt;" . $entry));
     }
   }
-  $dirs .= br if $dirs ne "";
-  return $dirs . $files;
+  return ul($dirs . $files);
 }
 
 sub getThumbnail {
@@ -202,8 +199,8 @@ our $page;
       }
       $desc = "Home";
       $desc .= "&gt;" if $tree ne "";
-      $tree = $Macros{link}($BaseUrl, $desc) . $tree . br;
-      return $tree . makeDirectory($dir, sub {-d shift && -r _});
+      $tree = li($Macros{link}($BaseUrl, $desc) . $tree);
+      return ul($tree . makeDirectory($dir, sub {-d shift && -r _}));
     },
 
     directory => sub {

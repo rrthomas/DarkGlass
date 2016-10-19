@@ -29,6 +29,16 @@ body {
   padding: 0.4%;
 }
 
+#nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#nav ul > ul {
+  padding-left: 10px;
+}
+
 /* Content pane */
 #content {
   padding: 0.4%;
