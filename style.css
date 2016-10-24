@@ -9,17 +9,17 @@ body {
 }
 
 #wrapper {
-    display: flex;
-    flex-flow: row wrap;
+  display: flex;
+  flex-flow: row wrap;
 }
 
 #nav, #content {
-    flex: 1 100%;
+  flex: 1 100%;
 }
 
 @media all and (min-width: 800px) {
-    #nav { flex: 1 auto; }
-    #content { flex: 2 75%; }
+  #nav { flex: 1 auto; }
+  #content { flex: 2 75%; }
 }
 
 /* Navigation pane */
