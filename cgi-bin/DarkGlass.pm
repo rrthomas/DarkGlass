@@ -69,12 +69,12 @@ sub makeDirectory {
   foreach my $entry (sort @entries) {
     $entry = decode_utf8($entry);
     if (-f $dir . $entry && !$Index{$entry}) {
-      $files .= li($Macros{link}($Macros{url}($entry), $entry));
+      $files .= li({-class=>"nav-item"}, $Macros{link}($Macros{url}($entry), $entry, "nav-link"));
     } elsif (-d $dir . $entry) {
-      $dirs .= li($Macros{link}($Macros{url}($entry), "&gt;" . $entry));
+      $dirs .= li({-class=>"nav-item"}, $Macros{link}($Macros{url}($entry), "&gt;" . $entry, "nav-link"));
     }
   }
-  return ul($dirs . $files);
+  return $dirs . $files;
 }
 
 sub getThumbnail {
@@ -195,14 +195,15 @@ our $page;
       my $tree = "";
       my $desc = basename($parents);
       while ($parents ne "" && $parents ne "." && $parents ne "/") {
-        $tree = $Macros{link}($BaseUrl . $parents, $desc) . $tree;
+        $tree = li({-class=>"nav-item"}, $Macros{link}($BaseUrl . $parents, $desc, "nav-link")) . $tree;
         $parents = dirname($parents);
         $desc = basename($parents) . "&gt;";
       }
-      $desc = "Home";
-      $desc .= "&gt;" if $tree ne "";
-      $tree = li($Macros{link}($BaseUrl, $desc) . $tree);
-      return ul($tree . makeDirectory($dir, sub {-d shift && -r _}));
+      # FIXME: Put the following in breadcrumb (see also ~/.dg)
+      # $desc = "Home";
+      # $desc .= "&gt;" if $tree ne "";
+      # $tree = li({-class=>"nav-item"}, $Macros{link}($BaseUrl, $desc, "nav-item") . $tree);
+      return $tree . makeDirectory($dir, sub {-d shift && -r _});
     },
 
     directory => sub {
