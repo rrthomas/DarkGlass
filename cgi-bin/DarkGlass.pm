@@ -166,9 +166,11 @@ our $page;
     },
 
     link => sub {
-      my ($url, $desc) = @_;
+      my ($url, $desc, $class) = @_;
+      my $attrs = {-href => $url};
+      $attrs->{-class} = $class if $class;
       $desc = $url if !$desc || $desc eq "";
-      return a({-href => $url}, $desc);
+      return a($attrs, $desc);
     },
 
     include => sub {
@@ -522,7 +524,7 @@ sub typesToLinks {
     # FIXME: Translate $desttype back into human-readable description
     my $desttype = $type;
     $desttype =~ s/^$srctype>//;
-    $download .= a({-href => $Macros{url}($Macros{pagename}()) . "?convert=$desttype"}, "Download $desttype") . br();
+    $download .= li(a({-href => $Macros{url}($Macros{pagename}()) . "?convert=$desttype"}, "Download $desttype"));
   }
   return $download;
 }
