@@ -1,45 +1,66 @@
-<?xml version="1.0"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head profile="http://www.w3.org/2005/10/profile">
-    <link rel="icon" type="image/vnd.microsoft.icon" href="$url{/favicon.ico}" />
-    <link rel="alternate" type="application/atom+xml" title="$author$pageinsite" href="$url{/$page,convert=application/atom%2Bxml}" />
-    <link rel="stylesheet" type="text/css" href="$url{/style.css}" />
-    <meta name="google-site-verification" content="KntNK9M3y_Cu5vW_L1yVNi148vEiWQ4kU6wt0C1KofY" />
-    <meta name="viewport" content="initial-scale=1.0" />
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <link rel="icon" type="image/vnd.microsoft.icon" href="$url{/favicon.ico}">
+    <link rel="alternate" type="application/atom+xml" title="$author$pageinsite" href="$url{/$page,convert=application/atom%2Bxml}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="$url{/style.css}">
+    <meta name="google-site-verification" content="KntNK9M3y_Cu5vW_L1yVNi148vEiWQ4kU6wt0C1KofY">
+
     <title>$author$pageinsite</title>
     $twittersupport
   </head>
 
   <body>
-    <div id="wrapper">
-      <div id="nav">
-        $menudirectory
-        <p>$download</p>
-        <!-- SiteSearch Google -->
-        <!-- <form method="get" action="http://www.google.com/search">
-             <p>
-               <input type="hidden" name="ie" value="UTF-8" />
-               <input type="hidden" name="oe" value="UTF-8" />
-               <input type="text" name="q" maxlength="255" value="" />
-               <input type="submit" name="btnG" value="Search site" />
-               <input type="hidden" name="domains" value="$serverurl" />
-               <input type="hidden" name="sitesearch" value="$serverurl" />
-               <a href="http://www.google.com/"><img src="$url{/notmine/google.gif}" alt="Google" /></a>
-             </p>
-        </form> -->
-        <!-- End SiteSearch Google -->
-        <p>
-          <!-- <a href="$url{/Recent Changes}">Recent changes</a><br /> -->
-          <a href="$url{/Licence}">©</a> $email{Reuben Thomas} $email{}
-        </p>
+    <nav class="navbar navbar-full navbar-light bg-faded">
+      <div class="container">
+        <button class="navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#collapsingNavbar" aria-expanded="false" aria-controls="collapsingNavbar" aria-label="Toggle navigation"></button>
+        <div class="collapse navbar-toggleable-xs" id="collapsingNavbar">
+          <a class="navbar-brand" href="$url{/}">Reuben Thomas</a>
+          <ul class="nav navbar-nav">
+            $menudirectory
+          </ul>
+        </div>
       </div>
+    </nav>
+    <!-- SiteSearch Google -->
+    <!-- <form method="get" action="http://www.google.com/search">
+         <p>
+           <input type="hidden" name="ie" value="UTF-8">
+           <input type="hidden" name="oe" value="UTF-8">
+           <input type="text" name="q" maxlength="255" value="">
+           <input type="submit" name="btnG" value="Search site">
+           <input type="hidden" name="domains" value="$serverurl">
+           <input type="hidden" name="sitesearch" value="$serverurl">
+           <a href="http://www.google.com/"><img src="$url{/notmine/google.gif}" alt="Google"></a>
+         </p>
+    </form> -->
+    <!-- End SiteSearch Google -->
+    <main>
+      <div class="container">
+        <div class="mt-1">
+          $text
+          <hr>
+          <small><em>Last updated $lastmodified</em></small>
+        </div>
+      </div>
+    </main>
 
-      <div id="content">
-        $text
-        <hr />
-        <small><em>Last updated $lastmodified</em></small>
+    <footer class="footer">
+      <div class="container">
+        <ul class="inline-list">
+          <!-- <a href="$url{/Recent Changes}">Recent changes</a><br> -->
+          <li><a href="$url{/Licence}">©</a> $email{Reuben Thomas} $email{}</li>$download
+        </ul>
       </div>
-    </div>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha384-3ceskX3iaEnIogmQchP8opvBy3Mi7Ce34nWjpBIwVTHfGYWQS9jwHDVRnpKKHJg7" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.7/js/tether.min.js" integrity="sha384-XTs3FgkjiBgo8qjEjBk0tGmf3wPrWtA6coPfQDfFEY8AnYJwjalXCiosYRBIBZX8" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK" crossorigin="anonymous"></script>
   </body>
 </html>
