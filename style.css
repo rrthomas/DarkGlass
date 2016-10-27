@@ -5,6 +5,23 @@
   padding: 0;
 }
 
+/* Breadcrumb that stays visible in collapsed nav */
+
+.mini-nav-wrapper {
+  display: flex;
+}
+
+.breadcrumb {
+  flex: 1;
+}
+
+/* FIXME: Use SASS to refer to screen size "sm" */
+@media (max-width: 575px) {
+  .breadcrumb {
+    margin-left: 4px;
+  }
+}
+
 /* Sticky footer */
 body {
   display: flex;
