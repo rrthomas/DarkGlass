@@ -215,7 +215,7 @@ our $page;
       my ($name, $path, $suffix) = fileparse($Macros{page}());
       $path = "" if $path eq "./";
       my $dir = "$DocumentRoot/$path";
-      return body(h1(basename($dir)) . makeDirectory("$dir", sub {-f shift && -r _}));
+      return body(h1(basename($dir)) . ul(makeDirectory($dir, sub {-f shift && -r _})));
     },
 
     # FIXME: add a film method that gets a thumbnail from a grab of
