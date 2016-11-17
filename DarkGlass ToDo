@@ -3,7 +3,7 @@ DarkGlass ToDo
 
 This list reflects the [http://rrt.sc3d.org/People/Reuben%20Thomas|author]'s priorities. If you'd like to help, or you have any other changes you'd like to see, please $email{contact me}.
 
-   * Have human-readable names for MIME types in download links
+   * Have human-readable names for MIME types in download links, and put them in sensible order (currently non-deterministic!)
    * Rewrite documentation in markdown
    * Remove smut support to Hulot
    * Remove file suffixes, and have a sensible priority order for which file gets the URL when multiple files share a name.
