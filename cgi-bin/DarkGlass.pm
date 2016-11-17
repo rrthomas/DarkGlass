@@ -59,6 +59,7 @@ sub decode_utf8_opt {
 }
 
 # Directory listing generator
+# FIXME: Parametrise the class attributes
 sub makeDirectory {
   my ($dir, $test) = @_;
   my @entries = readDir($dir, $test);
