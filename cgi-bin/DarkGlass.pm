@@ -27,6 +27,7 @@ use Cwd qw(abs_path getcwd);
 use CGI 4.05 qw(:standard unescapeHTML);
 use CGI::Carp qw(fatalsToBrowser);
 use CGI::Util qw(escape unescape);
+use HTML::Tiny; # For tags unknown to CGI.pm
 use MIME::Base64;
 
 use File::Slurp qw(slurp);
@@ -223,8 +224,6 @@ our $page;
       return body(h1(basename($dir)) . ul(makeDirectory($dir, sub {-f shift && -r _})));
     },
 
-    # FIXME: add a film method that gets a thumbnail from a grab of
-    # the first frame of a video (or optionally one given by an argument)
     image => sub {
       my ($image, $alt, $width, $height) = @_;
       my (%attr, $text, $data);
@@ -253,6 +252,19 @@ our $page;
       my $info = ImageInfo($Macros{canonicalpath}($image), "Comment");
       return decode_utf8($$info{Comment}) if $info;
       return "";
+    },
+
+    # FIXME: Get a poster frame from an argument, or a given frame of the video
+    video => sub {
+      my ($video, $alt, $width, $height) = @_;
+      my $file = $Macros{canonicalpath}($video);
+      my $h = HTML::Tiny->new;
+      my %attr;
+      $attr{controls} = [];
+      $attr{src} = $Macros{url}($video);
+      $attr{width} = $width if $width;
+      $attr{height} = $height if $width;
+      return $h->tag('video', \%attr, $alt || "");
     },
 
     webfile => sub {
