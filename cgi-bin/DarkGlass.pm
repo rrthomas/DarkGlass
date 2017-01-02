@@ -1,13 +1,13 @@
 # DarkGlass
 # Serve a directory tree as web pages
-# (c) Reuben Thomas <rrt@sc3d.org> 2002-2016
+# (c) Reuben Thomas <rrt@sc3d.org> 2002-2017
 # http://rrt.sc3d.org/Software/DarkGlass
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
 
 # Non-core dependencies (all in Debian/Ubuntu):
-# File::Slurp, File::MimeInfo, Image::ExifTool,
-# Audio::Scan, Time::Duration, DateTime, XML::LibXSLT, XML::Atom
+# File::Slurp, File::MimeInfo, Image::ExifTool, DateTime,
+# XML::LibXSLT, XML::Atom
 # imagemagick | graphicsmagick-imagemagick-compat
 
 require 5.8.7;
@@ -301,13 +301,13 @@ our $page;
     },
 
     audiofile => sub {
-      use Audio::Scan;
-      use Time::Duration;
-      my ($file, $format) = @_;
-      my $size = $Macros{filesize}($file);
-      my $info = Audio::Scan->scan_info($Macros{canonicalpath}($file))->{info};
-      my $length = concise(duration($info->{song_length_ms} / 1000));
-      return $Macros{link}($Macros{url}($file), $format) . " ($length, $size)";
+      my ($audio, $alt) = @_;
+      my $file = $Macros{canonicalpath}($audio);
+      my $h = HTML::Tiny->new;
+      my %attr;
+      $attr{controls} = [];
+      $attr{src} = $Macros{url}($audio);
+      return $h->tag('audio', \%attr, $alt || "");
     },
 
     # FIXME: This should be a customization
