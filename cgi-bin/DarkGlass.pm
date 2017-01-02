@@ -7,7 +7,7 @@
 
 # Non-core dependencies (all in Debian/Ubuntu):
 # File::Slurp, File::MimeInfo, Image::ExifTool, DateTime,
-# XML::LibXSLT, XML::Atom
+# HTML::Tiny, XML::LibXSLT, XML::Atom
 # imagemagick | graphicsmagick-imagemagick-compat
 
 require 5.8.7;
@@ -24,12 +24,12 @@ use File::stat;
 use File::Temp qw(tempdir);
 use Encode;
 use Cwd qw(abs_path getcwd);
+use MIME::Base64;
+
 use CGI 4.05 qw(:standard unescapeHTML);
 use CGI::Carp qw(fatalsToBrowser);
 use CGI::Util qw(escape unescape);
 use HTML::Tiny; # For tags unknown to CGI.pm
-use MIME::Base64;
-
 use File::Slurp qw(slurp);
 use File::MimeInfo qw(extensions);
 use Image::ExifTool qw(ImageInfo);
