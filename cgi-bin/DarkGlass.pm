@@ -247,6 +247,7 @@ our $page;
       return $text . $alt;
     },
 
+    # FIXME: Merge into $image (add comment only if there is one)
     imagecomment => sub {
       my ($image) = @_;
       my $info = ImageInfo($Macros{canonicalpath}($image), "Comment");
