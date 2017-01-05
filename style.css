@@ -1,3 +1,8 @@
+/* Images align with text bottom by default */
+img {
+  vertical-align: text-bottom;
+}
+
 /* Inline lists */
 .inline-list {
   list-style: none;
