@@ -548,7 +548,7 @@ sub typesToLinks {
     # FIXME: Translate $desttype back into human-readable description
     my $desttype = $type;
     $desttype =~ s/^$srctype>//;
-    $download .= li(a({-href => $Macros{url}($Macros{pagename}()) . "?convert=$desttype"}, "Download $desttype"));
+    $download .= li(a({-href => $Macros{url}(addIndex($Macros{pagename}())) . "?convert=$desttype"}, "Download page as $desttype"));
   }
   return $download;
 }
