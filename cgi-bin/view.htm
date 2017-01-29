@@ -16,19 +16,19 @@
   </head>
 
   <body>
-    <nav class="navbar navbar-full navbar-light bg-faded">
-      <div class="container">
-        <div class="mini-nav-wrapper">
-        <button class="navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#collapsingNavbar" aria-expanded="false" aria-controls="collapsingNavbar" aria-label="Toggle navigation"></button>
+    <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
+      <div class="mini-nav-wrapper">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNavbar" aria-expanded="false" aria-controls="collapsingNavbar" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
         <ol class="breadcrumb">
           $breadcrumb
         </ol>
-        </div>
-        <div class="collapse navbar-toggleable-xs" id="collapsingNavbar">
-          <ul class="nav navbar-nav">
-            $menudirectory
-          </ul>
-        </div>
+        <div class="collapse navbar-collapse" id="collapsingNavbar">
+        <ul class="navbar-nav">
+          $menudirectory
+        </ul>
+      </div>
       </div>
     </nav>
     <!-- SiteSearch Google -->
