@@ -67,7 +67,6 @@ sub makeDirectory {
   return "" if !@entries;
   my $files = "";
   my $dirs = "";
-  $dir = decode_utf8($dir);
   foreach my $entry (sort @entries) {
     $entry = decode_utf8($entry);
     if (-f $dir . $entry && !$Index{$entry}) {
