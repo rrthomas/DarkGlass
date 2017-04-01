@@ -27,7 +27,18 @@ use Cwd qw(abs_path getcwd);
 use MIME::Base64;
 
 use CGI 4.05 qw(:standard unescapeHTML);
-use CGI::Carp qw(fatalsToBrowser);
+use CGI::Carp qw(fatalsToBrowser set_message);
+BEGIN {
+  sub handle_errors {
+    my $msg = shift;
+    print "<!DOCTYPE html>";
+    print "<head><meta charset=\"utf-8\"></head>";
+    print "<h1>Software error:</h1>";
+    print "<pre>$msg</pre>";
+    print "<p>For help, please send mail to the webmaster (<a href=\"mailto:webmaster\@localhost\">webmaster\@localhost</a>), giving this error message and the time and date of the error.\n\n</p>";
+  }
+  set_message(\&handle_errors);
+}
 use CGI::Util qw(escape unescape);
 use HTML::Tiny; # For tags unknown to CGI.pm
 use File::Slurp qw(slurp);
