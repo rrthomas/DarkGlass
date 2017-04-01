@@ -45,6 +45,10 @@ use File::Slurp qw(slurp);
 use File::MimeInfo qw(extensions);
 use Image::ExifTool qw(ImageInfo);
 
+# For debugging, uncomment the following:
+# use lib "/home/rrt/.local/share/perl/5.22.1";
+# use CGI::Carp::StackTrace;
+
 use RRT::Misc;
 use RRT::Macro 3.10;
 use MIME::Convert;
