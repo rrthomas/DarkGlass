@@ -62,7 +62,7 @@ use vars qw($ServerUrl $BaseUrl $DocumentRoot $Recent $Author $Email %Macros);
 use vars qw($DGSuffix @Index %Index);
 
 $DGSuffix = ".dg";
-@Index = ("README$DGSuffix", "README", "README.md", "index.html");
+@Index = ("README$DGSuffix", "README$DGSuffix.md", "index$DGSuffix.html", "README", "README.md", "index.html");
 %Index = map { $_ => 1 } @Index;
 
 
