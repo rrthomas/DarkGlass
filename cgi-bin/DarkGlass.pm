@@ -6,7 +6,7 @@
 # your option) any later version.
 
 # Non-core dependencies (all in Debian/Ubuntu):
-# File::Slurp, File::MimeInfo, Image::ExifTool, DateTime,
+# CGI.pm, File::Slurp, File::MimeInfo, Image::ExifTool, DateTime,
 # HTML::Tiny, XML::LibXSLT, XML::Atom, PDF::API2
 # imagemagick | graphicsmagick-imagemagick-compat
 
