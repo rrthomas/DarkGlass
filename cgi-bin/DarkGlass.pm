@@ -7,7 +7,7 @@
 
 # Non-core dependencies (all in Debian/Ubuntu):
 # File::Slurp, File::MimeInfo, Image::ExifTool, DateTime,
-# HTML::Tiny, XML::LibXSLT, XML::Atom
+# HTML::Tiny, XML::LibXSLT, XML::Atom, PDF::API2
 # imagemagick | graphicsmagick-imagemagick-compat
 
 require 5.8.7;
@@ -44,6 +44,7 @@ use HTML::Tiny; # For tags unknown to CGI.pm
 use File::Slurp qw(slurp);
 use File::MimeInfo qw(extensions);
 use Image::ExifTool qw(ImageInfo);
+use PDF::API2;
 
 # For debugging, uncomment the following:
 # use lib "/home/rrt/.local/share/perl/5.22.1";
@@ -291,12 +292,9 @@ our $page;
     pdfpages => sub {
       my ($file) = @_;
       $file = $Macros{canonicalpath}($file);
-      my $n = `pdfinfo "$file"`;
-      if ($n =~ /Pages:\s*(\pN+)/) {
-        return $1 . ($1 eq "1" ? "p." : "pp.");
-      } else {
-        return "$file pp.";
-      }
+      my $pdf = PDF::API2->open($file);
+      my $n = $pdf->pages();
+      return $n . ($n eq "1" ? "p." : "pp.");
     },
 
     pdffile => sub {
