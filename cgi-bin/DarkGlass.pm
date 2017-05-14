@@ -403,13 +403,6 @@ sub expandNumericEntities {
   return $text;
 }
 
-sub renderSmut {
-  my ($file) = @_;
-  my $script = untaint(abs_path("smut-html.pl"));
-  open(READER, "-|:utf8", $script, $file, $page, $BaseUrl, $DocumentRoot);
-  return expandNumericEntities(scalar(slurp(\*READER)));
-}
-
 # Demote HTML headings by one level
 sub demote {
   my ($text) = @_;
@@ -570,8 +563,6 @@ sub render {
   my ($file, $srctype, $desttype);
   ($file, $page, $srctype, $desttype) = @_;
   # FIXME: Do this more elegantly
-  $MIME::Convert::Converters{"text/plain>text/html"} = \&renderSmut;
-  $MIME::Convert::Converters{"text/x-readme>text/html"} = \&renderSmut;
   $MIME::Convert::Converters{"inode/directory>text/html"} = \&listDirectory;
   $MIME::Convert::Converters{"inode/directory>application/atom+xml"} = \&makeFeed;
   $desttype = $srctype unless $MIME::Convert::Converters{"$srctype>$desttype"};

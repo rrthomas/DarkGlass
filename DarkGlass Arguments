@@ -1,8 +1,0 @@
-DarkGlass Arguments
-###
-
-[DarkGlass] is called by passing arguments to @web.pl@ (typically in the URL). The possible arguments are:
-
-   <@PATH_INFO@>Gives the page to display. Defaults to @HomePage@ as given in the [DarkGlass Configuration]
-   <@download@>Takes no value, and indicates that the resource indicated by the @page@ argument should be downloaded rather than displayed.
-   <@convert@>Gives the desired MIME type. If possible, the resource indicated by @page@ will be converted to that type.
