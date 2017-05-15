@@ -139,6 +139,9 @@ our $page;
     url => sub {
       my ($path, $param) = @_;
       $path = unescapeHTML($path);
+      $path = $Macros{canonicalpath}($path); # follow symlinks
+      my $abs_root = abs_path($DocumentRoot); # strip DocumentRoot off again
+      $path =~ s/^$abs_root//;
       $path =~ s/\?/%3F/g;   # escape ? to avoid generating parameters
       $path =~ s/\$/%24/g;   # escape $ to avoid generating macros
       $path =~ s/ /%20/g;    # escape space
@@ -146,7 +149,6 @@ our $page;
       $page =~ s|/$||;
       my $page_index = addIndex($page);
       $page = dirname($page_index) if $page ne $page_index;
-      $path = "$page/$path" if $path !~ m|^/|;
       $path = $BaseUrl . $path;
       $path =~ s|//+|/|;     # compress /'s; mostly cosmetic, & avoid leading // in output
       $path .= "?$param" if $param;
@@ -182,8 +184,12 @@ our $page;
 
     canonicalpath => sub {
       my ($file) = @_;
-      $file = $Macros{page}() . "/$file" if $file !~ m|^/|;
-      return "$DocumentRoot/$file";
+      if ($file !~ m|^/|) {
+        my $dir = abs_path("$DocumentRoot/" . $Macros{page}());
+        $dir = dirname($dir) if !-d $dir; # strip base component if any
+        $file = "$dir/$file";
+      }
+      return $file;
     },
 
     link => sub {
