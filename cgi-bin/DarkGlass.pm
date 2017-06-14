@@ -322,11 +322,12 @@ our $page;
     audiofile => sub {
       my ($audio, $alt) = @_;
       my $file = $Macros{canonicalpath}($audio);
+      my $url = $Macros{url}($audio);
       my $h = HTML::Tiny->new;
       my %attr;
       $attr{controls} = [];
-      $attr{src} = $Macros{url}($audio);
-      return $h->tag('audio', \%attr, $alt || "");
+      $attr{src} = $url;
+      return $h->tag('audio', \%attr, $alt || "") . a({-href => $url}, "(Download)");
     },
 
     # FIXME: This should be a customization
