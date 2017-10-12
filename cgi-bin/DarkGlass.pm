@@ -584,7 +584,10 @@ sub render {
 }
 
 sub doRequest {
-  local $page = url(-absolute => 1);
+  # FIXME: see https://github.com/leejo/CGI.pm/issues/112
+  local $page = request_uri();
+  $page =~ s/\?.*$//s; # remove query string
+  #local $page = url(-absolute => 1);
   $page = decode_utf8(unescape($page));
   $page =~ s|^$BaseUrl||;
   $page =~ s|^/||;
