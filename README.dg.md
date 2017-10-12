@@ -5,7 +5,7 @@ DarkGlass is a simple content management system, a program that runs on a web se
 Get the code, file issues &c. on [github](https://github.com/rrthomas/DarkGlass).
 
    * [About](About DarkGlass.md)
-   * [Why DarkGlass?](Why DarkGlass?.md)
+   * [Why DarkGlass?](Why DarkGlass%3F.md)
    * [User instructions](DarkGlass Use.md)
    * [Installation instructions](DarkGlass Installation.md)
    * [Organization of files and URLs](DarkGlass Organization.md)
