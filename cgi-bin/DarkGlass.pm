@@ -26,7 +26,7 @@ use Encode;
 use Cwd qw(abs_path getcwd);
 use MIME::Base64;
 
-use CGI 4.05 qw(:standard unescapeHTML);
+use CGI 4.37 qw(:standard unescapeHTML);
 use CGI::Carp qw(fatalsToBrowser set_message);
 BEGIN {
   sub handle_errors {
@@ -584,10 +584,7 @@ sub render {
 }
 
 sub doRequest {
-  # FIXME: see https://github.com/leejo/CGI.pm/issues/112
-  local $page = request_uri();
-  $page =~ s/\?.*$//s; # remove query string
-  #local $page = url(-absolute => 1);
+  local $page = url(-absolute => 1);
   $page = decode_utf8(unescape($page));
   $page =~ s|^$BaseUrl||;
   $page =~ s|^/||;
