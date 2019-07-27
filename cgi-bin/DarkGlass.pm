@@ -1,6 +1,6 @@
 # DarkGlass
 # Serve a directory tree as web pages
-# (c) Reuben Thomas <rrt@sc3d.org> 2002-2017
+# (c) Reuben Thomas <rrt@sc3d.org> 2002-2019
 # http://rrt.sc3d.org/Software/DarkGlass
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
@@ -322,7 +322,7 @@ our $page;
     audiofile => sub {
       my ($audio, $alt) = @_;
       my $file = $Macros{canonicalpath}($audio);
-      my $url = $Macros{url}($audio);
+      my $url = $Macros{url}($audio) . "?convert=audio/mpeg";
       my $h = HTML::Tiny->new;
       my %attr;
       $attr{controls} = [];
@@ -572,6 +572,7 @@ sub render {
   # FIXME: Do this more elegantly
   $MIME::Convert::Converters{"inode/directory>text/html"} = \&listDirectory;
   $MIME::Convert::Converters{"inode/directory>application/atom+xml"} = \&makeFeed;
+  $MIME::Convert::Converters{"audio/mpeg>text/html"} = $Macros{audiofile};
   $desttype = $srctype unless $MIME::Convert::Converters{"$srctype>$desttype"};
   # FIXME: Should give an error if asked by convert parameter for impossible conversion
   my $text = MIME::Convert::convert($file, $srctype, $desttype, $page, $BaseUrl);
