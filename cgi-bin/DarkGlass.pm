@@ -1,7 +1,7 @@
 # DarkGlass
 # Serve a directory tree as web pages
 # (c) Reuben Thomas <rrt@sc3d.org> 2002-2019
-# http://rrt.sc3d.org/Software/DarkGlass
+# https://rrt.sc3d.org/Software/DarkGlass
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
 
@@ -254,7 +254,7 @@ our $page;
       $attr{-alt} = $alt;
       $attr{-width} = $width if $width;
       $attr{-height} = $height if $width;
-      if ($image !~ /^http:/) {
+      if ($image !~ /^https?:/) {
         ($data, $width, $height) = getThumbnail($file, $width, $height);
         if ($data) {
           $attr{-width} ||= $width;
@@ -333,7 +333,7 @@ our $page;
 
     # FIXME: This should be a customization
     twitterstatus => sub {
-      return hr . span({-id => "tweets"}, "") . a({-href => "http://twitter.com/sc3d", -id => "twitter-link", -style => "display:block;text-align:right;font-size:small;"}, "follow me on Twitter") . hr;
+      return hr . span({-id => "tweets"}, "") . a({-href => "https://twitter.com/sc3d", -id => "twitter-link", -style => "display:block;text-align:right;font-size:small;"}, "follow me on Twitter") . hr;
       },
     twittersupport => sub {
       return script({-type => "text/javascript", -src => $Macros{url}("/public_html/tweets.js")}, "");
@@ -422,9 +422,9 @@ sub demote {
   my $style_doc = $parser->parse_string(<<'EOT');
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0"
-    xmlns:xhtml="http://www.w3.org/1999/xhtml"
-    xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:xhtml="https://www.w3.org/1999/xhtml"
+    xmlns="https://www.w3.org/1999/xhtml"
+    xmlns:xsl="https://www.w3.org/1999/XSL/Transform"
     exclude-result-prefixes="xhtml">
 
   <xsl:output method="xml" indent="yes" encoding="utf-8"/>

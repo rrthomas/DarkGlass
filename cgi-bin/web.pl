@@ -1,7 +1,7 @@
 #! /usr/bin/perl -T
 # DarkGlass
 # (c) Reuben Thomas <rrt@sc3d.org> 2002-2013
-# http://rrt.sc3d.org/Software/DarkGlass
+# https://rrt.sc3d.org/Software/DarkGlass
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
 
