@@ -327,6 +327,7 @@ our $page;
       my %attr;
       $attr{controls} = [];
       $attr{src} = $url;
+      $attr{preload} = "metadata";
       return $h->tag('audio', \%attr, $alt || "") . a({-href => $url}, "(Download)");
     },
 
