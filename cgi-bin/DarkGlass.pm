@@ -320,13 +320,15 @@ our $page;
     },
 
     audiofile => sub {
-      my ($audio, $alt) = @_;
+      my ($audio, $alt, $mimetype) = @_;
+      my $mimetype ||= getMimeType($audio);
       my $file = $Macros{canonicalpath}($audio);
-      my $url = $Macros{url}($audio) . "?convert=audio/mpeg";
+      my $url = $Macros{url}($audio) . "?convert=$mimetype";
       my $h = HTML::Tiny->new;
       my %attr;
       $attr{controls} = [];
       $attr{src} = $url;
+      $attr{type} = $mimetype;
       $attr{preload} = "metadata";
       return $h->tag('audio', \%attr, $alt || "") . a({-href => $url}, "(Download)");
     },
@@ -500,6 +502,11 @@ sub datetime_as_rfc3339 {
   return $dt->strftime('%FT%T$offset');
 }
 
+sub audioFile {
+  my ($file, $srctype, $desttype) = @_;
+  return $Macros{audiofile}($file, "", $srctype);
+}
+
 sub makeFeed {
   my ($path, $order, $files, $pagenames, $times, $pages, $paths) = renderDir();
 
@@ -573,7 +580,8 @@ sub render {
   # FIXME: Do this more elegantly
   $MIME::Convert::Converters{"inode/directory>text/html"} = \&listDirectory;
   $MIME::Convert::Converters{"inode/directory>application/atom+xml"} = \&makeFeed;
-  $MIME::Convert::Converters{"audio/mpeg>text/html"} = $Macros{audiofile};
+  $MIME::Convert::Converters{"audio/mpeg>text/html"} = \&audioFile;
+  $MIME::Convert::Converters{"audio/ogg>text/html"} = \&audioFile;
   $desttype = $srctype unless $MIME::Convert::Converters{"$srctype>$desttype"};
   # FIXME: Should give an error if asked by convert parameter for impossible conversion
   my $text = MIME::Convert::convert($file, $srctype, $desttype, $page, $BaseUrl);
