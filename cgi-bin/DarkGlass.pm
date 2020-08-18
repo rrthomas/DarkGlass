@@ -582,6 +582,8 @@ sub render {
   $MIME::Convert::Converters{"inode/directory>application/atom+xml"} = \&makeFeed;
   $MIME::Convert::Converters{"audio/mpeg>text/html"} = \&audioFile;
   $MIME::Convert::Converters{"audio/ogg>text/html"} = \&audioFile;
+  $MIME::Convert::Converters{"audio/x-opus+ogg>text/html"} = \&audioFile;
+  $MIME::Convert::Converters{"audio/mp4>text/html"} = \&audioFile;
   $desttype = $srctype unless $MIME::Convert::Converters{"$srctype>$desttype"};
   # FIXME: Should give an error if asked by convert parameter for impossible conversion
   my $text = MIME::Convert::convert($file, $srctype, $desttype, $page, $BaseUrl);
