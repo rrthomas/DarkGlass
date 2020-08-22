@@ -321,7 +321,7 @@ our $page;
 
     audiofile => sub {
       my ($audio, $alt, $mimetype) = @_;
-      my $mimetype ||= getMimeType($audio);
+      $mimetype ||= getMimeType($audio);
       my $file = $Macros{canonicalpath}($audio);
       my $url = $Macros{url}($audio) . "?convert=$mimetype";
       my $h = HTML::Tiny->new;
