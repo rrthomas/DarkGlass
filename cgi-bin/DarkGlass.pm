@@ -1,6 +1,6 @@
 # DarkGlass
 # Serve a directory tree as web pages
-# (c) Reuben Thomas <rrt@sc3d.org> 2002-2019
+# (c) Reuben Thomas <rrt@sc3d.org> 2002-2020
 # https://rrt.sc3d.org/Software/DarkGlass
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
@@ -184,12 +184,10 @@ our $page;
 
     canonicalpath => sub {
       my ($file) = @_;
-      if ($file !~ m|^/|) {
-        my $dir = abs_path("$DocumentRoot/" . $Macros{page}());
-        $dir = dirname($dir) if !-d $dir; # strip base component if any
-        $file = "$dir/$file";
-      }
-      return $file;
+      my $dir = abs_path($DocumentRoot);
+      $dir .= "/" . $Macros{page}() if $file !~ m|^/|;
+      $dir = dirname($dir) if !-d $dir; # strip base component if any
+      return "$dir/$file";
     },
 
     link => sub {
