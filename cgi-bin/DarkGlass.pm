@@ -150,7 +150,7 @@ our $page;
       my $page_index = addIndex($page);
       $page = dirname($page_index) if $page ne $page_index;
       $path = $BaseUrl . $path;
-      $path =~ s|//+|/|;     # compress /'s; mostly cosmetic, & avoid leading // in output
+      $path =~ s|//+|/|g;     # compress /'s; mostly cosmetic, & avoid leading // in output
       $path .= "?$param" if $param;
       return $path;
     },
