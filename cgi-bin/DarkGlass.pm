@@ -566,7 +566,7 @@ sub typesToLinks {
     # FIXME: Add page count for PDF using pdfpages macro
     # FIXME: Translate $desttype back into human-readable description
     my $desttype = $type;
-    $desttype =~ s/^$srctype>//;
+    $desttype =~ s/^\Q$srctype\E>//;
     $download .= li(a({-href => $Macros{url}(addIndex($Macros{pagename}())) . "?convert=$desttype"}, "Download page as $desttype"));
   }
   return $download;
@@ -586,7 +586,7 @@ sub render {
   $desttype = $srctype unless $MIME::Convert::Converters{"$srctype>$desttype"};
   # FIXME: Should give an error if asked by convert parameter for impossible conversion
   my $text = MIME::Convert::convert($file, $srctype, $desttype, $page, $BaseUrl);
-  my $altDownload = typesToLinks($srctype, MIME::Convert::converters(qr/^$srctype/));
+  my $altDownload = typesToLinks($srctype, MIME::Convert::converters(qr/^\Q$srctype\E/));
   # N.B.: we can't embed arbitrary objects. This is the best we can
   # do. Another problem is that with this, we'd be forced to use
   # ...?convert URLs for anything we actually wanted to download.
