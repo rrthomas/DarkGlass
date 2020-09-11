@@ -502,6 +502,7 @@ sub datetime_as_rfc3339 {
 
 sub audioFile {
   my ($file, $srctype, $desttype) = @_;
+  $file =~ s/$DocumentRoot//;
   return $Macros{audiofile}($file, "", $srctype);
 }
 
