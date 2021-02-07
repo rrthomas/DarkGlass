@@ -615,6 +615,7 @@ sub doRequest {
   # Apache bailing out when it can't read the .htaccess file in the
   # directory.
   if (!-e $file) {
+    # FIXME: If file does not exist at first, try case-insensitive path matching.
     print header(-status => 404, -charset => "utf-8") . expand(expandNumericEntities(scalar(slurp(untaint(abs_path("notfound.htm")), {binmode => ':utf8'}))), \%Macros);
   } else {
     ($text, $desttype, $altDownload) = render($file, $page, $srctype, $desttype);
