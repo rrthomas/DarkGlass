@@ -1,6 +1,6 @@
 # DarkGlass
 # Serve a directory tree as web pages
-# (c) Reuben Thomas <rrt@sc3d.org> 2002-2020
+# (c) Reuben Thomas <rrt@sc3d.org> 2002-2021
 # https://rrt.sc3d.org/Software/DarkGlass
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
@@ -120,7 +120,7 @@ sub getThumbnail {
       $width ||= 160;
       $height ||= 160;
       open(READER, "-|", "convert", "-quiet", $file, "-size", $width ."x" .$height, "-resize", $width . "x" .$height, "jpeg:-");
-      $data = scalar(slurp(\*READER, {binmode => ':raw'}));
+      $data = slurp(\*READER, {binmode => ':raw'});
     }
   }
   return ($data, $width, $height);
@@ -201,7 +201,7 @@ our $page;
     include => sub {
       my ($file) = @_;
       $file = $Macros{canonicalpath}($file);
-      return expand(scalar(slurp($file, {binmode => ':utf8'})));
+      return expand(slurp($file, {binmode => ':utf8'}));
     },
 
     filesize => sub {
@@ -619,11 +619,11 @@ sub doRequest {
     print header(-status => 404, -charset => "utf-8") . expand(expandNumericEntities(scalar(slurp(untaint(abs_path("notfound.htm")), {binmode => ':utf8'}))), \%Macros);
   } else {
     ($text, $desttype, $altDownload) = render($file, $page, $srctype, $desttype);
-    # FIXME: Following stanza made redundant by Nancy
+    # FIXME: Following block made redundant by Nancy
     if (basename($file) eq "index.html") {
-      $text = slurp $file;
+      $text = slurp($file, {binmode => ':utf8'});
     }
-    # FIXME: This next stanza should be turned into a custom Convert rule
+    # FIXME: This next block should be turned into a custom Convert rule
     elsif ($desttype eq "text/html") {
       my $body = getBody($text);
       $body = expand($body, \%DarkGlass::Macros) if $srctype eq "text/plain" || $srctype eq "text/x-readme" || $srctype eq "text/markdown"; # FIXME: this is a hack
