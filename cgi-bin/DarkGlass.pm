@@ -214,7 +214,7 @@ our $page;
       $path = "" if $path eq "./";
       my $dir = "$DocumentRoot/$path";
       my $override = "$dir$DGSuffix";
-      return scalar(slurp($override, {binmode => ':utf8'})) if -f $override;
+      return expand(scalar(slurp($override, {binmode => ':utf8'})), \%Macros) if -f $override;
       return makeDirectory($dir, sub {-d shift && -r _});
     },
 
