@@ -56,7 +56,7 @@ use MIME::Convert;
 
 
 # Config vars
-use vars qw($ServerUrl $BaseUrl $DocumentRoot $Recent $Author $Email %Macros);
+use vars qw($ServerUrl $BaseUrl $DocumentRoot $Recent $Title $Author $Email %Macros);
 
 # Computed globals
 use vars qw($DGSuffix @Index %Index);
@@ -171,6 +171,10 @@ our $page;
       return $Author;
     },
 
+    title => sub {
+      return $Title;
+    },
+
     email => sub {
       my ($text) = @_;
       $text = $Email if !defined($text);
@@ -231,7 +235,7 @@ our $page;
         $parents = dirname($parents);
         $desc = basename($parents);
       }
-      $desc = "Reuben Thomas"; # FIXME: this should be configured in web.pl
+      $desc = $Title;
       $tree = li({-class => "breadcrumb-item"}, $Macros{link}($BaseUrl, $desc) . $tree);
       return $tree;
     },
