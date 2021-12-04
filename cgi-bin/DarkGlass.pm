@@ -325,14 +325,18 @@ our $page;
       my ($audio, $alt, $mimetype) = @_;
       my $file = $Macros{canonicalpath}($audio);
       $mimetype ||= getMimeType($file);
-      my $url = $Macros{url}($audio) . "?convert=$mimetype";
+      $mimetype = "audio/ogg" if $mimetype =~ /\+ogg$/;
+      my $baseUrl = $Macros{url}($audio);
+      my $url = "$baseUrl?convert=$mimetype";
       my $h = HTML::Tiny->new;
       my %attr;
       $attr{controls} = [];
-      $attr{src} = $url;
-      $attr{type} = $mimetype;
       $attr{preload} = "metadata";
-      return $h->tag('audio', \%attr, $alt || "") . a({-href => $url}, "(Download)");
+      my @contents = ($h->tag('source', {type => $mimetype, src => $url}));
+      push @contents, $h->tag('source', {type => "audio/mpeg", src => "$baseUrl?convert=audio/mpeg"})
+        if $mimetype ne "audio/mpeg" && $MIME::Convert::Converters{"$mimetype>audio/mpeg"};
+      push @contents, $alt if $alt;
+      return $h->tag('audio', \%attr, \@contents) . a({href => $url}, "(Download)");
     },
 
     # FIXME: This should be a customization
