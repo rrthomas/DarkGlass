@@ -1,3 +1,10 @@
+/* Clear floats after multi-column layout */
+.multicolumn:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
 /* Images align with text bottom by default */
 img {
   vertical-align: text-bottom;
