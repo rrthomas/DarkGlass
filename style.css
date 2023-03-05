@@ -1,3 +1,31 @@
+@media screen and (max-width: 767px) {
+  nav.navbar {
+      position: static;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  :root {
+      --menu-width: 12rem;
+  }
+
+  main {
+      margin-left: var(--menu-width);
+  }
+
+  .breadcrumb {
+      margin-left: var(--menu-width);
+  }
+
+  .menu-navbar {
+      width: var(--menu-width);
+  }
+
+  .footer {
+      margin-left: var(--menu-width);
+  }
+}
+
 /* Clear floats after multi-column layout */
 .multicolumn:after {
   content: "";
@@ -17,28 +45,27 @@ img {
   padding: 0;
 }
 
-/* FIXME: Use SASS to refer to screen size "sm" */
-@media (max-width: 575px) {
-  .breadcrumb {
-    margin-left: 4px;
-  }
-}
-
 /* Sticky footer */
 body {
   display: flex;
   min-height: 100vh;
   flex-direction: column;
+  background-color: var(--bs-tertiary-bg);
 }
 
 main {
   flex: 1;
+  padding-bottom: 8px;
+  background-color: var(--bs-body-bg);
+}
+
+.breadcrumb {
+  margin-bottom: 0px;
 }
 
 .footer {
-  margin-top: 8px;
   padding: 4px;
-  background-color: #f5f5f5;
+  background-color: var(--bs-tertiary-bg);
 }
 
 .footer ul li {
