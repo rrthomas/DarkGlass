@@ -50,30 +50,3 @@ main {
 .footer li ~ li {
   float: right;
 }
-
-/* Twitter status */
-#tweets p, #tweets a {
-  margin: 0;
-}
-
-#tweets ul {
-  /* FIXME: The next 3 settings are .inline-list; apply with SASS? */
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  overflow: hidden; /* Puts line break after "follow" line */
-}
-
-#tweets .timePosted a {
-  font-size: small;
-}
-
-#tweets .interact {
-  float: right;
-}
-
-#tweets .interact a {
-  margin-left: 5px;
-  float: right;
-  font-size: small;
-}

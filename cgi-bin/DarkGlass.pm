@@ -1,6 +1,6 @@
 # DarkGlass
 # Serve a directory tree as web pages
-# (c) Reuben Thomas <rrt@sc3d.org> 2002-2021
+# (c) Reuben Thomas <rrt@sc3d.org> 2002-2023
 # https://rrt.sc3d.org/Software/DarkGlass
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
@@ -337,14 +337,6 @@ our $page;
         if $mimetype ne "audio/mpeg" && $MIME::Convert::Converters{"$mimetype>audio/mpeg"};
       push @contents, $alt if $alt;
       return $h->tag('audio', \%attr, \@contents) . a({href => $url}, "(Download)");
-    },
-
-    # FIXME: This should be a customization
-    twitterstatus => sub {
-      return hr . span({-id => "tweets"}, "") . a({-href => "https://twitter.com/sc3d", -id => "twitter-link", -style => "display:block;text-align:right;font-size:small;"}, "follow me on Twitter") . hr;
-      },
-    twittersupport => sub {
-      return script({-type => "text/javascript", -src => $Macros{url}("/public_html/tweets.js")}, "");
     },
    );
 
