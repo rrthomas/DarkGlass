@@ -429,9 +429,9 @@ sub demote {
   my $style_doc = $parser->parse_string(<<'EOT');
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0"
-    xmlns:xhtml="https://www.w3.org/1999/xhtml"
-    xmlns="https://www.w3.org/1999/xhtml"
-    xmlns:xsl="https://www.w3.org/1999/XSL/Transform"
+    xmlns:xhtml="http://www.w3.org/1999/xhtml"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     exclude-result-prefixes="xhtml">
 
   <xsl:output method="xml" indent="yes" encoding="utf-8"/>
@@ -484,9 +484,7 @@ sub summariseDirectory {
     my $path = @{$paths}[@{$order}[$i]];
     next if $Index{@{$files}[@{$order}[$i]]};
     if (-f $path) {
-      # FIXME: Get demote working again
-      #$text .= getBody(demote(@{$pages}[@{$order}[$i]])) . hr;
-      $text .= getBody(@{$pages}[@{$order}[$i]]) . hr;
+      $text .= getBody(demote(@{$pages}[@{$order}[$i]])) . hr;
     } elsif (-d $path) {
       my $file = @{$files}[@{$order}[$i]];
       $text .= "&nbsp;&nbsp;&nbsp;" . $Macros{link}($Macros{url}($file), "&gt;" . $file) . hr;
