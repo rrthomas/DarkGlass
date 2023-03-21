@@ -247,6 +247,13 @@ our $page;
       return body(h1(basename($dir)) . ul(makeDirectory($dir, sub {-f shift && -r _})));
     },
 
+    inlinedirectory => sub {
+      my ($name, $path, $suffix) = fileparse($Macros{page}());
+      $path = "" if $path eq "./";
+      my $dir = "$DocumentRoot/$path";
+      return body(summariseDirectory($dir));
+    },
+
     image => sub {
       my ($image, $alt, $width, $height) = @_;
       my (%attr, $text, $data);
@@ -475,6 +482,7 @@ sub summariseDirectory {
   my $text = h1($Macros{pagename}());
   for (my $i = $from; $i <= min($#{$order}, $to); $i++) {
     my $path = @{$paths}[@{$order}[$i]];
+    next if $Index{@{$files}[@{$order}[$i]]};
     if (-f $path) {
       # FIXME: Get demote working again
       #$text .= getBody(demote(@{$pages}[@{$order}[$i]])) . hr;
