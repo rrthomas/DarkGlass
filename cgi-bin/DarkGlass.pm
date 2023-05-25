@@ -144,10 +144,6 @@ our $page;
       $path =~ s/\?/%3F/g;   # escape ? to avoid generating parameters
       $path =~ s/\$/%24/g;   # escape $ to avoid generating macros
       $path =~ s/ /%20/g;    # escape space
-      my $page = $Macros{page}();
-      $page =~ s|/$||;
-      my $page_index = addIndex($page);
-      $page = dirname($page_index) if $page ne $page_index;
       $path = $BaseUrl . $path;
       $path =~ s|//+|/|g;     # compress /'s; mostly cosmetic, & avoid leading // in output
       $path .= "?$param" if $param;
