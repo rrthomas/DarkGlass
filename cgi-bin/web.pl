@@ -24,7 +24,7 @@ use DarkGlass;
 # Configuration
 
 # URL of server
-$DarkGlass::ServerUrl = "http://skwd.it.cx";
+$DarkGlass::ServerUrl = "http://rrt.sc3d.org";
 # Root of site relative to root of server
 $DarkGlass::BaseUrl = "/~rrt/";
 # Directory of site in file system
