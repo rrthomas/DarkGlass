@@ -50,7 +50,7 @@ use PDF::API2;
 # use lib "/home/rrt/.local/share/perl/5.22.1";
 # use CGI::Carp::StackTrace;
 
-use RRT::Misc;
+use RRT::Misc 0.12;
 use RRT::Macro 3.10;
 use MIME::Convert;
 
@@ -84,7 +84,6 @@ sub makeDirectory {
   my $files = "";
   my $dirs = "";
   foreach my $entry (sort @entries) {
-    $entry = decode_utf8($entry);
     if (-f $dir . $entry && !$Index{$entry}) {
       $files .= li({-class => "nav-item"}, $Macros{link}($Macros{url}($entry), $entry, "nav-link"));
     } elsif (-d $dir . $entry) {

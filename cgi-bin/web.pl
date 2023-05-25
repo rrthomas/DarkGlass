@@ -23,6 +23,8 @@ use DarkGlass;
 
 # Configuration
 
+# Set locale (for correct handling of filenames)
+$ENV{'LANG'} = "en_GB.UTF-8";
 # URL of server
 $DarkGlass::ServerUrl = "http://rrt.sc3d.org";
 # Root of site relative to root of server
