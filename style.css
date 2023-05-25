@@ -19,6 +19,12 @@
 
   .menu-navbar {
       width: var(--menu-width);
+      overflow-y: scroll;
+      max-height: 100vh;
+  }
+
+  .navbar-expand-md {
+      flex-wrap: wrap;
   }
 
   .footer {
