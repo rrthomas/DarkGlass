@@ -78,16 +78,17 @@ sub decode_utf8_opt {
 # Directory listing generator
 # FIXME: Parametrise the class attributes
 sub makeDirectory {
-  my ($dir, $test) = @_;
+  my ($path, $test) = @_;
+  my $dir = "$DocumentRoot/$path";
   my @entries = readDir($dir, $test);
   return "" if !@entries;
   my $files = "";
   my $dirs = "";
   foreach my $entry (sort @entries) {
     if (-f $dir . $entry && !$Index{$entry}) {
-      $files .= li({-class => "nav-item"}, $Macros{link}($Macros{url}($entry), $entry, "nav-link"));
+      $files .= li({-class => "nav-item"}, $Macros{link}($Macros{url}("$path/$entry"), $entry, "nav-link"));
     } elsif (-d $dir . $entry) {
-      $dirs .= li({-class => "nav-item"}, $Macros{link}($Macros{url}($entry), "&gt;" . $entry, "nav-link"));
+      $dirs .= li({-class => "nav-item"}, $Macros{link}($Macros{url}("$path/$entry"), "&gt;" . $entry, "nav-link"));
     }
   }
   return $dirs . $files;
@@ -209,10 +210,11 @@ our $page;
     },
 
     menudirectory => sub {
-      my ($name, $path, $suffix) = fileparse($Macros{page}());
+      my ($dir) = @_;
+      $dir = $Macros{page}() unless defined($dir);
+      my ($name, $path, $suffix) = fileparse($dir);
       $path = "" if $path eq "./";
-      my $dir = "$DocumentRoot/$path";
-      my $override = "$dir$DGSuffix";
+      my $override = "$DocumentRoot/$path$DGSuffix";
       return expand(scalar(slurp($override, {binmode => ':utf8'})), \%Macros) if -f $override;
       return makeDirectory($dir, sub {-d shift && -r _});
     },
@@ -238,8 +240,7 @@ our $page;
     directory => sub {
       my ($name, $path, $suffix) = fileparse($Macros{page}());
       $path = "" if $path eq "./";
-      my $dir = "$DocumentRoot/$path";
-      return body(h1(basename($dir)) . ul(makeDirectory($dir, sub {-f shift && -r _})));
+      return body(h1(basename($path)) . ul(makeDirectory($path, sub {-f shift && -r _})));
     },
 
     inlinedirectory => sub {
