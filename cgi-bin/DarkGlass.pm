@@ -76,7 +76,7 @@ sub decode_utf8_opt {
 }
 
 # Directory listing generator
-# FIXME: Parametrise the class attributes
+# FIXME: Parametrise the class attributes.
 sub makeDirectory {
   my ($path, $test) = @_;
   my $dir = "$DocumentRoot/$path";
@@ -86,9 +86,9 @@ sub makeDirectory {
   my $dirs = "";
   foreach my $entry (sort @entries) {
     if (-f $dir . $entry && !$Index{$entry}) {
-      $files .= li({-class => "nav-item"}, $Macros{link}($Macros{url}("$path/$entry"), $entry, "nav-link"));
+      $files .= li($Macros{link}($Macros{url}("$path/$entry"), $entry, "nav-link"));
     } elsif (-d $dir . $entry) {
-      $dirs .= li({-class => "nav-item"}, $Macros{link}($Macros{url}("$path/$entry"), "&gt;" . $entry, "nav-link"));
+      $dirs .= li($Macros{link}($Macros{url}("$path/$entry"), $entry, "nav-link nav-directory"));
     }
   }
   return $dirs . $files;

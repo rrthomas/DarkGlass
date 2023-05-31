@@ -65,6 +65,10 @@ main {
   background-color: var(--bs-body-bg);
 }
 
+.nav-directory::before {
+  content: ">";
+}
+
 .breadcrumb {
   margin-bottom: 0px;
 }
