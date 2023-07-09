@@ -1,13 +1,11 @@
 # DarkGlass Organization
 
-## Distribution
-
-The [distribution archive](Getting DarkGlass.md) is organised as follows:
+The files are organised as follows:
 
 =`README`=
     is a quick introduction.
 =`cgi-bin`=
-    contains the main DarkGlass program `DarkGlass.pm`, some helper modules in `VCS` and `RRT`, and the front-end script and configuration file `wiki.pl`.
+    contains the main DarkGlass program `DarkGlass.pm`, some helper modules in `MIME` and `RRT`, and the front-end script and configuration file `wiki.pl`.
 =`*.md`
     The DarkGlass documentation.
 
