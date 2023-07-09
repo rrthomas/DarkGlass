@@ -10,6 +10,8 @@ cd DarkGlass
 ./install.sh /PATH/TO/YOUR/DOCUMENT-ROOT /PATH/TO/YOUR/CGI-BIN
 ```
 
+(You can use the same `install.sh` command to update a DarkGlass installation with a newer version.)
+
 Then, configure the `web.pl` script as described in [DarkGlass Configuration](DarkGlass Configuration.md).
 
 The wiki should now be ready to use. See [DarkGlass Customization](DarkGlass Customization.md) for details of the various ways in which DarkGlass can be customized.
