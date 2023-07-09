@@ -12,18 +12,23 @@ if [ ! -f "About DarkGlass.md" ]; then
 fi
 
 # Process command-line arguments
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 INSTALL-DIR"
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 DOCUMENT-ROOT-DIR CGI-BIN-DIR"
     exit 1
 fi
-INSTALL_DIR=$1
-shift
+DOCUMENT_ROOT_DIR=$1
+INSTALL_DIR=$2
+shift 2
+if [ ! -d "$DOCUMENT_ROOT_DIR" ]; then
+    echo "DOCUMENT-ROOT-DIR must be a directory"
+fi
 if [ ! -d "$INSTALL_DIR" ]; then
     echo "INSTALL-DIR must be a directory"
 fi
 
 # Copy files
 INSTALL_DATA="install --mode=644"
+$INSTALL_DATA style.css "$DOCUMENT_ROOT_DIR"
 install cgi-bin/*.pl "$INSTALL_DIR"
 $INSTALL_DATA cgi-bin/*.htm cgi-bin/*.pm "$INSTALL_DIR"
 $INSTALL_DATA -D --target-directory "$INSTALL_DIR"/RRT perl/Macro.pm perl/Misc.pm

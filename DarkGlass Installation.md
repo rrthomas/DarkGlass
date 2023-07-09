@@ -7,7 +7,7 @@ To install DarkGlass:
 ```
 git clone https://github.com/rrthomas/DarkGlass
 cd DarkGlass
-./install.sh /PATH/TO/YOUR/CGI-BIN
+./install.sh /PATH/TO/YOUR/DOCUMENT-ROOT /PATH/TO/YOUR/CGI-BIN
 ```
 
 Then, configure the `web.pl` script as described in [DarkGlass Configuration](DarkGlass Configuration.md).
