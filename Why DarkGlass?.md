@@ -7,5 +7,3 @@ Most ways of putting up a web site require you to copy content to the web server
 DarkGlass takes the approach that a personal web site should just be a subset of one’s personal files (“My Documents” or “home directory” or whatever). It uses file permissions to control which files are displayed, and which not. It allows a variety of file types (plain text, images, HTML, MP3s, LaTeX) to be displayed, and others to be downloaded. It allows pages to be written simply as plain text using Markdown.
 
 DarkGlass is flexible, but simple. It has a single HTML template to control the look of the site. The navigation bar by default displays a simplified directory listing, but can be overridden in each directory.
-
-Currently, users cannot edit content, but this will be added too, again using file permissions to decide what can be edited, and with the option of blog-like comments for non-editable content. Thus, DarkGlass will be suitable for a combination of static web site, wiki and blog use.
