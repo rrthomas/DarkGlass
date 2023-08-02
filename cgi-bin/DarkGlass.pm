@@ -104,7 +104,6 @@ sub getThumbnail {
     $width ||= $thumbInfo->{ImageWidth};
     $height ||= $thumbInfo->{ImageHeight};
   } else {
-    # FIXME: Use libgraphics-magick-perl
     open(READER, "-|", "identify", "-quiet", $file);
     close READER;
     if ($? != -1) {
