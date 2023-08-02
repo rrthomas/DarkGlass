@@ -14,6 +14,6 @@ Then run:
 
 ```
 nancy website.nancy.conf website.conf
-mv website.conf /etc/apache2/sites-available/
+sudo cp website.conf /etc/apache2/sites-available/NAME.conf
 sudo a2ensite website
 ```
