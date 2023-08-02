@@ -632,32 +632,33 @@ sub doRequest {
     # FIXME: If file does not exist at first, try case-insensitive path matching.
     print header(-status => 404, -charset => "utf-8") . expand(expandNumericEntities(scalar(slurp(untaint(abs_path("notfound.htm")), {binmode => ':utf8'}))), \%Macros);
   } else {
-    ($text, $desttype, $altDownload) = render($file, $page, $srctype, $desttype);
     # FIXME: Following block made redundant by Nancy
     if (basename($file) eq "index.html") {
       $text = slurp($file, {binmode => ':utf8'});
-    }
-    # FIXME: This next block should be turned into a custom Convert rule
-    elsif ($desttype eq "text/html") {
-      my $body = getBody($text);
-      $body = expand($body, \%DarkGlass::Macros) if $srctype eq "text/plain" || $srctype eq "text/x-readme" || $srctype eq "text/markdown"; # FIXME: this is a hack
-      $Macros{file} = sub {addIndex($page)};
-      # FIXME: Put text in next line in file; should be generated from convert (which MIME types can we get from this one?)
-      $Macros{download} = sub {$altDownload || a({-href => $Macros{url}(-f $file ? basename($Macros{file}()) : "", "convert=text/plain")}, "Download page source")};
-      $text = expand(expandNumericEntities(scalar(slurp(untaint(abs_path("view.htm")), {binmode => ':utf8'}))), \%Macros);
-      $text =~ s/\$text/$body/ge; # Avoid expanding macros in body
-      $text = encode_utf8($text); # Re-encode for output
     } else {
-      my $ext = extensions($desttype);
-      # FIXME: put "effective" file extension in the URL, "real" extension in script parameters (and MIME type?), and remove content-disposition
-      if ($ext && $ext ne "") {
-        my $filename = fileparse($file, qr/\.[^.]*/) . ".$ext";
-        my $latin1_filename = encode("iso-8859-1", $filename);
-        $latin1_filename =~ s/[%"]//g;
-        my $utf8_filename = escape($filename);
-        $headers->{"-content_disposition"} = "inline; filename=\"$latin1_filename\"; filename*=utf-8''$utf8_filename";
+      ($text, $desttype, $altDownload) = render($file, $page, $srctype, $desttype);
+      # FIXME: This next block should be turned into a custom Convert rule
+      if ($desttype eq "text/html") {
+        my $body = getBody($text);
+        $body = expand($body, \%DarkGlass::Macros) if $srctype eq "text/plain" || $srctype eq "text/x-readme" || $srctype eq "text/markdown"; # FIXME: this is a hack
+        $Macros{file} = sub {addIndex($page)};
+        # FIXME: Put text in next line in file; should be generated from convert (which MIME types can we get from this one?)
+        $Macros{download} = sub {$altDownload || a({-href => $Macros{url}(-f $file ? basename($Macros{file}()) : "", "convert=text/plain")}, "Download page source")};
+        $text = expand(expandNumericEntities(scalar(slurp(untaint(abs_path("view.htm")), {binmode => ':utf8'}))), \%Macros);
+        $text =~ s/\$text/$body/ge; # Avoid expanding macros in body
+        $text = encode_utf8($text); # Re-encode for output
+      } else {
+        my $ext = extensions($desttype);
+        # FIXME: put "effective" file extension in the URL, "real" extension in script parameters (and MIME type?), and remove content-disposition
+        if ($ext && $ext ne "") {
+          my $filename = fileparse($file, qr/\.[^.]*/) . ".$ext";
+          my $latin1_filename = encode("iso-8859-1", $filename);
+          $latin1_filename =~ s/[%"]//g;
+          my $utf8_filename = escape($filename);
+          $headers->{"-content_disposition"} = "inline; filename=\"$latin1_filename\"; filename*=utf-8''$utf8_filename";
+        }
+        $headers->{"-content_length"} = length($text);
       }
-      $headers->{"-content_length"} = length($text);
     }
     $headers->{-type} = $desttype;
     if ($desttype =~ m|^text/|) {
