@@ -5,7 +5,7 @@ DarkGlass is configured in the `web.pl` script. The configuration variables are 
 =`ServerUrl`=
     The URL of the server.
 =`BaseUrl`=
-    The base URL of the wiki relative to the web server. It will typically contain a leading slash. It is used to construct relative URLs to make links within the wiki. An absolute URL (excluding the initial `http:`) can be used if desired.
+    The base URL of the site relative to the web server. It will typically contain a leading slash. It is used to construct relative URLs to make links within the site. An absolute URL (excluding the initial `http:`) can be used if desired.
 =`DocumentRoot`=
     The file path to the top-level directory of the site content.
 =`Author`=
