@@ -1,0 +1,121 @@
+#!/usr/bin/env python3
+#
+# © Reuben Thomas <rrt@sc3d.org> 2023
+# Released under the GPL version 3, or (at your option) any later version.
+
+from __future__ import annotations
+
+import os
+import sys
+import shutil
+import argparse
+import re
+import subprocess
+import warnings
+from warnings import warn
+from typing import (
+    Optional, Union, Type, NoReturn, TextIO,
+)
+
+# Command-line arguments
+parser = argparse.ArgumentParser(
+    description='Make a static web site with DarkGlass.',
+)
+parser.add_argument('-V', '--version', action='version',
+                    version='%(prog)s 0.1 (2nd August 2023) by Reuben Thomas <rrt@sc3d.org>')
+parser.add_argument('--verbose', action='store_true',
+                    help='show what is being done')
+parser.add_argument('--force', action='store_true',
+                    help='overwrite output directory even if it is not empty')
+parser.add_argument('script', metavar='FILENAME',
+                    help='web.pl configuration script to use')
+parser.add_argument('output', metavar='DIRECTORY',
+                    help='output directory')
+args = parser.parse_args()
+
+# Error messages
+def simple_warning( # pylint: disable=too-many-arguments
+        message: Union[Warning, str],
+        category: Type[Warning], # pylint: disable=unused-argument
+        filename: str, # pylint: disable=unused-argument
+        lineno: int, # pylint: disable=unused-argument
+        file: Optional[TextIO] = sys.stderr, # pylint: disable=redefined-outer-name
+        line: Optional[str] = None # pylint: disable=unused-argument
+) -> None:
+    print(f'{parser.prog}: {message}', file=file or sys.stderr)
+warnings.showwarning = simple_warning
+
+def die(code: int, msg: str) -> NoReturn:
+    warn(msg)
+    sys.exit(code)
+
+# Ensure output directory exists and is empty
+output = args.output
+os.makedirs(output, exist_ok=True)
+if len(os.listdir(output)) > 0:
+    if not args.force:
+        die(1, f'output directory {output} is not empty')
+    shutil.rmtree(output)
+    os.mkdir(output)
+
+# Parse web.pl
+def get_config_variable(script, var_name):
+    m = re.search(r'^\$DarkGlass::' + var_name + ' = "([^"]+)";', script, re.MULTILINE)
+    if m:
+        return m[1]
+
+with open(args.script) as h:
+    script = h.read()
+base_url = get_config_variable(script, 'BaseUrl')
+document_root = get_config_variable(script, 'DocumentRoot')
+# FIXME: Check output is not a subdir of document_root
+
+# Purge the environment to keep perl -T happy
+for var in ('PATH', 'IFS', 'CDPATH', 'ENV', 'BASH_ENV'):
+    if os.environ.get(var):
+        del os.environ[var]
+
+# Walk the input tree and generate output
+def walk_error(err):
+    die(1, str(err))
+
+script_dir = os.path.dirname(args.script)
+script_basename = os.path.basename(args.script)
+
+# FIXME: This data is duplicated from DarkGlass.pm
+DGSuffix = '.dg'
+index_files = {
+    f'README{DGSuffix}', f'README{DGSuffix}.md', f'index{DGSuffix}.html', 'README', 'README.md', 'index.html'
+}
+
+for root, dirs, files in os.walk(document_root, onerror=walk_error):
+    relative_root = os.path.relpath(root, document_root)
+    if relative_root == '.':
+        relative_root = ''
+    else:
+        relative_root += '/'
+    output_dir = os.path.join(output, relative_root)
+    dirs[:] = [d for d in dirs if not d.startswith('.')]
+    for d in dirs:
+        d_path = os.path.join(output_dir, d)
+        if args.verbose:
+            warn(f'creating {d_path}')
+        os.makedirs(d_path)
+    # Filter out all but the highest-priority index file
+    for i in index_files:
+        if i in files:
+            files = [f for f in files if (f == i) or (f not in index_files)]
+            break
+    for f in files:
+        if f.startswith('.'):
+            continue
+        if args.verbose:
+            warn(f'processing {os.path.join(root, f)}')
+        subprocess.check_call(
+            [
+                os.path.join('.', script_basename),
+                f'{base_url}{relative_root}{f}',
+                output_dir,
+            ],
+            cwd=script_dir,
+        )

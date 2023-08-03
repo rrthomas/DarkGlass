@@ -28,6 +28,7 @@ use MIME::Base64;
 
 use CGI 4.37 qw(:standard unescapeHTML);
 use CGI::Carp qw(fatalsToBrowser set_message);
+use constant IS_CGI => exists $ENV{'GATEWAY_INTERFACE'};
 BEGIN {
   sub handle_errors {
     my $msg = shift;
@@ -125,7 +126,13 @@ sub getThumbnail {
   return ($data, $width, $height);
 }
 
-our $page;
+our ($page);
+
+sub convert {
+  my ($url, $mimetype) = @_;
+  return "$url?convert=$mimetype" if IS_CGI;
+  return "$url?FIXME_STATIC_CONVERT";
+}
 
 %Macros =
   (
@@ -342,13 +349,13 @@ our $page;
       $mimetype ||= getMimeType($file);
       $mimetype = "audio/ogg" if $mimetype =~ /\+ogg$/;
       my $baseUrl = $Macros{url}($audio);
-      my $url = "$baseUrl?convert=$mimetype";
+      my $url = convert($baseUrl, $mimetype);
       my $h = HTML::Tiny->new;
       my %attr;
       $attr{controls} = [];
       $attr{preload} = "metadata";
       my @contents = ($h->tag('source', {type => $mimetype, src => $url}));
-      push @contents, $h->tag('source', {type => "audio/mpeg", src => "$baseUrl?convert=audio/mpeg"})
+      push @contents, $h->tag('source', {type => "audio/mpeg", src => convert($baseUrl, "audio/mpeg")})
         if $mimetype ne "audio/mpeg" && $MIME::Convert::Converters{"$mimetype>audio/mpeg"};
       push @contents, $alt if $alt;
       return $h->tag('audio', \%attr, \@contents) . a({href => $url}, "(Download)");
@@ -581,7 +588,7 @@ sub typesToLinks {
     # FIXME: Translate $desttype back into human-readable description
     my $desttype = $type;
     $desttype =~ s/^\Q$srctype\E>//;
-    $download .= li(a({-href => $Macros{url}(basename(addIndex($Macros{page}()))) . "?convert=$desttype"}, "Download page as $desttype"));
+    $download .= li(a({-href => convert($Macros{url}(basename(addIndex($Macros{page}()))), $desttype)}, "Download page as $desttype"));
   }
   return $download;
 }
@@ -609,7 +616,9 @@ sub render {
 }
 
 sub doRequest {
-  local $page = url(-absolute => 1);
+  my ($cmdlineUrl, $outputDir) = @_;
+  $outputDir = untaint($outputDir);
+  local $page = untaint($cmdlineUrl) || url(-absolute => 1);
   $page = decode_utf8(unescape($page));
   $page =~ s|^$BaseUrl||;
   $page =~ s|^/||;
@@ -633,6 +642,7 @@ sub doRequest {
     print header(-status => 404, -charset => "utf-8") . expand(expandNumericEntities(scalar(slurp(untaint(abs_path("notfound.htm")), {binmode => ':utf8'}))), \%Macros);
   } else {
     # FIXME: Following block made redundant by Nancy
+    my $ext = "html";
     if (basename($file) eq "index.html") {
       $text = slurp($file, {binmode => ':utf8'});
     } else {
@@ -643,12 +653,12 @@ sub doRequest {
         $body = expand($body, \%DarkGlass::Macros) if $srctype eq "text/plain" || $srctype eq "text/x-readme" || $srctype eq "text/markdown"; # FIXME: this is a hack
         $Macros{file} = sub {addIndex($page)};
         # FIXME: Put text in next line in file; should be generated from convert (which MIME types can we get from this one?)
-        $Macros{download} = sub {$altDownload || a({-href => $Macros{url}(-f $file ? basename($Macros{file}()) : "", "convert=text/plain")}, "Download page source")};
+        $Macros{download} = sub {$altDownload || a({-href => convert($Macros{url}(-f $file ? basename($Macros{file}()) : ""), "text/plain")}, "Download page source")};
         $text = expand(expandNumericEntities(scalar(slurp(untaint(abs_path("view.htm")), {binmode => ':utf8'}))), \%Macros);
         $text =~ s/\$text/$body/ge; # Avoid expanding macros in body
         $text = encode_utf8($text); # Re-encode for output
       } else {
-        my $ext = extensions($desttype);
+        $ext = extensions($desttype);
         # FIXME: put "effective" file extension in the URL, "real" extension in script parameters (and MIME type?), and remove content-disposition
         if ($ext && $ext ne "") {
           my $filename = fileparse($file, qr/\.[^.]*/) . ".$ext";
@@ -668,7 +678,14 @@ sub doRequest {
     }
     # FIXME: get length of HTML pages too
     $headers->{-expires} = "now";
-    print header($headers) . $text;
+    print header($headers) if IS_CGI;
+    if ($outputDir) {
+      my $outputFile = $Index{basename($file)} ? "index.html" : fileparse($page, qr/\.[^.]*/) . ".$ext";
+      open(OUTPUT, ">$outputDir/$outputFile");
+      print OUTPUT $text;
+    } else {
+      print $text;
+    }
   }
 }
 

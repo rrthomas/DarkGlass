@@ -39,4 +39,5 @@ $DarkGlass::Email = "rrt\@sc3d.org";
 
 
 # Perform the request
-DarkGlass::doRequest();
+# Command-line arguments are supplied when we run in static mode
+DarkGlass::doRequest(@ARGV);
