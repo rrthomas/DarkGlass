@@ -4,7 +4,6 @@ This list reflects the author’s priorities. If you’d like to help, or you ha
 
    * Have human-readable names for MIME types in download links, and put them in sensible order (currently non-deterministic!)
    * Remove file suffixes, and have a sensible priority order for which file gets the URL when multiple files share a name.
-   * Fix templating so Island isn’t a special case.
    * Tagging to generalize file hierarchy. Should work with a search engine. Start by tagging log entries.
    * Make DarkGlass feeds “deep”, i.e. all the way to the bottom of the tree from the current object, and tag-based (see tags).
    * Factor DarkGlass into a front-end to `cv` and a program that actually serves pages.
