@@ -608,10 +608,6 @@ sub render {
   # FIXME: Should give an error if asked by convert parameter for impossible conversion
   my $text = MIME::Convert::convert($file, $srctype, $desttype, $page, $BaseUrl);
   my $altDownload = typesToLinks($srctype, MIME::Convert::converters(qr/^\Q$srctype\E/));
-  # N.B.: we can't embed arbitrary objects. This is the best we can
-  # do. Another problem is that with this, we'd be forced to use
-  # ...?convert URLs for anything we actually wanted to download.
-  #$text = object(-data => "$BaseUrl$file", -width => "100%", -height => "100%");
   return ($text, $desttype, $altDownload);
 }
 
