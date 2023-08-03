@@ -9,7 +9,6 @@ This list reflects the author’s priorities. If you’d like to help, or you ha
    * Factor DarkGlass into a front-end to `cv` and a program that actually serves pages.
    * Have a scheme for commenting on any page via twitter or email (spam filtered). And by Atom publishing?
    * Make `nancy` as make rule.
-   * Use UnionFS or similar to allow DarkGlass to write files to the directories from which it’s serving, so that we can cache conversions.
    * Add dependency-driven rendering, using some sort of make system that can be run manually, by CGI or by inotifyd.
    * `Convert.pm` should be a script again that is invoked by `make` (how do we know if a conversion is possible? Obvious way is to keep the module so we can interrogate the list of conversions, but also have a front end).
    * Add `{ogg,id3}info` to music tracks in DarkGlass.
