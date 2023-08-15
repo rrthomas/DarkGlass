@@ -613,7 +613,7 @@ sub doRequest {
   $MIME::Convert::Converters{"audio/x-opus+ogg>text/html"} = \&audioFile;
   $MIME::Convert::Converters{"audio/mp4>text/html"} = \&audioFile;
   my ($cmdlineUrl, $outputDir) = @_;
-  $outputDir = untaint($outputDir);
+  $outputDir = decode_utf8(untaint($outputDir));
   local $page = untaint($cmdlineUrl) || url(-absolute => 1);
   $page = decode_utf8(unescape($page));
   $page =~ s|^$BaseUrl||;
