@@ -6,7 +6,7 @@ The files are organised as follows:
     is a quick introduction.
 =`cgi-bin`=
     contains the main DarkGlass program `DarkGlass.pm`, some helper modules in `MIME` and `RRT`, and the front-end script and configuration file `web.pl`.
-=`*.md`
+=`*.md`=
     The DarkGlass documentation.
 
 ## URLs
