@@ -597,13 +597,6 @@ sub render {
   local $page;
   my ($file, $srctype, $desttype);
   ($file, $page, $srctype, $desttype) = @_;
-  # FIXME: Do this more elegantly
-  $MIME::Convert::Converters{"inode/directory>text/html"} = \&listDirectory;
-  $MIME::Convert::Converters{"inode/directory>application/atom+xml"} = \&makeFeed;
-  $MIME::Convert::Converters{"audio/mpeg>text/html"} = \&audioFile;
-  $MIME::Convert::Converters{"audio/ogg>text/html"} = \&audioFile;
-  $MIME::Convert::Converters{"audio/x-opus+ogg>text/html"} = \&audioFile;
-  $MIME::Convert::Converters{"audio/mp4>text/html"} = \&audioFile;
   $desttype = $srctype unless $MIME::Convert::Converters{"$srctype>$desttype"};
   # FIXME: Should give an error if asked by convert parameter for impossible conversion
   my $text = MIME::Convert::convert($file, $srctype, $desttype, $page, $BaseUrl);
@@ -612,6 +605,13 @@ sub render {
 }
 
 sub doRequest {
+  # FIXME: Do this more elegantly
+  $MIME::Convert::Converters{"inode/directory>text/html"} = \&listDirectory;
+  $MIME::Convert::Converters{"inode/directory>application/atom+xml"} = \&makeFeed;
+  $MIME::Convert::Converters{"audio/mpeg>text/html"} = \&audioFile;
+  $MIME::Convert::Converters{"audio/ogg>text/html"} = \&audioFile;
+  $MIME::Convert::Converters{"audio/x-opus+ogg>text/html"} = \&audioFile;
+  $MIME::Convert::Converters{"audio/mp4>text/html"} = \&audioFile;
   my ($cmdlineUrl, $outputDir) = @_;
   $outputDir = untaint($outputDir);
   local $page = untaint($cmdlineUrl) || url(-absolute => 1);
