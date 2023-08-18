@@ -164,7 +164,7 @@ sub convert {
 
     # FIXME: Ugly hack: should be a customization
     pageinsite => sub {
-      return "" if $Macros{pagename}() eq "" || $Macros{pagename}() eq "./";
+      return "" if $Macros{pagename}() eq "" || $Macros{pagename}() =~ m|./?|;
       return ": " . $Macros{pagename}();
     },
 
