@@ -675,7 +675,7 @@ sub doRequest {
     $headers->{-expires} = "now";
     print header($headers) if IS_CGI;
     if ($outputDir) {
-      my $outputFile = $Index{basename($file)} ? "index.html" : fileparse($page, qr/\.[^.]*/) . ".$ext";
+      my $outputFile = $Index{basename($file)} ? "index.html" : basename($page);
       open(OUTPUT, ">$outputDir/$outputFile");
       print OUTPUT $text;
     } else {
