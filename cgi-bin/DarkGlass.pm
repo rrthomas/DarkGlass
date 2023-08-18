@@ -87,9 +87,9 @@ sub makeDirectory {
   my $dirs = "";
   foreach my $entry (sort @entries) {
     if (-f $dir . $entry && !$Index{$entry}) {
-      $files .= li($Macros{link}($Macros{url}("$path/$entry"), $entry, "nav-link"));
+      $files .= li($Macros{link}($Macros{url}("/$path/$entry"), $entry, "nav-link"));
     } elsif (-d $dir . $entry) {
-      $dirs .= li($Macros{link}($Macros{url}("$path/$entry"), $entry, "nav-link nav-directory"));
+      $dirs .= li($Macros{link}($Macros{url}("/$path/$entry"), $entry, "nav-link nav-directory"));
     }
   }
   return $dirs . $files;
