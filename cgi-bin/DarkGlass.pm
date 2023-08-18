@@ -77,9 +77,8 @@ sub decode_utf8_opt {
 }
 
 # Directory listing generator
-# FIXME: Parametrise the class attributes.
 sub makeDirectory {
-  my ($path, $test) = @_;
+  my ($path, $test, $linkClasses, $dirLinkClasses) = @_;
   my $dir = "$DocumentRoot/$path";
   my @entries = readDir($dir, $test);
   return "" if !@entries;
@@ -87,9 +86,9 @@ sub makeDirectory {
   my $dirs = "";
   foreach my $entry (sort @entries) {
     if (-f $dir . $entry && !$Index{$entry}) {
-      $files .= li($Macros{link}($Macros{url}("/$path/$entry"), $entry, "nav-link"));
+      $files .= li($Macros{link}($Macros{url}("/$path/$entry"), $entry, $linkClasses));
     } elsif (-d $dir . $entry) {
-      $dirs .= li($Macros{link}($Macros{url}("/$path/$entry"), $entry, "nav-link nav-directory"));
+      $dirs .= li($Macros{link}($Macros{url}("/$path/$entry"), $entry, $dirLinkClasses));
     }
   }
   return $dirs . $files;
@@ -222,7 +221,7 @@ sub convert {
       $path = "" if $path eq "./";
       my $override = "$DocumentRoot/$path$DGSuffix";
       return expand(scalar(slurp($override, {binmode => ':utf8'})), \%Macros) if -f $override;
-      return makeDirectory($dir, sub {-d shift && -r _});
+      return makeDirectory($dir, sub {-d shift && -r _}, 'nav-link', 'nav-link nav-directory');
     },
 
     breadcrumb => sub {
