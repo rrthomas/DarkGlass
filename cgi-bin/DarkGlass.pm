@@ -637,7 +637,7 @@ sub doRequest {
   # directory.
   if (!-e $file) {
     # FIXME: If file does not exist at first, try case-insensitive path matching.
-    print header(-status => 404, -charset => "utf-8") . expand(expandNumericEntities(scalar(slurp(untaint(abs_path("notfound.htm")), {binmode => ':utf8'}))), \%Macros);
+    print header(-status => 404, -charset => "utf-8") . expand(expandNumericEntities(scalar(slurp(untaint(abs_path("notfound.html")), {binmode => ':utf8'}))), \%Macros);
   } else {
     # FIXME: Following block made redundant by Nancy
     my $ext = "html";
@@ -652,7 +652,7 @@ sub doRequest {
         $Macros{file} = sub {addIndex($page)};
         # FIXME: Put text in next line in file; should be generated from convert (which MIME types can we get from this one?)
         $Macros{download} = sub {$altDownload || a({-href => convert($Macros{url}(-f $file ? basename($Macros{file}()) : ""), "text/plain")}, "Download page source")};
-        $text = expand(expandNumericEntities(scalar(slurp(untaint(abs_path("view.htm")), {binmode => ':utf8'}))), \%Macros);
+        $text = expand(expandNumericEntities(scalar(slurp(untaint(abs_path("view.html")), {binmode => ':utf8'}))), \%Macros);
         $text =~ s/\$text/$body/ge; # Avoid expanding macros in body
         $text = encode_utf8($text); # Re-encode for output
       } else {
