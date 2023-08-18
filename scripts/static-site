@@ -107,8 +107,6 @@ for root, dirs, files in os.walk(document_root, onerror=walk_error):
             files = [f for f in files if (f == i) or (f not in index_files)]
             break
     for f in files:
-        if f.startswith('.'):
-            continue
         if args.verbose:
             warn(f'processing {os.path.join(root, f)}')
         subprocess.check_call(
