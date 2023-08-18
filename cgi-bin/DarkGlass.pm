@@ -407,18 +407,21 @@ sub renderDir {
   my @paths = ();
   my @pagenames = ();
   foreach my $file (@entries) {
-    push @files, $file;
     my $path = untaint(abs_path($dir . decode_utf8($file)));
-    push @paths, $path;
-    push @times, stat($path)->mtime;
-    my $page = $path;
-    $page =~ s|^$DocumentRoot||;
-    push @pagenames, $page;
-    if (-f $path) {
-      my ($text) = render($path, $page, getMimeType($path), "text/html");
-      push @pages, $text;
-    } else{
-      push @pages, "($file)";
+    my $stat = stat($path);
+    if ($stat) {
+      push @files, $file;
+      push @paths, $path;
+      push @times, stat($path)->mtime;
+      my $page = $path;
+      $page =~ s|^$DocumentRoot||;
+      push @pagenames, $page;
+      if (-f $path) {
+        my ($text) = render($path, $page, getMimeType($path), "text/html");
+        push @pages, $text;
+      } else{
+        push @pages, "($file)";
+      }
     }
   }
   my @order = sort {$times[$b] <=> $times[$a]} 0 .. $#times;
