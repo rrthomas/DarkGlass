@@ -613,14 +613,14 @@ sub doRequest {
   $MIME::Convert::Converters{"audio/mp4>text/html"} = \&audioFile;
   my ($cmdlineUrl, $outputDir) = @_;
   $outputDir = decode_utf8(untaint($outputDir));
-  local $page = untaint($cmdlineUrl) || url(-absolute => 1);
+  local $page = untaint($cmdlineUrl) || url(-absolute => 1) || "";
   $page = decode_utf8(unescape($page));
   $page =~ s|^$BaseUrl||;
   $page =~ s|^/||;
   # FIXME: Better fix for this (also see url macro)
   $page =~ s/\$/%24/;     # re-escape $ to avoid generating macros
+  $page = dirname($page) if $Index{basename($page)};
   my $desttype = getParam("convert") || "text/html";
-  $page = "" if !defined($page);
   my ($text, $altDownload);
   my $file = pageToFile($page);
   my $srctype = getMimeType($file) || "application/octet-stream";
