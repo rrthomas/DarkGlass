@@ -1,4 +1,4 @@
-# DarkGlass Security
+# Security
 
 First, a disclaimer: serious security is beyond the scope of this manual. Secondly, DarkGlass's main goal is to make publishing easy; security is not its primary goal.
 

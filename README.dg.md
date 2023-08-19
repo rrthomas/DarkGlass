@@ -6,11 +6,11 @@ DarkGlass can either be used as a CGI script to generate web pages dynamically, 
 
 Get the code, file issues &c. on [GitHub](https://github.com/rrthomas/DarkGlass).
 
-   * [About](About DarkGlass.md)
+   * [About](About.md)
    * [Why DarkGlass?](Why DarkGlass%3F.md)
    * [User instructions](DarkGlass Use.md)
-   * [Installation instructions](DarkGlass Installation.md)
+   * [Installation instructions](Installation.md)
    * [Organization of files and URLs](DarkGlass Organization.md)
-   * [Customization](DarkGlass Customization.md)
-   * [Licence](DarkGlass Licence.md)
-   * [Acknowledgements](DarkGlass Acknowledgements.md)
+   * [Customization](Customization.md)
+   * [Licence](Licence.md)
+   * [Acknowledgements](Acknowledgements.md)

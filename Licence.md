@@ -1,4 +1,4 @@
-# DarkGlass Licence
+# Licence
 
 DarkGlass is copyright [Reuben Thomas](mailto:rrt@sc3d.org)
 

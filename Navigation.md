@@ -1,4 +1,4 @@
-# DarkGlass Navigation
+# Navigation
 
 The navigation bar contains:
 

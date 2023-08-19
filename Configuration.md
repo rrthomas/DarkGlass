@@ -1,4 +1,4 @@
-# DarkGlass Configuration
+# Configuration
 
 DarkGlass is configured in the `web.pl` script. The configuration variables are as follows:
 

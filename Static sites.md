@@ -1,4 +1,4 @@
-## DarkGlass Static Sites
+## Static sites
 
 To use DarkGlass to generate a web site, run the following command from the DarkGlass git directory:
 

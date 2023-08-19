@@ -1,4 +1,4 @@
-# DarkGlass Macros
+# Macros
 
 Macros are special markup which add functionality to DarkGlass. A macro call is written `\$macro` if the macro takes no arguments, or `\$macro{arg_1_,…,arg_n_}` if it does. Commas in macro arguments must be escaped with backslashes. Unwanted arguments may be omitted.
 
@@ -29,4 +29,4 @@ FIXME: Documentation of some macros is missing. The documentation should really 
 =`\$pdfpages{_file_}`=
     Inserts the number of pages in the given PDF file in the download directory.
 =`\$email{_text_}`=
-    Makes `_text_` a link to send mail to the administrator (see [DarkGlass Configuration](DarkGlass Configuration.md)).
+    Makes `_text_` a link to send mail to the administrator (see [Configuration](Configuration.md)).

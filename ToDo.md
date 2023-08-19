@@ -1,4 +1,4 @@
-# DarkGlass ToDo
+# ToDo
 
 See also https://github.com/rrthomas/DarkGlass/issues
 
