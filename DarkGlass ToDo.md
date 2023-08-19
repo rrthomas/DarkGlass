@@ -1,5 +1,7 @@
 # DarkGlass ToDo
 
+See also https://github.com/rrthomas/DarkGlass/issues
+
 This list reflects the author’s priorities. If you’d like to help, or you have any other changes you’d like to see, please $email{contact me}.
 
    * Have human-readable names for MIME types in download links, and put them in sensible order (currently non-deterministic!)
