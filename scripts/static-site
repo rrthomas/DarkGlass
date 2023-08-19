@@ -8,6 +8,7 @@ from __future__ import annotations
 import os
 import sys
 import shutil
+from pathlib import Path
 import argparse
 import re
 import subprocess
@@ -20,6 +21,7 @@ from typing import (
 # Command-line arguments
 parser = argparse.ArgumentParser(
     description='Make a static web site with DarkGlass.',
+    epilog='The output DIRECTORY cannot be a subdirectory of DocumentRoot in web.pl.'
 )
 parser.add_argument('-V', '--version', action='version',
                     version='%(prog)s 0.1 (2nd August 2023) by Reuben Thomas <rrt@sc3d.org>')
@@ -49,15 +51,6 @@ def die(code: int, msg: str) -> NoReturn:
     warn(msg)
     sys.exit(code)
 
-# Ensure output directory exists and is empty
-output = args.output
-os.makedirs(output, exist_ok=True)
-if len(os.listdir(output)) > 0:
-    if not args.force:
-        die(1, f'output directory {output} is not empty')
-    shutil.rmtree(output)
-    os.mkdir(output)
-
 # Parse web.pl
 def get_config_variable(script, var_name):
     m = re.search(r'^\$DarkGlass::' + var_name + ' = "([^"]+)";', script, re.MULTILINE)
@@ -68,7 +61,20 @@ with open(args.script) as h:
     script = h.read()
 base_url = get_config_variable(script, 'BaseUrl')
 document_root = get_config_variable(script, 'DocumentRoot')
-# FIXME: Check output is not a subdir of document_root
+
+# Check output directory is not under document_root
+abs_document_root = Path(os.path.expanduser(document_root)).resolve()
+if Path(args.output).absolute().is_relative_to(abs_document_root):
+    die(1, 'output directory cannot be a subdirectory of input')
+
+# Ensure output directory exists and is empty
+output = args.output
+os.makedirs(output, exist_ok=True)
+if len(os.listdir(output)) > 0:
+    if not args.force:
+        die(1, f'output directory {output} is not empty')
+    shutil.rmtree(output)
+    os.mkdir(output)
 
 # Purge the environment to keep perl -T happy
 for var in ('PATH', 'IFS', 'CDPATH', 'ENV', 'BASH_ENV'):
