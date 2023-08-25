@@ -215,13 +215,15 @@ sub convert {
     },
 
     menudirectory => sub {
-      my ($dir) = @_;
+      my ($dir, $linkClasses, $dirLinkClasses) = @_;
+      $linkClasses ||= 'nav-link';
+      $dirLinkClasses ||= 'nav-link nav-directory';
       $dir = $Macros{page}() unless defined($dir);
       my ($name, $path, $suffix) = fileparse($dir);
       $path = "" if $path eq "./";
       my $override = "$DocumentRoot/$path$DGSuffix";
       return expand(scalar(slurp($override, {binmode => ':utf8'})), \%Macros) if -f $override;
-      return makeDirectory($dir, sub {-d shift && -r _}, 'nav-link', 'nav-link nav-directory');
+      return makeDirectory($dir, sub {-d shift && -r _}, $linkClasses, $dirLinkClasses);
     },
 
     breadcrumb => sub {
