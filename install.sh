@@ -6,7 +6,7 @@
 # your option) any later version.
 
 # Check we're being run from the right place
-if [ ! -f "About DarkGlass.md" ]; then
+if [ ! -f "doc/Why DarkGlass?.md" ]; then
     echo "This script must be run from the DarkGlass top-level directory"
     exit 1
 fi
@@ -21,15 +21,17 @@ INSTALL_DIR=$2
 shift 2
 if [ ! -d "$DOCUMENT_ROOT_DIR" ]; then
     echo "DOCUMENT-ROOT-DIR must be a directory"
+    exit 1
 fi
 if [ ! -d "$INSTALL_DIR" ]; then
     echo "INSTALL-DIR must be a directory"
+    exit 1
 fi
 
 # Copy files
 INSTALL_DATA="install --mode=644"
 $INSTALL_DATA style.css "$DOCUMENT_ROOT_DIR"
 install cgi-bin/*.pl "$INSTALL_DIR"
-$INSTALL_DATA cgi-bin/*.htm cgi-bin/*.pm "$INSTALL_DIR"
+$INSTALL_DATA cgi-bin/*.html cgi-bin/*.pm "$INSTALL_DIR"
 $INSTALL_DATA -D --target-directory "$INSTALL_DIR"/RRT perl/Macro.pm perl/Misc.pm
 $INSTALL_DATA -D --target-directory "$INSTALL_DIR"/MIME Hulot/MIME/*
