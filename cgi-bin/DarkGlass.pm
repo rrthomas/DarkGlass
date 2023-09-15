@@ -581,7 +581,7 @@ sub getBody {
   # Pull out the body element of the HTML
   $text =~ m|<body[^>]*>(.*)</body>|smi;
   return $1 || $text;
- }
+}
 
 sub typesToLinks {
   my ($srctype, @types) = @_;
