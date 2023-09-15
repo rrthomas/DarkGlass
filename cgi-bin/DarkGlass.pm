@@ -7,7 +7,7 @@
 
 # Non-core dependencies (all in Debian/Ubuntu):
 # CGI.pm, File::Slurp, File::MimeInfo, Image::ExifTool, DateTime,
-# HTML::Tiny, XML::LibXSLT, XML::Atom, PDF::API2
+# HTML::Parser, HTML::Tagset, HTML::Tiny, XML::LibXSLT, XML::Atom, PDF::API2
 # imagemagick | graphicsmagick-imagemagick-compat
 
 require 5.8.7;
@@ -41,6 +41,8 @@ BEGIN {
   set_message(\&handle_errors);
 }
 use CGI::Util qw(escape unescape);
+use HTML::Parser ();
+use HTML::Tagset;
 use HTML::Tiny; # For tags unknown to CGI.pm
 use File::Slurp qw(slurp);
 use File::MimeInfo qw(extensions describe);
@@ -125,12 +127,18 @@ sub getThumbnail {
   return ($data, $width, $height);
 }
 
-our ($page);
+our ($page, $outputDir);
 
 sub convert {
   my ($url, $mimetype) = @_;
   return "$url?convert=$mimetype" if IS_CGI;
-  return "$url?FIXME_STATIC_CONVERT";
+
+  # If run in static mode, rewrite URL and output further conversions
+  # required.
+  my ($name, $dir, $suffix) = fileparse($url, qr/\.[^.]*/);
+  $suffix = extensions($mimetype);
+  say STDERR "convert $suffix";
+  return "$dir$name$suffix";
 }
 
 %Macros =
@@ -145,6 +153,14 @@ sub convert {
       my ($path, $param) = @_;
       $path = unescapeHTML($path);
       $path = $Macros{canonicalpath}($path); # follow symlinks
+
+      # Rewrite file extension to `.html` if in static mode and file would
+      # be converted to HTML by default.
+      unless (IS_CGI) {
+        my ($name, $dir, $suffix) = fileparse($path, qr/\.[^.]*/);
+        $path = "$dir$name.html" if $suffix =~ /^\.(md|txt)$/ || $name eq "README";
+      }
+
       my $abs_root = abs_path($DocumentRoot); # strip DocumentRoot off again
       $path =~ s/^$abs_root//;
       $path =~ s/\?/%3F/g;   # escape ? to avoid generating parameters
@@ -583,6 +599,65 @@ sub getBody {
   return $1 || $text;
 }
 
+# Construct a hash of tag names that may have links.
+my %link_attr;
+{
+  # To simplify things, reformat the %HTML::Tagset::linkElements
+  # hash so that it is always a hash of hashes.
+  while (my ($k, $v) = each %HTML::Tagset::linkElements) {
+    if (ref($v)) {
+      $v = {map { $_ => 1 } @$v};
+    } else {
+      $v = {$v => 1};
+    }
+    $link_attr{$k} = $v;
+  }
+}
+
+# Wrap a link target in a call to $url unless it is already a macro call or
+# starts with a URI scheme.
+sub rewriteLink {
+  my ($val, $attr, $tag) = @_;
+  $val = "\$url{$val}" unless $val =~ m/^(?:\$|[a-z]+:)/;
+  return $val;
+}
+
+# Rewrite links in an HTML document.
+# Based on hrefsub example from HTML::Parser
+sub rewriteLinks {
+  my ($text) = @_;
+  my $p = HTML::Parser->new(api_version => 3);
+  my @result = ();
+  $p->handler(default => sub { push @result, shift }, "text");
+  $p->handler(
+    start => sub {
+      my ($tagname, $pos, $text) = @_;
+      if (my $link_attr = $link_attr{$tagname}) {
+        while (4 <= @$pos) {
+
+          # use attribute sets from right to left to avoid invalidating the
+          # offsets when replacing the values
+          my ($k_offset, $k_len, $v_offset, $v_len) = splice(@$pos, -4);
+          my $attrname = lc(substr($text, $k_offset, $k_len));
+          next unless $link_attr->{$attrname};
+          next unless $v_offset; # 0 v_offset means no value
+          my $v = substr($text, $v_offset, $v_len);
+          $v =~ s/^([\'\"])(.*)\1$/$2/;
+          my $new_v = rewriteLink($v, $attrname, $tagname);
+          next if $new_v eq $v;
+          $new_v =~ s/\"/&quot;/g; # since we quote with ""
+          substr($text, $v_offset, $v_len) = qq("$new_v");
+        }
+      }
+      push @result, $text;
+    },
+    "tagname, tokenpos, text"
+   );
+  $p->parse($text);
+  $p->eof;
+  return join "", @result;
+}
+
 sub typesToLinks {
   my ($srctype, @types) = @_;
   my $download;
@@ -616,8 +691,8 @@ sub doRequest {
   $MIME::Convert::Converters{"audio/ogg>text/html"} = \&audioFile;
   $MIME::Convert::Converters{"audio/x-opus+ogg>text/html"} = \&audioFile;
   $MIME::Convert::Converters{"audio/mp4>text/html"} = \&audioFile;
-  my ($cmdlineUrl, $outputDir) = @_;
-  $outputDir = decode_utf8(untaint($outputDir));
+  my ($cmdlineUrl, $outputDirArg) = @_;
+  local $outputDir = decode_utf8(untaint($outputDirArg));
   local $page = untaint($cmdlineUrl) || url(-absolute => 1) || "";
   $page = decode_utf8(unescape($page));
   $page =~ s|^$BaseUrl||;
@@ -643,6 +718,7 @@ sub doRequest {
   } else {
     # FIXME: Following block made redundant by Nancy
     my $ext = "html";
+    my $filename = fileparse($file, qr/\.[^.]*/) . ".$ext";
     if (basename($file) eq "index.html") {
       $text = slurp($file, {binmode => ':utf8'});
     } else {
@@ -650,6 +726,7 @@ sub doRequest {
       # FIXME: This next block should be turned into a custom Convert rule
       if ($desttype eq "text/html") {
         my $body = getBody($text);
+        $body = rewriteLinks($body) unless IS_CGI;
         $body = expand($body, \%DarkGlass::Macros) if $srctype eq "text/plain" || $srctype eq "text/x-readme" || $srctype eq "text/markdown"; # FIXME: this is a hack
         $Macros{file} = sub {addIndex($page)};
         # FIXME: Put text in next line in file; should be generated from convert (which MIME types can we get from this one?)
@@ -661,7 +738,7 @@ sub doRequest {
         $ext = extensions($desttype);
         # FIXME: put "effective" file extension in the URL, "real" extension in script parameters (and MIME type?), and remove content-disposition
         if ($ext && $ext ne "") {
-          my $filename = fileparse($file, qr/\.[^.]*/) . ".$ext";
+          $filename = fileparse($file, qr/\.[^.]*/) . ".$ext";
           my $latin1_filename = encode("iso-8859-1", $filename);
           $latin1_filename =~ s/[%"]//g;
           my $utf8_filename = escape($filename);
@@ -680,7 +757,7 @@ sub doRequest {
     $headers->{-expires} = "now";
     print header($headers) if IS_CGI;
     if ($outputDir) {
-      my $outputFile = $Index{basename($file)} ? "index.html" : basename($page);
+      my $outputFile = $Index{basename($file)} ? "index.html" : basename($filename);
       open(OUTPUT, ">$outputDir/$outputFile");
       print OUTPUT $text;
     } else {
