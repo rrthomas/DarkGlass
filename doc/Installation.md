@@ -21,7 +21,7 @@ The input files correspond directly to output files. Web pages are written
 as Markdown files, whose contents is then templated into the structure given
 by the `view.html` template file, which you can customize as desired. Other
 resources such as media files, CSS (including DarkGlass’s own `style.css`)
-and any web server configuration files, are rendered verbatim.
+and any web server configuration files, are rendered verbatim. See [How output is generated from input](How output is generated from input.md) for more details.
 
 Depending on whether you want to use DarkGlass statically or dynamically, see the [Static sites](Static sites.md) or [Dynamic sites](Dynamic sites.md).
 
