@@ -14,15 +14,13 @@ maintain, and its code should be easy to understand. It is released
 under the GNU General Public License version 3, or (at your option)
 any later version. There is no warranty.
 
-See https://rrt.sc3d.org/Software/DarkGlass for more information.
+See https://rrthomas.github.io/DarkGlass for more information.
 
 
 ## Source code organization
 
 The files are organised as follows:
 
-=`README.dg.md`=
-    is a quick introduction.
 =`cgi-bin`=
     contains the main program `DarkGlass.pm`, some helper modules in `MIME` and `RRT`, and the front-end script and configuration file `web.pl`.
 =`doc`=
