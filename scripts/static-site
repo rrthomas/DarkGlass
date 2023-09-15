@@ -100,7 +100,7 @@ for root, dirs, files in os.walk(document_root, onerror=walk_error):
         relative_root = ''
     else:
         relative_root += '/'
-    output_dir = os.path.join(output, relative_root)
+    output_dir = Path(os.path.join(output, relative_root)).resolve()
     dirs[:] = [d for d in dirs if not d.startswith('.')]
     for d in dirs:
         d_path = os.path.join(output_dir, d)
