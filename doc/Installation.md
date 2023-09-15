@@ -13,7 +13,7 @@ cd DarkGlass
 ./install.sh /PATH/TO/YOUR/DOCUMENT-ROOT /PATH/TO/YOUR/CGI-BIN
 ```
 
-(You can use the same `install.sh` command to update a DarkGlass installation with a newer version.)
+(You can use the same `install.sh` command to update a DarkGlass installation with a newer version; beware though that this overwrites your `web.pl`, so you should take a copy before you upgrade.)
 
 Then, configure the `web.pl` script as described in [Configuration](Configuration.md).
 
