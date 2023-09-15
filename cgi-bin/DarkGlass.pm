@@ -591,7 +591,8 @@ sub typesToLinks {
     # FIXME: Add page count for PDF using pdfpages macro
     my $desttype = $type;
     $desttype =~ s/^\Q$srctype\E>//;
-    $download .= li(a({-href => convert($Macros{url}(basename(addIndex($Macros{page}()))), $desttype)}, "Download page as " . describe($desttype)));
+    $download .= li(a({-href => convert($Macros{url}(basename(addIndex($Macros{page}()))), $desttype)}, "Download page as " . describe($desttype)))
+      if $desttype ne "text/html";
   }
   return $download;
 }
@@ -652,7 +653,7 @@ sub doRequest {
         $body = expand($body, \%DarkGlass::Macros) if $srctype eq "text/plain" || $srctype eq "text/x-readme" || $srctype eq "text/markdown"; # FIXME: this is a hack
         $Macros{file} = sub {addIndex($page)};
         # FIXME: Put text in next line in file; should be generated from convert (which MIME types can we get from this one?)
-        $Macros{download} = sub {$altDownload || a({-href => convert($Macros{url}(-f $file ? basename($Macros{file}()) : ""), "text/plain")}, "Download page source")};
+        $Macros{download} = sub {($altDownload || "") . li(a({-href => convert($Macros{url}(-f $file ? basename($Macros{file}()) : ""), "text/plain")}, "Download page source"))};
         $text = expand(expandNumericEntities(scalar(slurp(untaint(abs_path("view.html")), {binmode => ':utf8'}))), \%Macros);
         $text =~ s/\$text/$body/ge; # Avoid expanding macros in body
         $text = encode_utf8($text); # Re-encode for output
