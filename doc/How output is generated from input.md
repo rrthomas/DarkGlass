@@ -12,7 +12,7 @@ Consider the following input directory tree:
 - `image.jpg`
 - `style.css` (by default, the supplied CSS file)
 
-When asked for a given file, DarkGlass first decides whether to convert it to HTML. By default, it knows how to convert Markdown and LaTeX files, so given the files above, it will convert `Foo.md` and `README.md` to web pages. Other files are served as-is.
+When asked for a given file, DarkGlass first decides whether to convert it to HTML. By default, it knows how to convert plain text, Markdown and LaTeX files, so given the files above, it will convert `Foo.md` and `README.md` to web pages. Other files are served as-is.
 
 Files that are served as web pages go through the following procedure:
 
@@ -31,7 +31,7 @@ For static sites, there are no alternate output formats available: each input fi
 
 - `index.html` (generated from `README.md`)
 - `Foo.md` (N.B. this is an HTML file!)
-- `Bar.txt`
+- `Bar.txt` (N.B. this is an HTML file!)
 - `baz.pdf`
 - `favicon.ico`
 - `image.jpg`
