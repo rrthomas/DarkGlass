@@ -43,7 +43,7 @@ BEGIN {
 use CGI::Util qw(escape unescape);
 use HTML::Tiny; # For tags unknown to CGI.pm
 use File::Slurp qw(slurp);
-use File::MimeInfo qw(extensions);
+use File::MimeInfo qw(extensions describe);
 use Image::ExifTool qw(ImageInfo);
 use PDF::API2;
 
@@ -589,10 +589,9 @@ sub typesToLinks {
   for my $type (@types) {
     # FIXME: Move text below into files that can be internationalised
     # FIXME: Add page count for PDF using pdfpages macro
-    # FIXME: Translate $desttype back into human-readable description
     my $desttype = $type;
     $desttype =~ s/^\Q$srctype\E>//;
-    $download .= li(a({-href => convert($Macros{url}(basename(addIndex($Macros{page}()))), $desttype)}, "Download page as $desttype"));
+    $download .= li(a({-href => convert($Macros{url}(basename(addIndex($Macros{page}()))), $desttype)}, "Download page as " . describe($desttype)));
   }
   return $download;
 }
