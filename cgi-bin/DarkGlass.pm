@@ -579,7 +579,7 @@ sub getBody {
   my ($text) = @_;
   $text = decode_utf8_opt($text);
   # Pull out the body element of the HTML
-  $text =~ m|<body[^>]*>(.*)</body>|gsmi;
+  $text =~ m|<body[^>]*>(.*)</body>|smi;
   return $1 || $text;
  }
 
