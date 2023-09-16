@@ -149,6 +149,10 @@ sub convert {
       return $page;
     },
 
+    file => sub {
+      return addIndex($Macros{page});
+    },
+
     url => sub {
       my ($path, $param) = @_;
       $path = unescapeHTML($path);
@@ -731,7 +735,6 @@ sub doRequest {
         my $body = getBody($text);
         $body = rewriteLinks($body) unless IS_CGI;
         $body = expand($body, \%DarkGlass::Macros) if $srctype eq "text/plain" || $srctype eq "text/x-readme" || $srctype eq "text/markdown"; # FIXME: this is a hack
-        $Macros{file} = sub {addIndex($page)};
         $text = expand(expandNumericEntities(scalar(slurp(untaint(abs_path("view.html")), {binmode => ':utf8'}))), \%Macros);
         $text =~ s/\$text/$body/ge; # Avoid expanding macros in body
         $text = encode_utf8($text); # Re-encode for output
