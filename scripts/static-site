@@ -57,10 +57,15 @@ def get_config_variable(script, var_name):
     if m:
         return m[1]
 
+script_dir = os.path.dirname(args.script)
+script_basename = os.path.basename(args.script)
+
 with open(args.script) as h:
     script = h.read()
 base_url = get_config_variable(script, 'BaseUrl')
 document_root = get_config_variable(script, 'DocumentRoot')
+if not Path(document_root).is_absolute():
+    document_root = os.path.join(script_dir, document_root)
 
 # Check output directory is not under document_root
 abs_document_root = Path(os.path.expanduser(document_root)).resolve()
@@ -86,9 +91,6 @@ for var in ('PATH', 'IFS', 'CDPATH', 'ENV', 'BASH_ENV'):
 def walk_error(err):
     die(1, str(err))
 
-script_dir = os.path.dirname(args.script)
-script_basename = os.path.basename(args.script)
-
 # FIXME: This data is duplicated from DarkGlass.pm
 DGSuffix = '.dg'
 index_files = {
@@ -96,8 +98,8 @@ index_files = {
 }
 
 extra_conversions = set()
-for root, dirs, files in os.walk(document_root, onerror=walk_error):
-    relative_root = os.path.relpath(root, document_root)
+for root, dirs, files in os.walk(abs_document_root, onerror=walk_error):
+    relative_root = os.path.relpath(root, abs_document_root)
     if relative_root == '.':
         relative_root = ''
     else:
