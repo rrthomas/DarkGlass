@@ -10,7 +10,7 @@
 # HTML::Parser, HTML::Tagset, HTML::Tiny, XML::LibXSLT, XML::Atom, PDF::API2
 # imagemagick | graphicsmagick-imagemagick-compat
 
-require 5.8.7;
+use v5.010;
 package DarkGlass;
 
 use utf8;
@@ -137,7 +137,7 @@ sub convert {
   # required.
   my ($name, $dir, $suffix) = fileparse($url, qr/\.[^.]*/);
   $suffix = extensions($mimetype);
-  say STDERR "convert $suffix";
+  say "$mimetype $suffix";
   return "$dir$name$suffix";
 }
 
