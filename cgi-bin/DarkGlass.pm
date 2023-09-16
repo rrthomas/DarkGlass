@@ -138,7 +138,7 @@ sub convert {
   my ($name, $dir, $suffix) = fileparse($url, qr/\.[^.]*/);
   $suffix = extensions($mimetype);
   say "$mimetype $suffix";
-  return "$dir$name$suffix";
+  return "$dir$name.$suffix";
 }
 
 %Macros =
