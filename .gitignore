@@ -1,1 +1,4 @@
 .envrc
+cgi-bin-installed/
+doc-installed/
+_site/
