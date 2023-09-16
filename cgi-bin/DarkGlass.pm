@@ -127,7 +127,7 @@ sub getThumbnail {
   return ($data, $width, $height);
 }
 
-our ($page, $outputDir);
+our ($page, $outputDir, $srctype);
 
 sub convert {
   my ($url, $mimetype) = @_;
@@ -190,6 +190,10 @@ sub convert {
 
     title => sub {
       return $Title;
+    },
+
+    download => sub {
+      return typesToLinks($srctype, MIME::Convert::converters(qr/^\Q$srctype\E/));
     },
 
     email => sub {
@@ -679,8 +683,7 @@ sub render {
   $desttype = $srctype unless $MIME::Convert::Converters{"$srctype>$desttype"};
   # FIXME: Should give an error if asked by convert parameter for impossible conversion
   my $text = MIME::Convert::convert($file, $srctype, $desttype, $page, $BaseUrl);
-  my $altDownload = typesToLinks($srctype, MIME::Convert::converters(qr/^\Q$srctype\E/));
-  return ($text, $desttype, $altDownload);
+  return ($text, $desttype);
 }
 
 sub doRequest {
@@ -701,9 +704,9 @@ sub doRequest {
   $page =~ s/\$/%24/;     # re-escape $ to avoid generating macros
   $page = dirname($page) if $Index{basename($page)};
   my $desttype = getParam("convert") || "text/html";
-  my ($text, $altDownload);
+  my $text;
   my $file = pageToFile($page);
-  my $srctype = getMimeType($file) || "application/octet-stream";
+  local $srctype = getMimeType($file) || "application/octet-stream";
   my $headers = {};
   if (-d "$DocumentRoot/$page" && $page ne "" && $page !~ m|/$|) {
     $page .= "/";
@@ -722,15 +725,13 @@ sub doRequest {
     if (basename($file) eq "index.html") {
       $text = slurp($file, {binmode => ':utf8'});
     } else {
-      ($text, $desttype, $altDownload) = render($file, $page, $srctype, $desttype);
+      ($text, $desttype) = render($file, $page, $srctype, $desttype);
       # FIXME: This next block should be turned into a custom Convert rule
       if ($desttype eq "text/html") {
         my $body = getBody($text);
         $body = rewriteLinks($body) unless IS_CGI;
         $body = expand($body, \%DarkGlass::Macros) if $srctype eq "text/plain" || $srctype eq "text/x-readme" || $srctype eq "text/markdown"; # FIXME: this is a hack
         $Macros{file} = sub {addIndex($page)};
-        # FIXME: Put text in next line in file; should be generated from convert (which MIME types can we get from this one?)
-        $Macros{download} = sub {($altDownload || "") . li(a({-href => convert($Macros{url}(-f $file ? basename($Macros{file}()) : ""), "text/plain")}, "Download page source"))};
         $text = expand(expandNumericEntities(scalar(slurp(untaint(abs_path("view.html")), {binmode => ':utf8'}))), \%Macros);
         $text =~ s/\$text/$body/ge; # Avoid expanding macros in body
         $text = encode_utf8($text); # Re-encode for output
