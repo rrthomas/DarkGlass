@@ -30,11 +30,9 @@ As well as serving the default MIME type for a given file, other conversions may
 For static sites, there are no alternate output formats available: each input file is either copied directly to the output, or converted to HTML. Also, index files are converted to a file called `index.html`, to be compatible with most web servers. So, for the example files above, the following will be generated as output:
 
 - `index.html` (generated from `README.md`)
-- `Foo.md` (N.B. this is an HTML file!)
-- `Bar.txt` (N.B. this is an HTML file!)
+- `Foo.html`
+- `Bar.html`
 - `baz.pdf`
 - `favicon.ico`
 - `image.jpg`
 - `style.css`
-
-To avoid needing to rewrite links, which DarkGlass is not currently able to do, output files other than index files have the same name as the input file. Most web servers will need to be told to serve files ending in `.md` as `text/html`; see [Static sites](Static sites.md).
