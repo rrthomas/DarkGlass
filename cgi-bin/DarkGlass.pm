@@ -59,7 +59,7 @@ use MIME::Convert;
 
 
 # Config vars
-use vars qw($ServerUrl $BaseUrl $DocumentRoot $Recent $Title $Author $Email %Macros);
+use vars qw($ServerUrl $BaseUrl $DocumentRoot $Title $Author $Email %Macros);
 
 # Computed globals
 use vars qw($DGSuffix @Index %Index);
