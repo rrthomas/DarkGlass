@@ -232,7 +232,13 @@ sub convert {
     include => sub {
       my ($file) = @_;
       $file = $Macros{canonicalpath}($file);
-      return expand(slurp($file, {binmode => ':utf8'}));
+      return expand(scalar(slurp($file, {binmode => ':utf8'})));
+    },
+
+    paste => sub {
+      my ($file) = @_;
+      $file = $Macros{canonicalpath}($file);
+      return scalar(slurp($file, {binmode => ':utf8'}));
     },
 
     filesize => sub {
