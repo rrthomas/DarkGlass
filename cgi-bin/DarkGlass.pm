@@ -151,7 +151,7 @@ sub convert {
     },
 
     file => sub {
-      return addIndex($Macros{page});
+      return addIndex($Macros{page}());
     },
 
     url => sub {
