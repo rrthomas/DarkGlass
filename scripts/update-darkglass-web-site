@@ -1,4 +1,4 @@
 #!/bin/sh
-mkdir -p bin-installed doc-installed && \
-./install.sh doc-installed bin-installed && \
+mkdir -p bin-installed && \
+./install.sh doc bin-installed && \
 ./bin-installed/static-site --force --verbose ./bin-installed/web.pl ./_site
