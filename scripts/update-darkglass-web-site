@@ -1,4 +1,4 @@
 #!/bin/sh
-mkdir -p cgi-bin-installed doc-installed && \
-./install.sh doc-installed cgi-bin-installed && \
-./cgi-bin-installed/static-site --force --verbose ./cgi-bin-installed/web.pl ./_site
+mkdir -p bin-installed && \
+./install.sh doc bin-installed && \
+./bin-installed/static-site --force --verbose ./bin-installed/web.pl ./_site

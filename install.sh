@@ -13,7 +13,7 @@ fi
 
 # Process command-line arguments
 if [ $# -ne 2 ]; then
-    echo "Usage: $0 DOCUMENT-ROOT-DIR CGI-BIN-DIR"
+    echo "Usage: $0 DOCUMENT-ROOT-DIR INSTALL-DIR"
     exit 1
 fi
 DOCUMENT_ROOT_DIR=$1
