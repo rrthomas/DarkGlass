@@ -33,7 +33,7 @@ jobs:
         uses: actions/configure-pages@v3
       - name: Install DarkGlass dependencies
         run: |
-          sudo apt-get -y install discount libcgi-pm-perl libfile-slurp-perl libfile-mimeinfo-perl libimage-exiftool-perl libdatetime-perl libhtml-parser-perl libhtml-tiny-perl libxml-libxslt-perl libpdf-api2-perl libperl6-slurp-perl libxml-atom-perl imagemagick
+          sudo apt-get -y install xdg-utils discount libcgi-pm-perl libfile-slurp-perl libfile-mimeinfo-perl libimage-exiftool-perl libdatetime-perl libhtml-parser-perl libhtml-tiny-perl libxml-libxslt-perl libpdf-api2-perl libperl6-slurp-perl libxml-atom-perl imagemagick
       - name: Build pages
         run: ./scripts/update-darkglass-web-site
       - name: Upload artifact
