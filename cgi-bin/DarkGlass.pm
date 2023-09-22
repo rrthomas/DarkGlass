@@ -6,7 +6,7 @@
 # your option) any later version.
 
 # Non-core dependencies (all in Debian/Ubuntu):
-# CGI.pm, File::Slurp, File::MimeInfo, Image::ExifTool, DateTime,
+# CGI.pm, File::Slurp, File::MimeInfo, Image::ExifTool, DateTime, Module::Path,
 # HTML::Parser, HTML::Tagset, HTML::Tiny, XML::LibXSLT, XML::Atom, PDF::API2
 # imagemagick | graphicsmagick-imagemagick-compat
 
@@ -20,7 +20,7 @@ use warnings;
 use List::Util 'min';
 use POSIX 'strftime';
 use File::Basename;
-use File::Spec::Functions qw(abs2rel);
+use File::Spec::Functions qw(abs2rel catfile);
 use File::stat;
 use File::Temp qw(tempdir);
 use Encode;
@@ -49,6 +49,7 @@ use File::Slurp qw(slurp);
 use File::MimeInfo qw(extensions describe);
 use Image::ExifTool qw(ImageInfo);
 use PDF::API2;
+use Module::Path qw(module_path);
 
 # For debugging, uncomment the following:
 # use lib "/home/rrt/.local/share/perl/5.22.1";
@@ -56,7 +57,6 @@ use PDF::API2;
 
 use RRT::Misc 0.12;
 use RRT::Macro 3.10;
-use MIME::Convert;
 
 
 # Config vars
@@ -69,6 +69,28 @@ $DGSuffix = ".dg";
 @Index = ("README$DGSuffix", "README$DGSuffix.md", "index$DGSuffix.html", "README", "README.md", "index.html");
 %Index = map { $_ => 1 } @Index;
 
+
+# Read the list of MIME converters
+my $module_dir = module_path("DarkGlass");
+$module_dir =~ s|/DarkGlass.pm||;
+my $mime_converters_prog = untaint(catfile($module_dir, "mime-converters"));
+my $cv_prog = untaint(catfile($module_dir, "cv"));
+open(READER, "-|", $mime_converters_prog) or die("mime-converters failed (open)");
+my @Converters = slurp \*READER, {chomp => 1, binmode => ":utf8"};
+for (my $i = 0; $i <= $#Converters; $i++) {
+  $Converters[$i] = decode_utf8($Converters[$i]);
+}
+close READER or die("mime-converters failed (close)");
+
+# MIME type conversion
+sub convertFile {
+  my ($file, $srctype, $desttype) = @_;
+  open(READER, "-|", $cv_prog, $file, "-", $desttype, $srctype)
+    or die "convertFile $file $srctype $desttype failed (open)";
+  my $output = slurp(\*READER, {binmode => ':raw'});
+  close(READER) or die "convertFile $file $srctype $desttype failed (close)";
+  return $output;
+}
 
 # Macros
 
@@ -112,8 +134,8 @@ sub getThumbnail {
     if ($? != -1) {
       if (($? & 0x7f) == 0 && $? >> 8 == 1) {
         my $mimetype = getMimeType($file);
-        if ($MIME::Convert::Converters{"$mimetype>image/jpeg"}) {
-          $data = MIME::Convert::convert($file, $mimetype, "image/jpeg");
+        if (grep "$mimetype→image/jpeg", @Converters) {
+          $data = convertFile($file, $mimetype, "image/jpeg");
           my $tempdir = tempdir(CLEANUP => 1);
           $file = "$tempdir/tmp.jpg";
           write_file($file, {binmode => ':raw'}, $data);
@@ -199,7 +221,8 @@ sub convert {
     },
 
     download => sub {
-      return typesToLinks($srctype, MIME::Convert::converters(qr/^\Q$srctype\E/));
+      my @types = grep /^\Q$srctype\E/u, @Converters;
+      return typesToLinks($srctype, @types);
     },
 
     email => sub {
@@ -389,7 +412,7 @@ sub convert {
       $attr{preload} = "metadata";
       my @contents = ($h->tag('source', {type => $mimetype, src => $url}));
       push @contents, $h->tag('source', {type => "audio/mpeg", src => convert($baseUrl, "audio/mpeg")})
-        if $mimetype ne "audio/mpeg" && $MIME::Convert::Converters{"$mimetype>audio/mpeg"};
+        if $mimetype ne "audio/mpeg" && (grep "$mimetype→audio/mpeg", @Converters);
       push @contents, $alt if $alt;
       return $h->tag('audio', \%attr, \@contents) . a({href => $url}, "(Download)");
     },
@@ -676,12 +699,13 @@ sub rewriteLinks {
 
 sub typesToLinks {
   my ($srctype, @types) = @_;
-  my $download;
+  my $download = "";
   for my $type (@types) {
     # FIXME: Move text below into files that can be internationalised
     # FIXME: Add page count for PDF using pdfpages macro
     my $desttype = $type;
-    $desttype =~ s/^\Q$srctype\E>//;
+    $srctype = decode_utf8($srctype);
+    $desttype =~ s/^\Q$srctype\E→//u;
     $download .= li(a({-href => convert($Macros{url}(basename(addIndex($Macros{page}()))), $desttype)}, "Download page as " . describe($desttype)))
       if $desttype ne "text/html";
   }
@@ -692,20 +716,20 @@ sub render {
   local $page;
   my ($file, $srctype, $desttype);
   ($file, $page, $srctype, $desttype) = @_;
-  $desttype = $srctype unless $MIME::Convert::Converters{"$srctype>$desttype"};
+  $desttype = $srctype unless (grep /^\Q$srctype→$desttype\E$/, @Converters);
   # FIXME: Should give an error if asked by convert parameter for impossible conversion
-  my $text = MIME::Convert::convert($file, $srctype, $desttype, $page, $BaseUrl);
+  my $text = convertFile($file, $srctype, $desttype);
   return ($text, $desttype);
 }
 
 sub doRequest {
-  # FIXME: Do this more elegantly
-  $MIME::Convert::Converters{"inode/directory>text/html"} = \&listDirectory;
-  $MIME::Convert::Converters{"inode/directory>application/atom+xml"} = \&makeFeed;
-  $MIME::Convert::Converters{"audio/mpeg>text/html"} = \&audioFile;
-  $MIME::Convert::Converters{"audio/ogg>text/html"} = \&audioFile;
-  $MIME::Convert::Converters{"audio/x-opus+ogg>text/html"} = \&audioFile;
-  $MIME::Convert::Converters{"audio/mp4>text/html"} = \&audioFile;
+  # FIXME: Resurrect these
+  # $MIME::Convert::Converters{"inode/directory>text/html"} = \&listDirectory;
+  # $MIME::Convert::Converters{"inode/directory>application/atom+xml"} = \&makeFeed;
+  # $MIME::Convert::Converters{"audio/mpeg>text/html"} = \&audioFile;
+  # $MIME::Convert::Converters{"audio/ogg>text/html"} = \&audioFile;
+  # $MIME::Convert::Converters{"audio/x-opus+ogg>text/html"} = \&audioFile;
+  # $MIME::Convert::Converters{"audio/mp4>text/html"} = \&audioFile;
   my ($cmdlineUrl, $outputDirArg) = @_;
   local $outputDir = decode_utf8(untaint($outputDirArg));
   local $page = untaint($cmdlineUrl) || url(-absolute => 1) || "";

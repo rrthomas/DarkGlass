@@ -34,6 +34,6 @@ $INSTALL_DATA doc/style.css "$DOCUMENT_ROOT_DIR"
 install cgi-bin/*.pl "$INSTALL_DIR"
 $INSTALL_DATA cgi-bin/*.html cgi-bin/*.pm "$INSTALL_DIR"
 $INSTALL_DATA -D --target-directory "$INSTALL_DIR"/RRT perl/Macro.pm perl/Misc.pm
-install Hulot/cv ./scripts/static-site "$INSTALL_DIR"
-$INSTALL_DATA -D --target-directory "$INSTALL_DIR"/MIME Hulot/MIME/*.*
-$INSTALL_DATA -D --target-directory "$INSTALL_DIR"/MIME/converters Hulot/MIME/converters/*
+install Hulot/cv Hulot/mime-converters ./scripts/static-site "$INSTALL_DIR"
+$INSTALL_DATA -D --target-directory "$INSTALL_DIR"/mime_convert Hulot/mime_convert/*.*
+install -D --target-directory "$INSTALL_DIR"/mime_convert/converters Hulot/mime_convert/converters/*
