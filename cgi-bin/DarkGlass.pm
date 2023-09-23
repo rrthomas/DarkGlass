@@ -195,7 +195,9 @@ sub convert {
       $path =~ s/ /%20/g;    # escape space
       $path = $BaseUrl . $path;
       $path =~ s|//+|/|g;     # compress /'s; mostly cosmetic, & avoid leading // in output
-      $path = abs2rel($path, dirname($BaseUrl . $Macros{file}())); # Make path relative to page
+      my $dir = $BaseUrl . $Macros{file}();
+      $dir = dirname($dir) unless -d pageToFile($Macros{page}());
+      $path = abs2rel($path, $dir); # Make path relative to page
       $path .= "?$param" if $param;
       return $path;
     },
