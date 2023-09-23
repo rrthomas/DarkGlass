@@ -75,7 +75,7 @@ my $module_dir = module_path("DarkGlass");
 $module_dir =~ s|/DarkGlass.pm||;
 my $mime_converters_prog = untaint(catfile($module_dir, "mime-converters"));
 my $cv_prog = untaint(catfile($module_dir, "cv"));
-open(READER, "-|", $mime_converters_prog) or die("mime-converters failed (open)");
+open(READER, "-|", $mime_converters_prog, "--match=.") or die("mime-converters failed (open)");
 my @Converters = slurp \*READER, {chomp => 1, binmode => ":utf8"};
 for (my $i = 0; $i <= $#Converters; $i++) {
   $Converters[$i] = decode_utf8($Converters[$i]);
