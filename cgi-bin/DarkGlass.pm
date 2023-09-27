@@ -179,6 +179,9 @@ sub convert {
     url => sub {
       my ($path, $param) = @_;
       $path = unescapeHTML($path);
+      $path =~ m/(.*)(?:#([^#]*))?$/;
+      $path = $1;
+      my $fragment = $2;
       $path = $Macros{canonicalpath}($path); # follow symlinks
 
       # Rewrite file extension to `.html` if in static mode and file would
@@ -198,6 +201,7 @@ sub convert {
       my $dir = $BaseUrl . $Macros{file}();
       $dir = dirname($dir) unless -d pageToFile($Macros{page}());
       $path = abs2rel($path, $dir); # Make path relative to page
+      $path .= "#$fragment" if $fragment;
       $path .= "?$param" if $param;
       return $path;
     },

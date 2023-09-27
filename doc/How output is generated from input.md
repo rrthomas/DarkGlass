@@ -1,6 +1,6 @@
 # How output is generated from input
 
-Here is described how DarkGlass generates output files from input files when running dynamically. Static page generation is simpler, and the differences are described below.
+Here is described how DarkGlass generates output files from input files when running dynamically. Static page generation is simpler, and the differences are described [below](#Static).
 
 Consider the following input directory tree:
 
@@ -25,6 +25,7 @@ Note that `README.md` is a special case: it counts as an index page (like `index
 As well as serving the default MIME type for a given file, other conversions may be available. For example, `image.jpg` may be requested in PNG format. This is handled by the `?convert` option to DarkGlass. The default `view.html` template displays available conversions for the user to download. This can also be used to get the source file for a web page. For example, requesting `Foo.md` will give a web page (type `text/html`), while the original Markdown can be retrieved by requesting `Foo.md?convert=text/markdown`.
 
 
+<a id="Static">
 ## Static sites
 
 For static sites, there are no alternate output formats available: each input file is either copied directly to the output, or converted to HTML. Also, index files are converted to a file called `index.html`, to be compatible with most web servers. So, for the example files above, the following will be generated as output:
