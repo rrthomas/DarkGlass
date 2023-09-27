@@ -15,101 +15,125 @@ import subprocess
 import warnings
 from warnings import warn
 from typing import (
-    Optional, Union, Type, NoReturn, TextIO,
+    Optional,
+    Union,
+    Type,
+    NoReturn,
+    TextIO,
 )
 
 # Command-line arguments
 parser = argparse.ArgumentParser(
-    description='Make a static web site with DarkGlass.',
-    epilog='The output DIRECTORY cannot be a subdirectory of DocumentRoot in web.pl.'
+    description="Make a static web site with DarkGlass.",
+    epilog="The output DIRECTORY cannot be a subdirectory of DocumentRoot in web.pl.",
 )
-parser.add_argument('-V', '--version', action='version',
-                    version='%(prog)s 0.2 (16 Sep 2023) by Reuben Thomas <rrt@sc3d.org>')
-parser.add_argument('--verbose', action='store_true',
-                    help='show what is being done')
-parser.add_argument('--force', action='store_true',
-                    help='overwrite output directory even if it is not empty')
-parser.add_argument('script', metavar='FILENAME',
-                    help='web.pl configuration script to use')
-parser.add_argument('output', metavar='DIRECTORY',
-                    help='output directory')
+parser.add_argument(
+    "-V",
+    "--version",
+    action="version",
+    version="%(prog)s 0.2 (16 Sep 2023) by Reuben Thomas <rrt@sc3d.org>",
+)
+parser.add_argument("--verbose", action="store_true", help="show what is being done")
+parser.add_argument(
+    "--force",
+    action="store_true",
+    help="overwrite output directory even if it is not empty",
+)
+parser.add_argument(
+    "script", metavar="FILENAME", help="web.pl configuration script to use"
+)
+parser.add_argument("output", metavar="DIRECTORY", help="output directory")
 args = parser.parse_args()
 
+
 # Error messages
-def simple_warning( # pylint: disable=too-many-arguments
-        message: Union[Warning, str],
-        category: Type[Warning], # pylint: disable=unused-argument
-        filename: str, # pylint: disable=unused-argument
-        lineno: int, # pylint: disable=unused-argument
-        file: Optional[TextIO] = sys.stderr, # pylint: disable=redefined-outer-name
-        line: Optional[str] = None # pylint: disable=unused-argument
+def simple_warning(  # pylint: disable=too-many-arguments
+    message: Union[Warning, str],
+    category: Type[Warning],  # pylint: disable=unused-argument
+    filename: str,  # pylint: disable=unused-argument
+    lineno: int,  # pylint: disable=unused-argument
+    file: Optional[TextIO] = sys.stderr,  # pylint: disable=redefined-outer-name
+    line: Optional[str] = None,  # pylint: disable=unused-argument
 ) -> None:
-    print(f'{parser.prog}: {message}', file=file or sys.stderr)
+    print(f"{parser.prog}: {message}", file=file or sys.stderr)
+
+
 warnings.showwarning = simple_warning
+
 
 def die(code: int, msg: str) -> NoReturn:
     warn(msg)
     sys.exit(code)
 
+
 # Parse web.pl
 def get_config_variable(script, var_name):
-    m = re.search(r'^\$DarkGlass::' + var_name + ' = "([^"]+)";', script, re.MULTILINE)
+    m = re.search(r"^\$DarkGlass::" + var_name + ' = "([^"]+)";', script, re.MULTILINE)
     if m:
         return m[1]
 
-script_dir = os.path.dirname(args.script)
-script_basename = os.path.basename(args.script)
 
-with open(args.script) as h:
+script_path = Path(args.script)
+script_dir = script_path.parent
+script_basename = script_path.name
+
+with open(script_path) as h:
     script = h.read()
-base_url = get_config_variable(script, 'BaseUrl')
-document_root = get_config_variable(script, 'DocumentRoot')
-if not Path(document_root).is_absolute():
-    document_root = os.path.join(script_dir, document_root)
+base_url = get_config_variable(script, "BaseUrl")
+document_root = Path(os.path.expanduser(get_config_variable(script, "DocumentRoot")))
+if not document_root.is_absolute():
+    document_root = script_dir / document_root
+document_root = document_root.resolve()
 
 # Check output directory is not under document_root
-abs_document_root = Path(os.path.expanduser(document_root)).resolve()
-if Path(args.output).absolute().is_relative_to(abs_document_root):
-    die(1, 'output directory cannot be a subdirectory of input')
+output_path = Path(args.output)
+if output_path.absolute().is_relative_to(document_root):
+    die(1, "output directory cannot be a subdirectory of input")
 
 # Ensure output directory exists and is empty
-output = args.output
-os.makedirs(output, exist_ok=True)
-if len(os.listdir(output)) > 0:
+os.makedirs(output_path, exist_ok=True)
+if len(os.listdir(output_path)) > 0:
     if not args.force:
-        die(1, f'output directory {output} is not empty')
-    shutil.rmtree(output)
-    os.mkdir(output)
+        die(1, f"output directory {output_path} is not empty")
+    shutil.rmtree(output_path)
+    os.mkdir(output_path)
 
 # Make a sanitized environment to keep perl -T happy
 clean_env = dict(os.environ)
-for var in ('PATH', 'IFS', 'CDPATH', 'ENV', 'BASH_ENV'):
+for var in ("PATH", "IFS", "CDPATH", "ENV", "BASH_ENV"):
     if clean_env.get(var):
         del clean_env[var]
+
 
 # Walk the input tree and generate output
 def walk_error(err):
     die(1, str(err))
 
+
 # FIXME: This data is duplicated from DarkGlass.pm
-DGSuffix = '.dg'
+DGSuffix = ".dg"
 index_files = {
-    f'README{DGSuffix}', f'README{DGSuffix}.md', f'index{DGSuffix}.html', 'README', 'README.md', 'index.html'
+    f"README{DGSuffix}",
+    f"README{DGSuffix}.md",
+    f"index{DGSuffix}.html",
+    "README",
+    "README.md",
+    "index.html",
 }
 
 extra_conversions = set()
-for root, dirs, files in os.walk(abs_document_root, onerror=walk_error):
-    relative_root = os.path.relpath(root, abs_document_root)
-    if relative_root == '.':
-        relative_root = ''
+for root, dirs, files in os.walk(document_root, onerror=walk_error):
+    relative_root = os.path.relpath(root, document_root)
+    output_dir = (output_path / relative_root).resolve()
+    if relative_root == ".":
+        relative_root = ""
     else:
-        relative_root += '/'
-    output_dir = Path(os.path.join(output, relative_root)).resolve()
-    dirs[:] = [d for d in dirs if not d.startswith('.')]
+        relative_root += "/"
+    dirs[:] = [d for d in dirs if not d.startswith(".")]
     for d in dirs:
         d_path = os.path.join(output_dir, d)
         if args.verbose:
-            warn(f'creating {d_path}')
+            warn(f"creating {d_path}")
         os.makedirs(d_path)
     # Filter out all but the highest-priority index file
     for i in index_files:
@@ -119,29 +143,29 @@ for root, dirs, files in os.walk(abs_document_root, onerror=walk_error):
     for f in files:
         file_path = os.path.join(root, f)
         if args.verbose:
-            warn(f'processing {file_path}')
+            warn(f"processing {file_path}")
         suffixes = subprocess.check_output(
             [
-                os.path.join('.', script_basename),
-                f'{base_url}{relative_root}{f}',
+                os.path.join(".", script_basename),
+                f"{base_url}{relative_root}{f}",
                 output_dir,
             ],
             cwd=script_dir,
             env=clean_env,
             text=True,
         )
-        for suff_pair in suffixes.split('\n'):
-            if suff_pair != '':
-                [mimetype, suffix] = suff_pair.split(' ')
+        for suff_pair in suffixes.split("\n"):
+            if suff_pair != "":
+                [mimetype, suffix] = suff_pair.split(" ")
                 new_file_path = Path(output_dir, f).with_suffix(f".{suffix}")
                 extra_conversions.add((file_path, new_file_path, mimetype))
 
 # Perform extra conversions
-for (file_path, new_file_path, mimetype) in extra_conversions:
+for file_path, new_file_path, mimetype in extra_conversions:
     if args.verbose:
-        warn(f'converting {file_path} to {new_file_path}')
+        warn(f"converting {file_path} to {new_file_path}")
     if os.path.exists(new_file_path):
-        warn(f'skipping conversion over existing file {new_file_path}')
+        warn(f"skipping conversion over existing file {new_file_path}")
     else:
         subprocess.check_call(
             ["./cv", file_path, new_file_path, mimetype],
