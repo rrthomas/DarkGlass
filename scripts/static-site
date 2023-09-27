@@ -144,6 +144,6 @@ for (file_path, new_file_path, mimetype) in extra_conversions:
         warn(f'skipping conversion over existing file {new_file_path}')
     else:
         subprocess.check_call(
-            ["perl", f"-I.", "./cv", file_path, new_file_path, mimetype],
+            ["./cv", file_path, new_file_path, mimetype],
             cwd=script_dir,
         )
