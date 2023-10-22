@@ -28,6 +28,6 @@ and any web server configuration files, are rendered verbatim. See [How output i
 
 Depending on whether you want to use DarkGlass statically or dynamically, see the [Static sites](Static sites.md) or [Dynamic sites](Dynamic sites.md).
 
-The site should now be ready to use.
+The site should now be ready to use. See [Testing](Testing.md) for how to test it in dynamic mode without configuring a web server.
 
 Then, see [Customization](Customization.md) for details of the various ways in which DarkGlass can be customized.

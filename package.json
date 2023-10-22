@@ -1,0 +1,13 @@
+{
+  "name": "darkglass-dev",
+  "version": "0.0.1",
+  "description": "Development site for DarkGlass",
+  "author": "Reuben Thomas",
+  "license": "ISC",
+  "devDependencies": {
+    "cgi": "^0.3.1"
+  },
+  "scripts": {
+    "serve": "node ./cgi-bin/server.js"
+  }
+}
