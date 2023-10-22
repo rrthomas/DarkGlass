@@ -738,7 +738,7 @@ sub doRequest {
   # $MIME::Convert::Converters{"audio/mp4>text/html"} = \&audioFile;
   my ($cmdlineUrl, $outputDirArg) = @_;
   local $outputDir = decode_utf8(untaint($outputDirArg));
-  local $page = untaint($cmdlineUrl) || url(-absolute => 1) || "";
+  local $page = untaint($cmdlineUrl) || path_info() || "";
   $page = decode_utf8(unescape($page));
   $page =~ s|^$BaseUrl||;
   $page =~ s|^/||;
