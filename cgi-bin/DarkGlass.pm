@@ -183,6 +183,7 @@ sub convert {
       $path = $1;
       my $fragment = $2;
       $path = $Macros{canonicalpath}($path); # follow symlinks
+      my $is_dir = -d $path;
 
       # Rewrite file extension to `.html` if in static mode and file would
       # be converted to HTML by default.
@@ -201,6 +202,7 @@ sub convert {
       my $dir = $BaseUrl . $Macros{file}();
       $dir = dirname($dir) unless -d pageToFile($Macros{page}());
       $path = abs2rel($path, $dir); # Make path relative to page
+      $path .= "/" if $is_dir; # Make path a directory if original is
       $path .= "#$fragment" if $fragment;
       $path .= "?$param" if $param;
       return $path;
