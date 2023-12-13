@@ -681,7 +681,6 @@ sub rewriteLinks {
       my ($tagname, $pos, $text) = @_;
       if (my $link_attr = $link_attr{$tagname}) {
         while (4 <= @$pos) {
-
           # use attribute sets from right to left to avoid invalidating the
           # offsets when replacing the values
           my ($k_offset, $k_len, $v_offset, $v_len) = splice(@$pos, -4);
