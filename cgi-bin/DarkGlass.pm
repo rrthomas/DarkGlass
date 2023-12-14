@@ -85,10 +85,12 @@ close READER or die("mime-converters failed (close)");
 # MIME type conversion
 sub convertFile {
   my ($file, $srctype, $desttype) = @_;
-  open(READER, "-|", $cv_prog, $file, "-", $desttype, $srctype)
-    or die "convertFile $file $srctype $desttype failed (open)";
+  my @args = ($cv_prog, $file, "-", $desttype || "text/html");
+  push @args, $srctype if $srctype;
+  open(READER, "-|", @args)
+    or die "convertFile @args failed (open)";
   my $output = slurp(\*READER, {binmode => ':raw'});
-  close(READER) or die "convertFile $file $srctype $desttype failed (close)";
+  close(READER) or die "convertFile @args failed (close)";
   return $output;
 }
 
@@ -270,6 +272,12 @@ sub convert {
       my ($file) = @_;
       $file = $Macros{canonicalpath}($file);
       return scalar(slurp($file, {binmode => ':utf8'}));
+    },
+
+    pasteconvert => sub {
+      my ($file) = @_;
+      $file = $Macros{canonicalpath}($file);
+      return getBody(convertFile($file));
     },
 
     filesize => sub {
