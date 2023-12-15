@@ -80,6 +80,9 @@ for (my $i = 0; $i <= $#Converters; $i++) {
 }
 close READER or die("hulot-converters failed (close)");
 
+# Remove MIME type conversions we don't want
+@Converters = grep(!m _^(?:application/(?:json|javascript)|text/css)→text/html$_, @Converters);
+
 # MIME type conversion
 sub convertFile {
   my ($file, $srctype, $desttype) = @_;
