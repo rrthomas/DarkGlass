@@ -8,7 +8,7 @@ This list reflects the author’s priorities. If you’d like to help, or you ha
    * Remove file suffixes, and have a sensible priority order for which file gets the URL when multiple files share a name.
    * Tagging to generalize file hierarchy. Should work with a search engine. Start by tagging log entries.
    * Make DarkGlass feeds “deep”, i.e. all the way to the bottom of the tree from the current object, and tag-based (see tags).
-   * Factor DarkGlass into a front-end to `cv` and a program that actually serves pages.
+   * Factor DarkGlass into a front-end to `hulot` and a program that actually serves pages.
    * Have a scheme for commenting on any page via twitter or email (spam filtered). And by Atom publishing?
    * Make `nancy` as make rule.
    * Add dependency-driven rendering, using some sort of make system that can be run manually, by CGI or by inotifyd.

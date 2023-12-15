@@ -167,7 +167,8 @@ for file_path, new_file_path, mimetype in extra_conversions:
     if os.path.exists(new_file_path):
         warn(f"skipping conversion over existing file {new_file_path}")
     else:
+        # FIXME: do this in-process!
         subprocess.check_call(
-            ["./cv", file_path, new_file_path, mimetype],
+            ["hulot", file_path, new_file_path, mimetype],
             cwd=script_dir,
         )

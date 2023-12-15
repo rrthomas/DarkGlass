@@ -5,6 +5,8 @@ installed.
 
 You will also need the following Perl packages: CGI.pm, File::Slurp, File::MimeInfo, Image::ExifTool, DateTime, HTML::Tiny, XML::LibXSLT, XML::Atom, PDF::API2.
 
+Finally, you'll need the Python package Hulot, which can be installed from PyPI with `pip install hulot`.
+
 Then run the following commands:
 
 ```

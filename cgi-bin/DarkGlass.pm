@@ -73,19 +73,17 @@ $DGSuffix = ".dg";
 # Read the list of MIME converters
 my $module_dir = module_path("DarkGlass");
 $module_dir =~ s|/DarkGlass.pm||;
-my $mime_converters_prog = untaint(catfile($module_dir, "mime-converters"));
-my $cv_prog = untaint(catfile($module_dir, "cv"));
-open(READER, "-|", $mime_converters_prog, "--match=.") or die("mime-converters failed (open)");
+open(READER, "-|", "hulot-converters", "--match=.") or die("hulot-converters failed (open)");
 my @Converters = slurp \*READER, {chomp => 1, binmode => ":utf8"};
 for (my $i = 0; $i <= $#Converters; $i++) {
   $Converters[$i] = decode_utf8($Converters[$i]);
 }
-close READER or die("mime-converters failed (close)");
+close READER or die("hulot-converters failed (close)");
 
 # MIME type conversion
 sub convertFile {
   my ($file, $srctype, $desttype) = @_;
-  my @args = ($cv_prog, $file, "-", $desttype || "text/html");
+  my @args = ("hulot", $file, "-", $desttype || "text/html");
   push @args, $srctype if $srctype;
   open(READER, "-|", @args)
     or die "convertFile @args failed (open)";

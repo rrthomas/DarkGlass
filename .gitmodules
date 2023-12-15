@@ -1,6 +1,3 @@
-[submodule "Hulot"]
-	path = Hulot
-	url = https://github.com/rrthomas/Hulot
 [submodule "perl"]
 	path = perl
 	url = https://github.com/rrthomas/perl

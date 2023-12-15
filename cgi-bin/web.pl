@@ -1,4 +1,4 @@
-#! /usr/bin/perl -T
+#!/usr/bin/perl -T
 # DarkGlass
 # (c) Reuben Thomas <rrt@sc3d.org> 2002-2023
 # https://rrt.sc3d.org/Software/DarkGlass
@@ -12,6 +12,10 @@ use warnings;
 use CGI qw(:standard);
 
 use lib ".";
+# Set PATH securely before loading DarkGlass, whose init code uses it.
+BEGIN {
+  $ENV{PATH} = "/bin:/usr/bin:/usr/local/bin";
+}
 use DarkGlass;
 
 
