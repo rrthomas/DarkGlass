@@ -1,39 +1,39 @@
 @media screen and (max-width: 767px) {
   nav.navbar {
-      position: static;
+    position: static;
   }
 }
 
 @media screen and (min-width: 768px) {
   :root {
-      --menu-width: 12rem;
+    --menu-width: 12rem;
   }
 
   main {
-      margin-left: var(--menu-width);
+    margin-left: var(--menu-width);
   }
 
   .breadcrumb {
-      margin-left: var(--menu-width);
+    margin-left: var(--menu-width);
   }
 
   .menu-navbar {
-      width: var(--menu-width);
-      overflow-y: scroll;
-      max-height: 100vh;
+    width: var(--menu-width);
+    overflow-y: scroll;
+    max-height: 100vh;
   }
 
   .navbar-expand-md {
-      flex-wrap: wrap;
+    flex-wrap: wrap;
   }
 
   .nav-link {
-      padding-top: 2px;
-      padding-bottom: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
   }
 
   .footer {
-      margin-left: var(--menu-width);
+    margin-left: var(--menu-width);
   }
 }
 
@@ -89,6 +89,6 @@ main {
   padding-right: 8px;
 }
 
-.footer li ~ li {
+.footer li~li {
   float: right;
 }
