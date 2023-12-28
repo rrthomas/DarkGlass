@@ -13,6 +13,10 @@
     margin-left: var(--menu-width);
   }
 
+  .main-content {
+    max-width: 60rem;
+  }
+
   .breadcrumb {
     margin-left: var(--menu-width);
   }
@@ -57,6 +61,7 @@ img {
 }
 
 body {
+  font-size: 1.3rem;
   display: flex;
   min-height: 100vh;
   flex-direction: column;
