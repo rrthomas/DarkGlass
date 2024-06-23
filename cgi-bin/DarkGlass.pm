@@ -7,7 +7,7 @@
 
 # Non-core dependencies (all in Debian/Ubuntu):
 # CGI.pm, File::Slurp, File::MimeInfo, Image::ExifTool, DateTime, Module::Path,
-# HTML::Parser, HTML::Tagset, HTML::Tiny, XML::LibXSLT, XML::Atom, PDF::API2
+# HTML::Parser, HTML::Tagset, HTML::Tiny, XML::LibXSLT, PDF::API2
 # imagemagick | graphicsmagick-imagemagick-compat
 
 use v5.010;
@@ -588,62 +588,10 @@ sub summariseDirectory {
   return html(body($text));
 }
 
-# Adapted from XML::Atom::App
-sub datetime_as_rfc3339 {
-  use DateTime;
-  my ($dt) = @_;
-  $dt = DateTime->new(@{$dt}) if ref $dt eq 'ARRAY';
-  my $offset = $dt->offset != 0 ? '%z' : 'Z';
-  return $dt->strftime('%FT%T$offset');
-}
-
 sub audioFile {
   my ($file, $srctype, $desttype) = @_;
   $file =~ s/$DocumentRoot//;
   return $Macros{audiofile}($file, "", $srctype);
-}
-
-sub makeFeed {
-  my ($path, $order, $files, $pagenames, $times, $pages, $paths) = renderDir();
-
-  use XML::Atom::Feed;
-  use XML::Atom::Entry;
-  use XML::Atom::Link;
-  use XML::Atom::Person;
-  $XML::Atom::DefaultVersion = "1.0";
-
-  # Create feed
-  my $feed = XML::Atom::Feed->new;
-  $feed->title("$Author: " . $Macros{pagename}());
-  my $author = XML::Atom::Person->new;
-  $author->name($Author);
-  $author->email($Email);
-  $author->homepage($ServerUrl . $Macros{url}("/"));
-  $feed->author($author);
-  $feed->id($ServerUrl . $Macros{url}("")); # URL of current page
-  $feed->updated(datetime_as_rfc3339(DateTime->now));
-  $feed->icon("$ServerUrl${BaseUrl}favicon.ico");
-
-  # Add entries
-  for (my $i = 0; $i <= $#{$order}; $i++) {
-    my $file = @{$files}[@{$order}[$i]];
-    my $entry = XML::Atom::Entry->new;
-    my $title = fileparse($file, qr/\.[^.]*/);
-    my $pagename = @{$pagenames}[@{$order}[$i]];
-    $entry->title($title);
-    my $url = $ServerUrl . $Macros{url}($pagename);
-    $entry->id($url); # FIXME: Improve this. See http://diveintomark.org/archives/2004/05/28/howto-atom-id
-    my $link = XML::Atom::Link->new;
-    my ($text) = @{$pages}[@{$order}[$i]];
-    $entry->content($text);
-    $link->type("text/html");
-    $link->href($url);
-    $entry->add_link($link);
-    $entry->updated(datetime_as_rfc3339(DateTime->from_epoch(epoch => @{$times}[@{$order}[$i]])));
-    $feed->add_entry($entry);
-  }
-
-  return $feed->as_xml;
 }
 
 # Return <body> element of HTML, or the entire input if no such element
@@ -742,7 +690,6 @@ sub render {
 sub doRequest {
   # FIXME: Resurrect these
   # $MIME::Convert::Converters{"inode/directory>text/html"} = \&listDirectory;
-  # $MIME::Convert::Converters{"inode/directory>application/atom+xml"} = \&makeFeed;
   # $MIME::Convert::Converters{"audio/mpeg>text/html"} = \&audioFile;
   # $MIME::Convert::Converters{"audio/ogg>text/html"} = \&audioFile;
   # $MIME::Convert::Converters{"audio/x-opus+ogg>text/html"} = \&audioFile;
