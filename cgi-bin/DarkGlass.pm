@@ -765,10 +765,12 @@ sub doRequest {
     $page .= "/";
     $file = pageToFile($page);
   }
+  $file = untaint(abs_path($file));
   # FIXME: Return 404 instead of 403 for directories; need to stop
   # Apache bailing out when it can't read the .htaccess file in the
   # directory.
-  if (!-e $file) {
+  my $abs_DocumentRoot = abs_path($DocumentRoot);
+  if ($file !~ /^$abs_DocumentRoot/ || !-e $file) {
     # FIXME: If file does not exist at first, try case-insensitive path matching.
     print header(-status => 404, -charset => "utf-8") . expand(expandNumericEntities(scalar(slurp(untaint(abs_path("notfound.html")), {binmode => ':utf8'}))), \%Macros);
   } else {
