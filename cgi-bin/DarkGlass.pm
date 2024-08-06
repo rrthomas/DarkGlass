@@ -810,7 +810,6 @@ sub doRequest {
       $headers->{-charset} = ""; # Explicitly unset charset, otherwise CGI.pm defaults it to ISO-8859-1
     }
     # FIXME: get length of HTML pages too
-    $headers->{-expires} = "now";
     print header($headers) if IS_CGI;
     if ($outputDir) {
       my $outputFile = $Index{basename($file)} ? "index.html" : basename($filename);
