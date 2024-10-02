@@ -71,8 +71,6 @@ $DGSuffix = ".dg";
 
 
 # Read the list of MIME converters
-my $module_dir = module_path("DarkGlass");
-$module_dir =~ s|/DarkGlass.pm||;
 open(READER, "-|", "hulot-converters", "--match=.") or die("hulot-converters failed (open)");
 my @Converters = slurp \*READER, {chomp => 1, binmode => ":utf8"};
 for (my $i = 0; $i <= $#Converters; $i++) {
