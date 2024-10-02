@@ -237,9 +237,9 @@ sub convert {
     },
 
     email => sub {
-      my ($text) = @_;
+      my ($text, $class) = @_;
       $text = $Email if !defined($text);
-      return $Macros{link}("mailto:$Email", $text);
+      return $Macros{link}("mailto:$Email", $text, $class);
     },
 
     lastmodified => sub {
