@@ -7,7 +7,6 @@
 
 # Non-core dependencies (all in Debian/Ubuntu):
 # CGI.pm, File::Slurp, File::MimeInfo, DateTime, HTML::Parser, HTML::Tagset
-# imagemagick | graphicsmagick-imagemagick-compat
 
 use v5.010;
 package DarkGlass;
