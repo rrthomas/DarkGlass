@@ -6,8 +6,7 @@
 # your option) any later version.
 
 # Non-core dependencies (all in Debian/Ubuntu):
-# CGI.pm, File::Slurp, File::MimeInfo, DateTime, Module::Path,
-# HTML::Parser, HTML::Tagset
+# CGI.pm, File::Slurp, File::MimeInfo, DateTime, HTML::Parser, HTML::Tagset
 # imagemagick | graphicsmagick-imagemagick-compat
 
 use v5.010;
@@ -19,10 +18,10 @@ use warnings;
 
 use POSIX 'strftime';
 use File::Basename;
-use File::Spec::Functions qw(abs2rel catfile);
+use File::Spec::Functions qw(abs2rel);
 use File::stat;
 use Encode;
-use Cwd qw(abs_path getcwd);
+use Cwd qw(abs_path);
 
 use CGI 4.37 qw(:standard unescapeHTML);
 use CGI::Carp qw(fatalsToBrowser set_message);
@@ -32,7 +31,6 @@ use HTML::Parser ();
 use HTML::Tagset;
 use File::Slurp qw(slurp);
 use File::MimeInfo qw(extensions describe);
-use Module::Path qw(module_path);
 
 # For debugging, uncomment the following:
 # use lib "/home/rrt/.local/share/perl/5.22.1";
