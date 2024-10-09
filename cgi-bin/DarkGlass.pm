@@ -363,19 +363,6 @@ sub convert {
       return $h->tag('video', \%attr, $alt || "");
     },
 
-    youtube => sub {
-      my ($slug, $width, $height) = @_;
-      my $h = HTML::Tiny->new;
-      my %attr;
-      $attr{width} = $width || 560;
-      $attr{height} = $height || 315;
-      $attr{src} = "https://www.youtube.com/embed/$slug";
-      $attr{frameborder} = 0;
-      $attr{allow} = "clipboard-write; encrypted-media; picture-in-picture; web-share";
-      $attr{allowfullscreen} = "";
-      return $h->tag('iframe', \%attr);
-    },
-
     webfile => sub {
       my ($file, $format) = @_;
       my $size = $Macros{filesize}($file);
