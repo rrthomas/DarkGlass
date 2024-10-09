@@ -6,8 +6,8 @@
 # your option) any later version.
 
 # Non-core dependencies (all in Debian/Ubuntu):
-# CGI.pm, File::Slurp, File::MimeInfo, Image::ExifTool, DateTime, Module::Path,
-# HTML::Parser, HTML::Tagset, HTML::Tiny, PDF::API2
+# CGI.pm, File::Slurp, File::MimeInfo, DateTime, Module::Path,
+# HTML::Parser, HTML::Tagset
 # imagemagick | graphicsmagick-imagemagick-compat
 
 use v5.010;
@@ -21,10 +21,8 @@ use POSIX 'strftime';
 use File::Basename;
 use File::Spec::Functions qw(abs2rel catfile);
 use File::stat;
-use File::Temp qw(tempdir);
 use Encode;
 use Cwd qw(abs_path getcwd);
-use MIME::Base64;
 
 use CGI 4.37 qw(:standard unescapeHTML);
 use CGI::Carp qw(fatalsToBrowser set_message);
@@ -43,11 +41,8 @@ BEGIN {
 use CGI::Util qw(escape unescape);
 use HTML::Parser ();
 use HTML::Tagset;
-use HTML::Tiny; # For tags unknown to CGI.pm
 use File::Slurp qw(slurp);
 use File::MimeInfo qw(extensions describe);
-use Image::ExifTool qw(ImageInfo);
-use PDF::API2;
 use Module::Path qw(module_path);
 
 # For debugging, uncomment the following:
@@ -117,37 +112,6 @@ sub makeDirectory {
     }
   }
   return $dirs . $files;
-}
-
-sub getThumbnail {
-  my ($file, $width, $height) = @_;
-  my $thumb = ImageInfo($file, "ThumbnailImage");
-  my $data;
-  if ($thumb && $$thumb{ThumbnailImage}) {
-    $data = ${$$thumb{ThumbnailImage}};
-    my $thumbInfo = ImageInfo($$thumb{ThumbnailImage});
-    $width ||= $thumbInfo->{ImageWidth};
-    $height ||= $thumbInfo->{ImageHeight};
-  } else {
-    open(READER, "-|", "identify", "-quiet", $file);
-    close READER;
-    if ($? != -1) {
-      if (($? & 0x7f) == 0 && $? >> 8 == 1) {
-        my $mimetype = getMimeType($file);
-        if (grep "$mimetype→image/jpeg", @Converters) {
-          $data = convertFile($file, $mimetype, "image/jpeg");
-          my $tempdir = tempdir(CLEANUP => 1);
-          $file = "$tempdir/tmp.jpg";
-          write_file($file, {binmode => ':raw'}, $data);
-        }
-      }
-      $width ||= 160;
-      $height ||= 160;
-      open(READER, "-|", "convert", "-quiet", $file, "-size", $width ."x" .$height, "-resize", $width . "x" .$height, "jpeg:-");
-      $data = slurp(\*READER, {binmode => ':raw'});
-    }
-  }
-  return ($data, $width, $height);
 }
 
 our ($page, $outputDir, $srctype);
@@ -278,11 +242,6 @@ sub convert {
       return getBody(convertFile($file));
     },
 
-    filesize => sub {
-      my ($file) = @_;
-      return numberToSI(-s $Macros{canonicalpath}($file) || 0) . "b";
-    },
-
     menudirectory => sub {
       my ($dir, $linkClasses, $dirLinkClasses) = @_;
       $linkClasses ||= 'nav-link';
@@ -317,98 +276,6 @@ sub convert {
       my ($name, $path, $suffix) = fileparse($Macros{page}());
       $path = "" if $path eq "./";
       return body(h1(basename($path)) . ul(makeDirectory($path, sub {-f shift && -r _})));
-    },
-
-    image => sub {
-      my ($image, $alt, $width, $height) = @_;
-      my (%attr, $text, $data);
-      $alt ||= "";
-      my $file = $Macros{canonicalpath}($image);
-      $attr{-src} = $Macros{url}($image);
-      $attr{-alt} = $alt;
-      $attr{-width} = $width if $width;
-      $attr{-height} = $height if $width;
-      if ($image !~ /^https?:/) {
-        ($data, $width, $height) = getThumbnail($file, $width, $height);
-        if ($data) {
-          $attr{-width} ||= $width;
-          $attr{-height} ||= $height;
-          # N.B. EXIF thumbnails are always JPEGs
-          $attr{-src} = "data:image/jpeg;base64," . encode_base64($data);
-          $text = $Macros{link}($Macros{url}($image), (img \%attr));
-        }
-      }
-      $text = img \%attr if !$text;
-      return $text . $alt;
-    },
-
-    # FIXME: Merge into $image (add comment only if there is one)
-    imagecomment => sub {
-      my ($image) = @_;
-      my $info = ImageInfo($Macros{canonicalpath}($image), "Comment");
-      return decode_utf8($$info{Comment}) if $info;
-      return "";
-    },
-
-    # FIXME: Get a poster frame from an argument, or a given frame of the video
-    video => sub {
-      my ($video, $alt, $width, $height) = @_;
-      my $file = $Macros{canonicalpath}($video);
-      my $h = HTML::Tiny->new;
-      my %attr;
-      $attr{controls} = [];
-      $attr{src} = $Macros{url}($video);
-      $attr{width} = $width if $width;
-      $attr{height} = $height if $width;
-      return $h->tag('video', \%attr, $alt || "");
-    },
-
-    webfile => sub {
-      my ($file, $format) = @_;
-      my $size = $Macros{filesize}($file);
-      return $Macros{link}($Macros{url}($file), $format) . " $size";
-    },
-
-    pdfpages => sub {
-      my ($file) = @_;
-      $file = $Macros{canonicalpath}($file);
-      my $pdf = PDF::API2->open($file);
-      my $n = $pdf->pages();
-      return $n . ($n eq "1" ? "p." : "pp.");
-    },
-
-    pdffile => sub {
-      my ($file) = @_;
-      return $Macros{link}($Macros{url}($file), "PDF") .
-        " " . $Macros{pdfpages}($file);
-    },
-
-    # FIXME: This should be a customization
-    musicfile => sub {
-      my ($file, $comment) = @_;
-      $comment = "" if !$comment;
-      return em($file) . " ($comment" .
-        $Macros{webfile}("$file.sib", "Sibelius") . ", " .
-          $Macros{pdffile}("$file.pdf") .
-            ", ". $Macros{webfile}("$file.mid", "MIDI") . ")";
-    },
-
-    audiofile => sub {
-      my ($audio, $alt, $mimetype) = @_;
-      my $file = $Macros{canonicalpath}($audio);
-      $mimetype ||= getMimeType($file);
-      $mimetype = "audio/ogg" if $mimetype =~ /\+ogg$/;
-      my $baseUrl = $Macros{url}($audio);
-      my $url = convert($baseUrl, $mimetype);
-      my $h = HTML::Tiny->new;
-      my %attr;
-      $attr{controls} = [];
-      $attr{preload} = "metadata";
-      my @contents = ($h->tag('source', {type => $mimetype, src => $url}));
-      push @contents, $h->tag('source', {type => "audio/mpeg", src => convert($baseUrl, "audio/mpeg")})
-        if $mimetype ne "audio/mpeg" && (grep "$mimetype→audio/mpeg", @Converters);
-      push @contents, $alt if $alt;
-      return $h->tag('audio', \%attr, \@contents) . a({href => $url}, "(Download)");
     },
    );
 
@@ -455,12 +322,6 @@ sub expandNumericEntities {
 
 sub listDirectory {
   return html($Macros{directory}());
-}
-
-sub audioFile {
-  my ($file, $srctype, $desttype) = @_;
-  $file =~ s/$DocumentRoot//;
-  return $Macros{audiofile}($file, "", $srctype);
 }
 
 # Return <body> element of HTML, or the entire input if no such element
@@ -536,7 +397,6 @@ sub typesToLinks {
   my $download = "";
   for my $type (@types) {
     # FIXME: Move text below into files that can be internationalised
-    # FIXME: Add page count for PDF using pdfpages macro
     my $desttype = $type;
     $srctype = decode_utf8($srctype);
     $desttype =~ s/^\Q$srctype\E→//u;
@@ -559,10 +419,6 @@ sub render {
 sub doRequest {
   # FIXME: Resurrect these
   # $MIME::Convert::Converters{"inode/directory>text/html"} = \&listDirectory;
-  # $MIME::Convert::Converters{"audio/mpeg>text/html"} = \&audioFile;
-  # $MIME::Convert::Converters{"audio/ogg>text/html"} = \&audioFile;
-  # $MIME::Convert::Converters{"audio/x-opus+ogg>text/html"} = \&audioFile;
-  # $MIME::Convert::Converters{"audio/mp4>text/html"} = \&audioFile;
   my ($cmdlineUrl, $outputDirArg) = @_;
   local $outputDir = decode_utf8(untaint($outputDirArg));
   local $page = untaint($cmdlineUrl) || path_info() || "";
