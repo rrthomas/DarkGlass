@@ -30,17 +30,6 @@ use MIME::Base64;
 use CGI 4.37 qw(:standard unescapeHTML);
 use CGI::Carp qw(fatalsToBrowser set_message);
 use constant IS_CGI => exists $ENV{'GATEWAY_INTERFACE'};
-BEGIN {
-  sub handle_errors {
-    my $msg = shift;
-    print "<!DOCTYPE html>";
-    print "<head><meta charset=\"utf-8\"></head>";
-    print "<h1>Software error:</h1>";
-    print "<pre>$msg</pre>";
-    print "<p>For help, please send mail to the webmaster (<a href=\"mailto:webmaster\@localhost\">webmaster\@localhost</a>), giving this error message and the time and date of the error.\n\n</p>";
-  }
-  set_message(\&handle_errors);
-}
 use CGI::Util qw(escape unescape);
 use HTML::Parser ();
 use HTML::Tagset;
@@ -61,6 +50,18 @@ use RRT::Macro 3.10;
 
 # Config vars
 use vars qw($ServerUrl $BaseUrl $DocumentRoot $Title $Author $Email %Macros);
+
+BEGIN {
+  sub handle_errors {
+    my $msg = shift;
+    print "<!DOCTYPE html>";
+    print "<head><meta charset=\"utf-8\"></head>";
+    print "<h1>Software error:</h1>";
+    print "<pre>$msg</pre>";
+    print "<p>For help, please send mail to the webmaster (<a href=\"mailto:$Email\">$Email</a>), giving this error message and the time and date of the error.\n\n</p>";
+  }
+  set_message(\&handle_errors);
+}
 
 # Computed globals
 use vars qw($DGSuffix @Index %Index);
