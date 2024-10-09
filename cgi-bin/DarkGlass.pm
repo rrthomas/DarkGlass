@@ -269,12 +269,6 @@ sub convert {
       $tree = li({-class => "breadcrumb-item"}, $Macros{link}($BaseUrl, $desc) . $tree);
       return $tree;
     },
-
-    directory => sub {
-      my ($name, $path, $suffix) = fileparse($Macros{page}());
-      $path = "" if $path eq "./";
-      return body(h1(basename($path)) . ul(makeDirectory($path, sub {-f shift && -r _})));
-    },
    );
 
 
@@ -316,10 +310,6 @@ sub expandNumericEntities {
   my ($text) = @_;
   $text =~ s/&#(\pN+);/chr($1)/ge;
   return $text;
-}
-
-sub listDirectory {
-  return html($Macros{directory}());
 }
 
 # Return <body> element of HTML, or the entire input if no such element
@@ -415,8 +405,6 @@ sub render {
 }
 
 sub doRequest {
-  # FIXME: Resurrect these
-  # $MIME::Convert::Converters{"inode/directory>text/html"} = \&listDirectory;
   my ($cmdlineUrl, $outputDirArg) = @_;
   local $outputDir = decode_utf8(untaint($outputDirArg));
   local $page = untaint($cmdlineUrl) || path_info() || "";
