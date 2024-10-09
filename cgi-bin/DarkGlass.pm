@@ -7,7 +7,7 @@
 
 # Non-core dependencies (all in Debian/Ubuntu):
 # CGI.pm, File::Slurp, File::MimeInfo, Image::ExifTool, DateTime, Module::Path,
-# HTML::Parser, HTML::Tagset, HTML::Tiny, XML::LibXSLT, PDF::API2
+# HTML::Parser, HTML::Tagset, HTML::Tiny, PDF::API2
 # imagemagick | graphicsmagick-imagemagick-compat
 
 use v5.010;
@@ -17,7 +17,6 @@ use utf8;
 use strict;
 use warnings;
 
-use List::Util 'min';
 use POSIX 'strftime';
 use File::Basename;
 use File::Spec::Functions qw(abs2rel catfile);
@@ -320,13 +319,6 @@ sub convert {
       return body(h1(basename($path)) . ul(makeDirectory($path, sub {-f shift && -r _})));
     },
 
-    inlinedirectory => sub {
-      my ($name, $path, $suffix) = fileparse($Macros{page}());
-      $path = "" if $path eq "./";
-      my $dir = "$DocumentRoot/$path";
-      return body(summariseDirectory($dir));
-    },
-
     image => sub {
       my ($image, $alt, $width, $height) = @_;
       my (%attr, $text, $data);
@@ -467,39 +459,6 @@ sub getParam {
   return undef;
 }
 
-sub renderDir {
-  my ($name, $path, $suffix) = fileparse($Macros{page}());
-  $path = "" if $path eq "./";
-  my $dir = "$DocumentRoot/$path";
-  my @entries = readDir($dir);
-  return "" if !@entries;
-  my @times = ();
-  my @pages = ();
-  my @files = ();
-  my @paths = ();
-  my @pagenames = ();
-  foreach my $file (@entries) {
-    my $path = untaint(abs_path($dir . decode_utf8($file)));
-    my $stat = stat($path);
-    if ($stat) {
-      push @files, $file;
-      push @paths, $path;
-      push @times, stat($path)->mtime;
-      my $page = $path;
-      $page =~ s|^$DocumentRoot||;
-      push @pagenames, $page;
-      if (-f $path) {
-        my ($text) = render($path, $page, getMimeType($path), "text/html");
-        push @pages, $text;
-      } else{
-        push @pages, "($file)";
-      }
-    }
-  }
-  my @order = sort {$times[$b] <=> $times[$a]} 0 .. $#times;
-  return $dir, \@order, \@files, \@pagenames, \@times, \@pages, \@paths;
-}
-
 # Turn entities into characters
 sub expandNumericEntities {
   my ($text) = @_;
@@ -507,83 +466,8 @@ sub expandNumericEntities {
   return $text;
 }
 
-# Demote HTML headings by one level
-sub demote {
-  my ($text) = @_;
-  use XML::LibXSLT;
-  use XML::LibXML;
-  my $parser = XML::LibXML->new();
-  my $xslt = XML::LibXSLT->new();
-  my $html = $parser->parse_string($text);
-  my $style_doc = $parser->parse_string(<<'EOT');
-<?xml version="1.0" encoding="utf-8"?>
-<xsl:stylesheet version="1.0"
-    xmlns:xhtml="http://www.w3.org/1999/xhtml"
-    xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    exclude-result-prefixes="xhtml">
-
-  <xsl:output method="xml" indent="yes" encoding="utf-8"/>
-
-  <xsl:template match="@*|node()">
-    <xsl:copy>
-      <xsl:apply-templates select="@*|node()"/>
-    </xsl:copy>
-  </xsl:template>
-
-  <xsl:template match="xhtml:h1">
-    <h2><xsl:apply-templates/></h2>
-  </xsl:template>
-
-  <xsl:template match="xhtml:h2">
-    <h3><xsl:apply-templates/></h3>
-  </xsl:template>
-
-  <xsl:template match="xhtml:h3">
-    <h4><xsl:apply-templates/></h4>
-  </xsl:template>
-
-  <xsl:template match="xhtml:h4">
-    <h5><xsl:apply-templates/></h5>
-  </xsl:template>
-
-  <xsl:template match="xhtml:h5">
-    <h6><xsl:apply-templates/></h6>
-  </xsl:template>
-
-</xsl:stylesheet>
-EOT
-  my $stylesheet = $xslt->parse_stylesheet($style_doc);
-  my $res = $stylesheet->transform($html);
-  return $stylesheet->output_string($res);
-}
-
 sub listDirectory {
   return html($Macros{directory}());
-}
-
-# FIXME: Only render required pages, or cache them
-sub summariseDirectory {
-  my ($from, $to);
-  $from = getParam("from") || 0;
-  $to = getParam("to") || $from + 9;
-  my ($dir, $order, $files, $pagenames, $times, $pages, $paths) = renderDir();
-  my $text = h1($Macros{pagename}());
-  for (my $i = $from; $i <= min($#{$order}, $to); $i++) {
-    my $path = @{$paths}[@{$order}[$i]];
-    next if $Index{@{$files}[@{$order}[$i]]};
-    if (-f $path) {
-      $text .= getBody(demote(@{$pages}[@{$order}[$i]])) . hr;
-    } elsif (-d $path) {
-      my $file = @{$files}[@{$order}[$i]];
-      $text .= "&nbsp;&nbsp;&nbsp;" . $Macros{link}($Macros{url}($file), "&gt;" . $file) . hr;
-    }
-  }
-  # FIXME: Want some way of measuring length to divide up page: keep
-  # going until a certain number of bytes has been exceeded?
-  # FIXME: Don't add this if there aren't any more!
-  $text .= $Macros{link}($Macros{url}() . "?from=" . ($to + 1), "Older entries");
-  return html(body($text));
 }
 
 sub audioFile {
