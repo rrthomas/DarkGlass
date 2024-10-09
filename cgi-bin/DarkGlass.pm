@@ -6,7 +6,7 @@
 # your option) any later version.
 
 # Non-core dependencies (all in Debian/Ubuntu):
-# CGI.pm, File::Slurp, File::MimeInfo, DateTime, HTML::Parser, HTML::Tagset
+# CGI.pm, File::Slurp, File::MimeInfo, HTML::Parser, HTML::Tagset
 
 use v5.010;
 package DarkGlass;
