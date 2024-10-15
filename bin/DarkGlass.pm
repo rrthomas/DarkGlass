@@ -23,17 +23,11 @@ use Encode;
 use Cwd qw(abs_path);
 
 use CGI 4.37 qw(:standard unescapeHTML);
-use CGI::Carp qw(fatalsToBrowser set_message);
-use constant IS_CGI => exists $ENV{'GATEWAY_INTERFACE'};
-use CGI::Util qw(escape unescape);
+use CGI::Util qw(unescape);
 use HTML::Parser ();
 use HTML::Tagset;
 use File::Slurp qw(slurp);
 use File::MimeInfo qw(extensions);
-
-# For debugging, uncomment the following:
-# use lib "/home/rrt/.local/share/perl/5.22.1";
-# use CGI::Carp::StackTrace;
 
 use RRT::Misc 0.12;
 use RRT::Macro 3.10;
@@ -41,18 +35,6 @@ use RRT::Macro 3.10;
 
 # Config vars
 use vars qw($ServerUrl $BaseUrl $DocumentRoot $Title $Author $Email %Macros);
-
-BEGIN {
-  sub handle_errors {
-    my $msg = shift;
-    print "<!DOCTYPE html>";
-    print "<head><meta charset=\"utf-8\"></head>";
-    print "<h1>Software error:</h1>";
-    print "<pre>$msg</pre>";
-    print "<p>For help, please send mail to the webmaster (<a href=\"mailto:$Email\">$Email</a>), giving this error message and the time and date of the error.\n\n</p>";
-  }
-  set_message(\&handle_errors);
-}
 
 # Computed globals
 use vars qw($DGSuffix @Index %Index);
@@ -135,12 +117,10 @@ our ($page, $outputDir, $srctype);
       $path = $Macros{canonicalpath}($path); # follow symlinks
       my $is_dir = -d $path;
 
-      # Rewrite file extension to `.html` if in static mode and file would
-      # be converted to HTML by default.
-      unless (IS_CGI) {
-        my ($name, $dir, $suffix) = fileparse($path, qr/\.[^.]*/);
-        $path = "$dir$name.html" if $suffix =~ /^\.(md|txt)$/ || $name eq "README";
-      }
+      # Rewrite file extension to `.html` if file would be converted to HTML
+      # by default.
+      my ($name, $dir, $suffix) = fileparse($path, qr/\.[^.]*/);
+      $path = "$dir$name.html" if $suffix =~ /^\.(md|txt)$/ || $name eq "README";
 
       my $abs_root = abs_path($DocumentRoot); # strip DocumentRoot off again
       $path =~ s/^$abs_root//;
@@ -149,9 +129,9 @@ our ($page, $outputDir, $srctype);
       $path =~ s/ /%20/g;    # escape space
       $path = $BaseUrl . $path;
       $path =~ s|//+|/|g;     # compress /'s; mostly cosmetic, & avoid leading // in output
-      my $dir = $BaseUrl . $Macros{file}();
-      $dir = dirname($dir) unless -d pageToFile($Macros{page}());
-      $path = abs2rel($path, $dir); # Make path relative to page
+      my $new_dir = $BaseUrl . $Macros{file}();
+      $new_dir = dirname($new_dir) unless -d pageToFile($Macros{page}());
+      $path = abs2rel($path, $new_dir); # Make path relative to page
       $path .= "/" if $is_dir; # Make path a directory if original is
       $path .= "#$fragment" if $fragment;
       $path .= "?$param" if $param;
@@ -281,13 +261,6 @@ sub pageToFile {
 
 # Decode and execute request
 
-sub getParam {
-  my ($name) = @_;
-  my $var = param($name);
-  return decode_utf8_opt(untaint($var)) if defined($var);
-  return undef;
-}
-
 # Turn entities into characters
 sub expandNumericEntities {
   my ($text) = @_;
@@ -376,14 +349,14 @@ sub render {
 sub doRequest {
   my ($cmdlineUrl, $outputDirArg) = @_;
   local $outputDir = decode_utf8(untaint($outputDirArg));
-  local $page = untaint($cmdlineUrl) || path_info() || "";
+  local $page = untaint($cmdlineUrl);
   $page = decode_utf8(unescape($page));
   $page =~ s|^$BaseUrl||;
   $page =~ s|^/||;
   # FIXME: Better fix for this (also see url macro)
   $page =~ s/\$/%24/;     # re-escape $ to avoid generating macros
   $page = dirname($page) if $Index{basename($page)};
-  my $desttype = getParam("convert") || "text/html";
+  my $desttype = "text/html";
   my $text;
   my $file = pageToFile($page);
   local $srctype = getMimeType($file) || "application/octet-stream";
@@ -412,7 +385,7 @@ sub doRequest {
       if ($desttype eq "text/html") {
         my $body = getBody($text);
         $body = expand($body, \%Macros) if $srctype eq "text/plain" || $srctype eq "text/x-readme" || $srctype eq "text/markdown"; # FIXME: this is a hack
-        $body = rewriteLinks($body) unless IS_CGI;
+        $body = rewriteLinks($body);
         $text = expand(expandNumericEntities(scalar(slurp(untaint(abs_path("view.html")), {binmode => ':utf8'}))), \%Macros);
         $text =~ s/\$text/$body/ge; # Avoid expanding macros in body
         $text = encode_utf8($text); # Re-encode for output
@@ -422,22 +395,9 @@ sub doRequest {
         $filename = $file;
         if ($ext && $ext ne "") {
           $filename = fileparse($file, qr/\.[^.]*/) . ".$ext" if $desttype ne $srctype;
-          my $latin1_filename = encode("iso-8859-1", $filename);
-          $latin1_filename =~ s/[%"]//g;
-          my $utf8_filename = escape($filename);
-          $headers->{"-content_disposition"} = "inline; filename=\"$latin1_filename\"; filename*=utf-8''$utf8_filename";
         }
-        $headers->{"-content_length"} = length($text);
       }
     }
-    $headers->{-type} = $desttype;
-    if ($desttype =~ m|^text/|) {
-      $headers->{-charset} = "utf-8";
-    } else {
-      $headers->{-charset} = ""; # Explicitly unset charset, otherwise CGI.pm defaults it to ISO-8859-1
-    }
-    # FIXME: get length of HTML pages too
-    print header($headers) if IS_CGI;
     if ($outputDir) {
       my $outputFile = $Index{basename($file)} ? "index.html" : basename($filename);
       open(OUTPUT, ">$outputDir/$outputFile");

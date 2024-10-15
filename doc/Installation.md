@@ -1,9 +1,8 @@
 # Installation
 
-To install DarkGlass you’ll need Perl, Python, Git and ImageMagick
-installed.
+To install DarkGlass you’ll need Perl, Python and Git.
 
-You will also need the following Perl packages: CGI.pm, File::Slurp, File::MimeInfo, Image::ExifTool, DateTime, HTML::Tiny, XML::LibXSLT, XML::Atom, PDF::API2.
+You will also need the following Perl packages: File::Slurp, File::MimeInfo, HTML::Parser and HTML::Tagset.
 
 Finally, you'll need the Python package Hulot, which can be installed from PyPI with `pip install hulot`.
 
@@ -12,7 +11,7 @@ Then run the following commands:
 ```
 git clone https://github.com/rrthomas/DarkGlass
 cd DarkGlass
-./install.sh /PATH/TO/YOUR/DOCUMENT-ROOT /PATH/TO/YOUR/CGI-BIN
+./install.sh /PATH/TO/YOUR/DOCUMENT-ROOT /PATH/TO/YOUR/BIN
 ```
 
 (You can use the same `install.sh` command to update a DarkGlass
@@ -28,7 +27,7 @@ by the `view.html` template file, which you can customize as desired. Other
 resources such as media files, CSS (including DarkGlass’s own `style.css`)
 and any web server configuration files, are rendered verbatim. See [How output is generated from input](How output is generated from input.md) for more details.
 
-Depending on whether you want to use DarkGlass statically or dynamically, see the [Static sites](Static sites.md) or [Dynamic sites](Dynamic sites.md).
+See [Publishing a site](Publishing a site.md).
 
 The site should now be ready to use. See [Testing](Testing.md) for how to test it in dynamic mode without configuring a web server.
 

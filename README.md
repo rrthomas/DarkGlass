@@ -22,7 +22,7 @@ See https://rrthomas.github.io/DarkGlass for more information.
 The files are organised as follows:
 
 <dl>
-  <dt><code>cgi-bin</code></dt>
+  <dt><code>bin</code></dt>
   <dd>contains the main program <code>DarkGlass.pm</code>, some helper modules in <code>MIME</code> and <code>RRT</code>, and the front-end script and configuration file <code>web.pl</code>.</dd>
   <dt><code>doc</code></dt>
   <dd>The documentation.</dd>

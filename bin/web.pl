@@ -1,6 +1,6 @@
 #!/usr/bin/perl -T
 # DarkGlass
-# (c) Reuben Thomas <rrt@sc3d.org> 2002-2023
+# (c) Reuben Thomas <rrt@sc3d.org> 2002-2024
 # https://rrt.sc3d.org/Software/DarkGlass
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
@@ -8,8 +8,6 @@
 use utf8;
 use strict;
 use warnings;
-
-use CGI qw(:standard);
 
 use lib ".";
 # Set PATH securely before loading DarkGlass, whose init code uses it.
@@ -37,5 +35,4 @@ $DarkGlass::Email = "rrt\@sc3d.org";
 
 
 # Perform the request
-# Command-line arguments are supplied when we run in static mode
 DarkGlass::doRequest(@ARGV);

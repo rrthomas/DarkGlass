@@ -24,7 +24,7 @@ from typing import (
 
 # Command-line arguments
 parser = argparse.ArgumentParser(
-    description="Make a static web site with DarkGlass.",
+    description="Make a web site with DarkGlass.",
     epilog="The output DIRECTORY cannot be a subdirectory of DocumentRoot in web.pl.",
 )
 parser.add_argument(
