@@ -32,10 +32,7 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Install DarkGlass dependencies
-        run: |
-          sudo apt-get -y install xdg-utils discount libcgi-pm-perl libfile-slurp-perl libfile-mimeinfo-perl libhtml-parser-perl python3-xdg python3-pip
-          sudo pip install hulot
-          sudo chmod 755 /usr/local/bin
+        run: sudo apt-get -y install xdg-utils discount libcgi-pm-perl libfile-slurp-perl libfile-mimeinfo-perl libhtml-parser-perl python3-xdg
       - name: Build pages
         run: ./scripts/update-darkglass-web-site
       - name: Upload artifact

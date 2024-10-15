@@ -19,4 +19,4 @@ FIXME: Documentation of some macros is missing. The documentation should really 
 =`\$link{_url_,_description_,_class_}`=
     Produces a link to the given URL whose displayed text is `_description_` (set to the URL if not given). If the `_class_` argument is supplied, it is used to set the `class` attribute of the `a` element.
 =`\$email{_text_}`=
-    Makes `_text_` a link to send mail to the administrator (see [Configuration](Configuration.md)).
+    Makes `_text_` a link to send mail to the administrator (see [Configuration](Configuration.html)).

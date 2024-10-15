@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# © Reuben Thomas <rrt@sc3d.org> 2023
+# © Reuben Thomas <rrt@sc3d.org> 2023-2024
 # Released under the GPL version 3, or (at your option) any later version.
 
 from __future__ import annotations
@@ -12,6 +12,7 @@ from pathlib import Path
 import argparse
 import re
 import subprocess
+import shutil
 import warnings
 from warnings import warn
 from typing import (
@@ -22,9 +23,13 @@ from typing import (
     TextIO,
 )
 
+from xdg import Mime
+
+rendered_types = ["text/html", "text/markdown", "text/x-readme"]
+
 # Command-line arguments
 parser = argparse.ArgumentParser(
-    description="Make a static web site with DarkGlass.",
+    description="Make a web site with DarkGlass.",
     epilog="The output DIRECTORY cannot be a subdirectory of DocumentRoot in web.pl.",
 )
 parser.add_argument(
@@ -79,7 +84,6 @@ script_basename = script_path.name
 
 with open(script_path) as h:
     script = h.read()
-base_url = get_config_variable(script, "BaseUrl")
 document_root = Path(os.path.expanduser(get_config_variable(script, "DocumentRoot")))
 if not document_root.is_absolute():
     document_root = script_dir / document_root
@@ -121,7 +125,6 @@ index_files = {
     "index.html",
 }
 
-extra_conversions = set()
 for root, dirs, files in os.walk(document_root, onerror=walk_error):
     relative_root = os.path.relpath(root, document_root)
     output_dir = (output_path / relative_root).resolve()
@@ -142,33 +145,28 @@ for root, dirs, files in os.walk(document_root, onerror=walk_error):
             break
     for f in files:
         file_path = os.path.join(root, f)
-        if args.verbose:
-            warn(f"processing {file_path}")
-        suffixes = subprocess.check_output(
-            [
-                os.path.join(".", script_basename),
-                f"{base_url}{relative_root}{f}",
-                output_dir,
-            ],
-            cwd=script_dir,
-            env=clean_env,
-            text=True,
-        )
-        for suff_pair in suffixes.split("\n"):
-            if suff_pair != "":
-                [mimetype, suffix] = suff_pair.split(" ")
-                new_file_path = Path(output_dir, f).with_suffix(f".{suffix}")
-                extra_conversions.add((file_path, new_file_path, mimetype))
-
-# Perform extra conversions
-for file_path, new_file_path, mimetype in extra_conversions:
-    if args.verbose:
-        warn(f"converting {file_path} to {new_file_path}")
-    if os.path.exists(new_file_path):
-        warn(f"skipping conversion over existing file {new_file_path}")
-    else:
-        # FIXME: do this in-process!
-        subprocess.check_call(
-            ["hulot", file_path, new_file_path, mimetype],
-            cwd=script_dir,
-        )
+        relative_path = relative_root + f
+        mime_type = str(Mime.get_type2(file_path).canonical())
+        if mime_type in rendered_types:
+            if args.verbose:
+                warn(f"processing {file_path}")
+            output = subprocess.check_output(
+                [
+                    os.path.join(".", script_basename),
+                    relative_path,
+                ],
+                cwd=script_dir,
+                env=clean_env,
+                text=True,
+            )
+            if f == "README.md":
+                output_relative_path = relative_root + "index.html"
+            else:
+                output_relative_path = relative_path
+                if output_relative_path.endswith(".md"):
+                    output_relative_path = output_relative_path.removesuffix(".md") + ".html"
+            open(os.path.join(output_dir, output_relative_path), "w").write(output)
+        else:
+            if args.verbose:
+                warn(f"copying {file_path}")
+            shutil.copyfile(file_path, os.path.join(output_dir, f))
