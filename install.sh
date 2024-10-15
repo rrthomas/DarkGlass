@@ -1,13 +1,13 @@
 #!/bin/sh
-# Install DarkGlass in a cgi-bin directory
-# (c) Reuben Thomas <rrt@sc3d.org> 2023
+# Install Linton in a bin directory
+# (c) Reuben Thomas <rrt@sc3d.org> 2023-2024
 # https://rrt.sc3d.org/Software/DarkGlass
 # Distributed under the GNU General Public License version 3, or (at
 # your option) any later version.
 
 # Check we're being run from the right place
-if [ ! -f "doc/Why DarkGlass?.md" ]; then
-    echo "This script must be run from the DarkGlass top-level directory"
+if [ ! -f "doc/Why Linton?.md" ]; then
+    echo "This script must be run from the Linton top-level directory"
     exit 1
 fi
 
@@ -31,7 +31,5 @@ fi
 # Copy files
 INSTALL_DATA="install --mode=644"
 $INSTALL_DATA doc/style.css "$DOCUMENT_ROOT_DIR"
-install cgi-bin/*.pl "$INSTALL_DIR"
-$INSTALL_DATA cgi-bin/*.html cgi-bin/*.pm "$INSTALL_DIR"
-$INSTALL_DATA -D --target-directory "$INSTALL_DIR"/RRT perl/Macro.pm perl/Misc.pm
-install ./scripts/static-site "$INSTALL_DIR"
+install bin/*.pl bin/linton "$INSTALL_DIR"
+$INSTALL_DATA bin/*.html bin/*.pm "$INSTALL_DIR"

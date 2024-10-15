@@ -1,4 +1,4 @@
-name: Deploy DarkGlass web site to GitHub Pages
+name: Deploy Linton web site to GitHub Pages
 
 on:
   # Runs on pushes targeting the default branch
@@ -31,13 +31,10 @@ jobs:
           submodules: recursive
       - name: Setup Pages
         uses: actions/configure-pages@v3
-      - name: Install DarkGlass dependencies
-        run: |
-          sudo apt-get -y install xdg-utils discount libcgi-pm-perl libfile-slurp-perl libfile-mimeinfo-perl libhtml-parser-perl python3-xdg python3-pip
-          sudo pip install hulot
-          sudo chmod 755 /usr/local/bin
+      - name: Install dependencies
+        run: sudo apt-get -y install xdg-utils discount libfile-slurp-perl python3-xdg
       - name: Build pages
-        run: ./scripts/update-darkglass-web-site
+        run: ./scripts/update-linton-web-site
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
 

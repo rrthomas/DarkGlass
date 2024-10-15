@@ -1,0 +1,4 @@
+#!/bin/sh
+mkdir -p bin-installed && \
+./install.sh doc bin-installed && \
+./bin-installed/linton publish --force --verbose ./bin-installed/web.pl ./_site

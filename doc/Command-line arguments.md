@@ -1,6 +1,6 @@
 # Command-line arguments
 
-DarkGlass is called by passing arguments to `web.pl` (typically in the URL). The possible arguments are:
+Linton is called by passing arguments to `web.pl` (typically in the URL). The possible arguments are:
 
 =`PATH_INFO`=
     Gives the page to display.

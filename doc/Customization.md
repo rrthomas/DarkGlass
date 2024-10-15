@@ -1,10 +1,9 @@
 # Customization
 
-DarkGlass can be customized in a number of ways:
+Linton can be customized in a number of ways:
 
-   * [Configuration](Configuration.md) deals with basic configuration.
-   * [Pretty URLs](Pretty URLs.md) explains how to configure nicer URLs.
-   * [DarkGlass Organization](DarkGlass Organization.md) gives an overview of the files and URLs used by DarkGlass.
-   * [Templates](Templates.md) discusses templates, which are used to generate HTML pages, and can be used as `\$include` files.
-   * [Macros](Macros.md) can be added or modified.
-   * [Security](Security.md) discusses security.
+   * [Configuration](Configuration.html) deals with basic configuration.
+   * [Linton Organization](Linton Organization.html) gives an overview of the files and URLs used by Linton.
+   * [Templates](Templates.html) discusses templates, which are used to generate HTML pages, and can be used as `\$include` files.
+   * [Macros](Macros.html) can be added or modified.
+   * [Security](Security.html) discusses security.
