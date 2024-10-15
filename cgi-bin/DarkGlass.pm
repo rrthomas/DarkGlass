@@ -29,7 +29,7 @@ use CGI::Util qw(escape unescape);
 use HTML::Parser ();
 use HTML::Tagset;
 use File::Slurp qw(slurp);
-use File::MimeInfo qw(extensions describe);
+use File::MimeInfo qw(extensions);
 
 # For debugging, uncomment the following:
 # use lib "/home/rrt/.local/share/perl/5.22.1";
@@ -114,18 +114,6 @@ sub makeDirectory {
 
 our ($page, $outputDir, $srctype);
 
-sub convert {
-  my ($url, $mimetype) = @_;
-  return "$url?convert=$mimetype" if IS_CGI;
-
-  # If run in static mode, rewrite URL and output further conversions
-  # required.
-  my ($name, $dir, $suffix) = fileparse($url, qr/\.[^.]*/);
-  $suffix = extensions($mimetype);
-  say "$mimetype $suffix";
-  return "$dir$name.$suffix";
-}
-
 %Macros =
   (
     # Macros
@@ -188,11 +176,6 @@ sub convert {
 
     title => sub {
       return $Title;
-    },
-
-    download => sub {
-      my @types = grep /^\Q$srctype\E/u, @Converters;
-      return typesToLinks($srctype, @types);
     },
 
     email => sub {
@@ -378,20 +361,6 @@ sub rewriteLinks {
   $p->parse($text);
   $p->eof;
   return join "", @result;
-}
-
-sub typesToLinks {
-  my ($srctype, @types) = @_;
-  my $download = "";
-  for my $type (@types) {
-    # FIXME: Move text below into files that can be internationalised
-    my $desttype = $type;
-    $srctype = decode_utf8($srctype);
-    $desttype =~ s/^\Q$srctype\E→//u;
-    $download .= li(a({-href => convert($Macros{url}(basename(addIndex($Macros{page}()))), $desttype)}, "Download page as " . describe($desttype)))
-      if $desttype ne "text/html";
-  }
-  return $download;
 }
 
 sub render {
