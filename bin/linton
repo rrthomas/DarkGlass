@@ -1,0 +1,238 @@
+#!/usr/bin/env python3
+#
+# © Reuben Thomas <rrt@sc3d.org> 2023-2024
+# Released under the GPL version 3, or (at your option) any later version.
+
+from __future__ import annotations
+
+import os
+import sys
+import shutil
+from pathlib import Path
+import argparse
+import subprocess
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import urllib
+import warnings
+from warnings import warn
+from typing import (
+    Optional,
+    Union,
+    Type,
+    NoReturn,
+    TextIO,
+)
+
+from xdg import Mime
+
+
+# Error messages
+def simple_warning(  # pylint: disable=too-many-arguments
+    message: Union[Warning, str],
+    category: Type[Warning],  # pylint: disable=unused-argument
+    filename: str,  # pylint: disable=unused-argument
+    lineno: int,  # pylint: disable=unused-argument
+    file: Optional[TextIO] = sys.stderr,
+    line: Optional[str] = None,  # pylint: disable=unused-argument
+) -> None:
+    """Print an error message."""
+    print(f"{parser.prog}: {message}", file=file or sys.stderr)
+
+warnings.showwarning = simple_warning
+
+
+def die(code: int, msg: str) -> NoReturn:
+    """Print error message `msg` and exit with error code `code`."""
+    warn(msg)
+    sys.exit(code)
+
+
+def walk_error(err):
+    """Walk the input tree and generate output"""
+    die(1, str(err))
+
+
+DG_SUFFIX = ".dg"
+index_files = set(["README.md", "index.html"])
+
+
+def render(file, url):
+    """Convert a Markdown file to HTML and expand macros."""
+    markdown_cmd = ["markdown", "-f", "footnote,nopants,noalphalist,nostyle,fencedcode"]
+    html = subprocess.check_output(markdown_cmd + [file])
+    return subprocess.check_output(
+        [
+            str(script_path),
+            url,
+            file,
+            base_url,
+            str(document_root),
+        ],
+        input=html,
+    )
+
+
+# publish command
+def publish(args):
+    """'publish' command handler"""
+    # Check output directory is not under document_root
+    output_path = Path(args.output)
+    if output_path.absolute().is_relative_to(document_root):
+        die(1, "output directory cannot be a subdirectory of input")
+
+    # Ensure output directory exists and is empty
+    os.makedirs(output_path, exist_ok=True)
+    if len(os.listdir(output_path)) > 0:
+        if not args.force:
+            die(1, f"output directory {output_path} is not empty")
+        shutil.rmtree(output_path)
+        os.mkdir(output_path)
+
+    for root, dirs, files in os.walk(document_root, onerror=walk_error):
+        relative_root = os.path.relpath(root, document_root)
+        output_dir = (output_path / relative_root).resolve()
+        if relative_root == ".":
+            relative_root = ""
+        else:
+            relative_root += "/"
+        dirs[:] = [d for d in dirs if not d.startswith(".")]
+        for d in dirs:
+            d_path = os.path.join(output_dir, d)
+            if args.verbose:
+                warn(f"creating {d_path}")
+            os.makedirs(d_path)
+        # Filter out all but the highest-priority index file
+        for i in index_files:
+            if i in files:
+                files = [f for f in files if (f == i) or (f not in index_files)]
+                break
+        for f in files:
+            file_path = os.path.join(root, f)
+            relative_path = relative_root + f
+            mime_type = str(Mime.get_type2(file_path).canonical())
+            if mime_type == "text/markdown":
+                if args.verbose:
+                    warn(f"processing {file_path}")
+                output = render(file_path, relative_path)
+                if f == "README.md":
+                    output_relative_path = relative_root + "index.html"
+                else:
+                    output_relative_path = relative_path
+                    if output_relative_path.endswith(".md"):
+                        output_relative_path = (
+                            output_relative_path.removesuffix(".md") + ".html"
+                        )
+                open(os.path.join(output_path, output_relative_path), "wb").write(
+                    output
+                )
+            else:
+                if args.verbose:
+                    warn(f"copying {file_path}")
+                shutil.copyfile(file_path, os.path.join(output_dir, f))
+
+
+class HTTPRequestHandler(BaseHTTPRequestHandler):
+    def do_GET(self):  # pylint: disable=invalid-name
+        """GET handler"""
+        filename = None
+        url_path = urllib.parse.unquote(
+            os.path.splitroot(self.path.removeprefix(base_url))[2]
+        ).removesuffix("/")
+        input_path = os.path.join(document_root, url_path)
+        if os.path.isdir(input_path):
+            for i in index_files:
+                index_path = os.path.join(input_path, i)
+                if os.path.exists(index_path):
+                    self.send_response(302)
+                    self.send_header("Location", os.path.join(url_path, i))
+                    self.end_headers()
+                    return
+        elif os.path.isfile(input_path):
+            filename = input_path
+        elif input_path.endswith(".html"):
+            # If a link ending '.html' is not found, guess a Markdown source file.
+            md_filename = input_path.removesuffix(".html") + ".md"
+            if os.path.exists(md_filename):
+                filename = md_filename
+        if filename is None:
+            self.send_response(404)
+            self.send_header("Content-Type", "text/html")
+            self.end_headers()
+            self.wfile.write(
+                b"<html><head><title>No such page</title><body>No such page</body></html>"
+            )
+        else:
+            mime_type = str(Mime.get_type2(filename).canonical())
+            if mime_type == "text/markdown":
+                output_type = "text/html"
+                output = render(filename, os.path.relpath(filename, document_root))
+            else:
+                output_type = mime_type
+                output = open(filename, "rb").read()
+            self.send_response(200)
+            self.send_header("Content-Type", output_type)
+            self.end_headers()
+            self.wfile.write(output)
+
+
+def serve(_args):
+    """'serve' command handler"""
+    httpd = HTTPServer(("localhost", 0), HTTPRequestHandler)
+    [host, port] = httpd.server_address
+    print(f"Connect to server at http://{str(host)}:{port}{base_url}")
+    httpd.serve_forever()
+
+
+# Command-line arguments
+parser = argparse.ArgumentParser(
+    description="Make a web site from Markdown files and other resources.",
+    epilog="The output DIRECTORY cannot be a subdirectory of the source directory.",
+)
+parser.add_argument(
+    "-V",
+    "--version",
+    action="version",
+    version="%(prog)s 0.7 (22 Oct 2024) by Reuben Thomas <rrt@sc3d.org>",
+)
+
+subparsers = parser.add_subparsers(help="subcommand help")
+
+
+def add_subcommand_arguments(parser):
+    parser.add_argument("script", metavar="FILENAME", help="web.pl script to use")
+    parser.add_argument(
+        "base_url",
+        metavar="URL",
+        help="base URL of web site relative to root of server",
+    )
+    parser.add_argument(
+        "document_root", metavar="DIRECTORY", help="directory containing source files"
+    )
+
+
+publish_parser = subparsers.add_parser("publish")
+publish_parser.add_argument(
+    "--verbose", action="store_true", help="show what is being done"
+)
+publish_parser.add_argument(
+    "--force",
+    action="store_true",
+    help="overwrite output directory even if it is not empty",
+)
+add_subcommand_arguments(publish_parser)
+publish_parser.add_argument("output", metavar="DIRECTORY", help="output directory")
+publish_parser.set_defaults(func=publish)
+
+serve_parser = subparsers.add_parser("serve")
+add_subcommand_arguments(serve_parser)
+serve_parser.set_defaults(func=serve)
+
+args = parser.parse_args()
+
+script_path = Path(args.script)
+script_dir = script_path.parent
+
+base_url = args.base_url
+document_root = Path(os.path.expanduser(args.document_root)).resolve()
+
+args.func(args)

@@ -1,0 +1,9 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use File::Basename;
+
+my ($pagename) = fileparse($ENV{LINTON_PAGE}, qr/\.[^.]*/);
+print ": $pagename" if $pagename ne "" && $pagename ne "README.md";

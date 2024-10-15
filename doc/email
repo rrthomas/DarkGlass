@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+my ($text) = @ARGV;
+$text = '$include{Email}' if !defined($text);
+print "<a href=\"mailto:\$include{Email}\">$text</a>";

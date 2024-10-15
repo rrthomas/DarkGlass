@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use File::Basename;
+
+# Get globals from environment variables
+my $Page = $ENV{LINTON_PAGE};
+my $BaseUrl = $ENV{LINTON_BASE_URL};
+
+my ($name, $path, $suffix) = fileparse($Page);
+$path = "" if $path eq "./";
+my $parents = $path;
+$parents =~ s|/$||;
+my $desc = basename($parents);
+my $tree = "";
+while ($parents ne "" && $parents ne "." && $parents ne "/") {
+  # FIXME: Add class breadcrumb-active to first-produced (last) item
+  $tree = "<li class=\"breadcrumb-item\"><a href=\"$BaseUrl$parents\">$desc</a></li>" . $tree;
+  $parents = dirname($parents);
+  $desc = basename($parents);
+}
+print "<li class=\"breadcrumb-item\"><a href=\"$BaseUrl\">\$include{Title}</a></li>" . $tree;

@@ -1,0 +1,60 @@
+[project]
+name = "linton"
+version = "0.7"
+description = "Simple standalone static web site builder using Markdown"
+license = {text = "GPL v3 or later"}
+authors = [
+    {name = "Reuben Thomas", email = "rrt@sc3d.org"}
+]
+readme = "README.md"
+urls = {Homepage = "https://github.com/rrthomas/psutils"}
+requires-python = ">= 3.9"
+classifiers = [
+    "Environment :: Console",
+    "Programming Language :: Python :: 3",
+]
+
+#[project.scripts]
+#epsffit = "linton.command.linton:linton"
+
+[build-system]
+requires = [
+#    "argparse-manpage[setuptools] >= 4.2",
+    "setuptools >= 60; python_version >= \"3.12\"",
+]
+
+[tool.build_manpages]
+manpages = [
+    "linton.1:module=psutils.command.linton:function=get_parser:manual_title=User Command:include=linton-include.man",
+]
+
+[tool.mypy]
+exclude = [
+    '^dist',
+    '^build',
+    # '^tests-output',
+]
+strict = true
+
+[tool.pylint.main]
+# Use multiple processes to speed up Pylint: 0 = auto-detect.
+jobs = 0
+
+# [tool.pylint.MASTER]
+# init-hook = 'import sys; sys.path.append(".")'
+
+[tool.pylint.format]
+good-names = "e,f,h,i,j,m,n,s,t,w,up"
+disable = [
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+    "no-member",
+    "fixme",
+    "redefined-outer-name",
+    "too-many-locals",
+    "too-many-branches",
+]
+enable = [
+    "useless-suppression",
+]

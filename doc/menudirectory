@@ -1,0 +1,53 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use File::Basename;
+use Encode;
+
+my @Index = ("README.md", "index.html");
+my %Index = map { $_ => 1 } @Index;
+
+# Return the readable non-dot files & directories in a directory as a list
+sub readDir {
+  my ($dir, $test) = @_;
+  $test ||= sub { return (-f shift || -d _) && -r _; };
+  opendir(DIR, $dir) || return ();
+  my @entries = map { decode_utf8($_) } readdir(DIR);
+  @entries = grep {/^[^.]/ && &{$test}($dir . "/" . $_)} @entries;
+  closedir DIR;
+  return @entries;
+}
+
+# Directory listing generator
+sub makeDirectory {
+  my ($path, $test, $linkClasses, $dirLinkClasses) = @_;
+  my @entries = readDir($path, $test);
+  return "" if !@entries;
+  my $files = "";
+  my $dirs = "";
+  foreach my $entry (sort @entries) {
+    if (-f $path . $entry && !$Index{$entry}) {
+      $files .= "<li><span class=\"$linkClasses\"><a href=\"/$path/$entry\">$entry</a></span></li>";
+    } elsif (-d $path . $entry) {
+      $dirs .= "<li><span class=\"$dirLinkClasses\"><a href=\"/$path/$entry\">$entry</a></span></li>";
+    }
+  }
+  return $dirs . $files;
+}
+
+# Read command-line arguments
+my ($dir, $linkClasses, $dirLinkClasses) = @ARGV;
+
+# Get globals from environment variables
+my $Page = $ENV{LINTON_PAGE};
+my $DocumentRoot = $ENV{LINTON_DOCUMENT_ROOT};
+
+$linkClasses ||= 'nav-link';
+$dirLinkClasses ||= 'nav-link nav-directory';
+$dir = dirname($Page) unless defined($dir);
+my ($name, $path, $suffix) = fileparse($dir);
+$path = "" if $path eq "./";
+$dir = "$DocumentRoot/$path";
+print makeDirectory($dir, sub {-d shift && -r _}, $linkClasses, $dirLinkClasses);

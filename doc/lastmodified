@@ -1,0 +1,13 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use POSIX 'strftime';
+use File::stat;
+
+# Get globals from environment variables
+my $File = $ENV{LINTON_FILE};
+
+my $time = stat($File)->mtime or 0;
+print strftime("%Y/%m/%d", localtime $time);

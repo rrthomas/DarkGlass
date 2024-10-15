@@ -1,19 +1,11 @@
 # Testing
 
-DarkGlass comes with a simple web server written in
-[Node.js](https://nodejs.org) for testing. You need Node installed to use
-it.
+Linton comes with a simple web server for testing.
 
-To set it up, run:
+To launch the server, run:
 
 ```
-npm install
-```
-
-Then to launch the server, run:
-
-```
-node /PATH/TO/YOUR/CGI-BIN/server.js
+python /PATH/TO/BIN/linton serve
 ```
 
 The script will find an unused port on localhost, and print a message
