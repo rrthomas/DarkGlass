@@ -8,7 +8,7 @@ Put the following in the `.htaccess` file of the directory specified by `Documen
 
     # Use DarkGlass for all URLs
     RewriteEngine on
-    RewriteRule ^.*$ <ScriptUrl>/%{REQUEST_URI}
+    RewriteRule ^.*$ <ScriptUrl>
 
 In the `cgi-bin` directory, add the following `.htaccess` file:
 
