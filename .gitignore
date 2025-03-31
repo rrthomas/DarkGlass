@@ -1,5 +1,4 @@
 .envrc
 package-lock.json
-bin-installed/
 node_modules/
 _site/
